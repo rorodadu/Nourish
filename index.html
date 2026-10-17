@@ -239,7 +239,7 @@ document.getElementById("join-form").addEventListener("submit",function(e){
 });
 </script>
 <script>
-(function(){
+Nourish.loadPublic().then(function(){
  var N=window.Nourish,sel=document.getElementById("rsel"),list=(N&&N.restaurants)?N.restaurants():[];
  var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
  if(!list.length){document.getElementById("rsel").parentNode.hidden=true;document.getElementById("find-go").hidden=true;document.getElementById("find-none").hidden=false;return}
@@ -260,7 +260,7 @@ document.getElementById("join-form").addEventListener("submit",function(e){
   if(!r){err.textContent=sel.value.trim()?"We couldn't find that restaurant. Pick one from the list.":"Type the name of your restaurant or pick it from the list.";err.hidden=false;sel.focus();return}
   location.href="menu.html?r="+encodeURIComponent(r.slug);
  });
-})();
+});
 </script>
 <script>
 (function(){var d=document.getElementById("about");function o(){if(location.hash==="#about"&&d){d.open=true;d.scrollIntoView()}}

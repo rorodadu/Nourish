@@ -962,7 +962,7 @@ Nourish.ready.then(function(){
 
  $("lDate").value=ds(new Date());$("lDate").max=ds(new Date());
  $("iCat").innerHTML=optHtml(ICATS);$("iUnit").innerHTML=optHtml(UNITS);$("fCat").innerHTML=optHtml(["All categories"].concat(ICATS));
- /* ---------- ORDERS: diners send them from the menu page (same browser in this demo) ---------- */
+ /* ---------- ORDERS: diners send them from the menu page and they arrive through the database ---------- */
  var OKEY="nourish-orders",OCCK=function(){return"nourish-occ:"+Nourish.account().id},seen=null;
  var jr=function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
  var ZONES=[["std","Standard table"],["window","Near the window"],["middle","In the middle"],["corner","In a corner"],["alone","Quiet, on its own"],["terrace","On the terrace"],["bar","At the bar"],["entrance","Near the entrance"],["other","Other"]];
@@ -974,6 +974,7 @@ Nourish.ready.then(function(){
   var all=jr(OKEY)||[],o=all.filter(function(x){return x.id===id})[0];if(!o)return;
   o.status=st;if(st==="preparing")o.startedAt=Date.now();if(st==="ready")o.readyAt=Date.now();
   try{localStorage.setItem(OKEY,JSON.stringify(all))}catch(e){}
+  Nourish.pushOrder(o);
   ordersTab();
  }
  function beep(){try{var c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=880;g.gain.value=.15;o.connect(g);g.connect(c.destination);o.start();setTimeout(function(){o.stop();c.close()},350)}catch(e){}}
@@ -1044,11 +1045,13 @@ Nourish.ready.then(function(){
   var b=e.target.closest("[data-act]");if(!b)return;var a=b.dataset.act;
   if(a==="oStart")setOrder(b.dataset.id&&+b.dataset.id,"preparing");
   else if(a==="oDone")setOrder(+b.dataset.id,"ready");
-  else if(a==="tFree"){var o=jr(OCCK())||{};delete o[b.dataset.n];try{localStorage.setItem(OCCK(),JSON.stringify(o))}catch(x){}tblRows();ordersTab()}
+  else if(a==="tFree"){var o=jr(OCCK())||{};delete o[b.dataset.n];try{localStorage.setItem(OCCK(),JSON.stringify(o))}catch(x){}Nourish.freeTable(b.dataset.n);tblRows();ordersTab()}
  });
  $("oSound").addEventListener("change",function(){S.settings.sound=this.checked;save();if(this.checked)beep()});
  window.addEventListener("storage",function(e){if(e.key===OKEY||e.key===OCCK()){ordersTab();tblRows()}});
  setInterval(ordersTab,15000);
+ function pullAll(){Nourish.pullOrders().then(function(c){if(c&&c.orders)ordersTab();if(c&&c.occ)tblRows()})}
+ pullAll();setInterval(pullAll,5000);
 
  function agoTxt(t){var m=Math.max(0,Math.round((Date.now()-t)/60000));return m<60?m+" min ago":m<2880?Math.round(m/60)+" h ago":Math.round(m/1440)+" days ago"}
  function ratingsBox(){

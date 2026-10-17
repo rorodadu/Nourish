@@ -37,7 +37,8 @@
     } catch (e) {}
   })();
 
-  N.hasAccounts = function () { return accs().length > 0; };
+  var PUB = { list: [], data: {} }; // public restaurant directory (readable by anyone), filled by N.loadPublic
+  N.hasAccounts = function () { return accs().length > 0 || PUB.list.length > 0; };
   N.accountFor = function (email) {
     email = String(email || "").trim().toLowerCase();
     return accs().filter(function (a) { return String(a.email).toLowerCase() === email; })[0] || null;
@@ -79,20 +80,29 @@
   /* ---- each restaurant has its own menu data ---- */
   N.slug = function (n) { return String(n || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "restaurant"; };
   N.dashKey = function () { var a = N.account(); return DK + (a ? a.id : "none"); };
-  N.dashData = function (id) { return rd(localStorage, DK + id); };
+  N.dashData = function (id) {
+    var l = rd(localStorage, DK + id); if (l) return l;
+    if (PUB.data[id]) return PUB.data[id];
+    var p = PUB.list.filter(function (x) { return x.id === id; })[0];
+    return p ? { dishes: new Array(p.count || 0) } : null;
+  };
   N.restName = function (a) { var d = N.dashData(a.id); return (d && d.restaurant && d.restaurant.name) || a.restaurant.name; };
   N.restaurants = function () {
-    var seen = {};
-    return accs().map(function (a) {
+    var seen = {}, ids = {}, out = [];
+    PUB.list.forEach(function (p) { ids[p.id] = 1; seen[p.slug] = 1; out.push(p); });
+    accs().forEach(function (a) {
+      if (ids[a.id]) return;
       var name = N.restName(a), base = N.slug(name), s = base, n = 2;
       while (seen[s]) s = base + "-" + n++;
       seen[s] = 1;
-      return { id: a.id, name: name, slug: s, cuisine: a.restaurant.cuisine, city: a.restaurant.city };
+      out.push({ id: a.id, name: name, slug: s, cuisine: a.restaurant.cuisine, city: a.restaurant.city, count: 0 });
     });
+    return out;
   };
   N.restaurantBySlug = function (s) { return N.restaurants().filter(function (r) { return r.slug === s; })[0] || null; };
   N.mySlug = function () {
     var a = N.account(); if (!a) return "";
+    try { var st = localStorage.getItem("nourish-slug:" + a.id); if (st) return st; } catch (e) {}
     var m = N.restaurants().filter(function (r) { return r.id === a.id; })[0]; return m ? m.slug : "";
   };
 
@@ -154,7 +164,8 @@
       N.uid = se.user.id;
       return Promise.all([
         DB.from("accounts").select("*").eq("id", N.uid).maybeSingle(),
-        DB.from("dash").select("data").eq("account_id", N.uid).maybeSingle()
+        DB.from("dash").select("data").eq("account_id", N.uid).maybeSingle(),
+        DB.from("public_menus").select("slug").eq("account_id", N.uid).maybeSingle()
       ]).then(function (x) {
         if (x[0].error) throw x[0].error;
         var a = x[0].data; if (!a) return false;
@@ -163,6 +174,7 @@
         wr(localStorage, ACCS, l);
         var d = x[1].data;
         if (d && d.data && Object.keys(d.data).length) wr(localStorage, DK + a.id, d.data);
+        if (x[2] && x[2].data && x[2].data.slug) { try { localStorage.setItem("nourish-slug:" + a.id, x[2].data.slug); } catch (e) {} }
         N.login(a.email, true);
         return true;
       });
@@ -173,7 +185,32 @@
     if (!pend || !DB || !N.uid) return;
     var d = pend; pend = null;
     DB.from("dash").upsert({ account_id: N.uid, data: d, updated_at: new Date().toISOString() })
-      .then(function (r) { if (r.error) syncFail(r.error); });
+      .then(function (r) { if (r.error) syncFail(r.error); publishMenu(d); });
+  }
+  // The public copy of the menu: only what diners need (no sales, stock or recipes).
+  function publishMenu(d) {
+    var a = N.account(); if (!DB || !N.uid || !a || !d) return;
+    var ing = {}; (d.ingredients || []).forEach(function (i) { ing[i.id] = i; });
+    var keep = ["id", "name", "desc", "price", "kcal", "p", "c", "f", "cat", "prep", "serves", "photo", "diet", "allergens", "opts", "available"];
+    var dishes = (d.dishes || []).map(function (x) {
+      var c = {}; keep.forEach(function (k) { if (x[k] !== undefined) c[k] = x[k]; });
+      var short = (d.ingredients || []).length && (x.ing || []).some(function (r) { var i = ing[r.id]; return i && (i.qty <= 0 || i.qty < r.qty); });
+      if (short) c.available = false;
+      return c;
+    });
+    var pub = { restaurant: { name: (d.restaurant && d.restaurant.name) || a.restaurant.name, currency: (d.restaurant && d.restaurant.currency) || "MAD" },
+      categories: d.categories || [], dishes: dishes, tables: d.tables || [] };
+    var stored = null; try { stored = localStorage.getItem("nourish-slug:" + a.id); } catch (e) {}
+    var base = N.slug(pub.restaurant.name); if (base === "demo") base = "demo-restaurant";
+    function put(slug, retry) {
+      return DB.from("public_menus").upsert({ account_id: N.uid, slug: slug, name: pub.restaurant.name, cuisine: a.restaurant.cuisine || "", city: a.restaurant.city || "",
+        dish_count: dishes.length, data: pub, updated_at: new Date().toISOString() }).then(function (r) {
+        if (r.error && r.error.code === "23505" && retry) return put(base + "-" + N.uid.slice(0, 4), false);
+        if (r.error) { syncFail(r.error); return; }
+        try { localStorage.setItem("nourish-slug:" + a.id, slug); } catch (e) {}
+      });
+    }
+    put(stored || base, !stored);
   }
   N.saveDash = function (data, now) {
     if (!DB || !N.uid) return;
@@ -187,6 +224,76 @@
     return DB.auth.signInWithPassword({ email: a.email, password: pw }).then(function (r) { return !r.error; });
   };
   if (DB) DB.auth.onAuthStateChange(function (ev) { if (ev === "SIGNED_OUT") clearSess(); });
+
+  /* ---- public menus, diner orders and tables (Supabase) ---- */
+  N.cloud = !!DB;
+  var wrapRpc = function (p) { return Promise.resolve(p).then(function (r) { if (r.error) throw r.error; return r.data; }); };
+  // Anyone can read the list of restaurants and one restaurant's menu.
+  N.loadPublic = function (slug) {
+    if (!DB) return Promise.resolve();
+    var p1 = Promise.resolve(DB.from("public_menus").select("account_id,slug,name,cuisine,city,dish_count").order("name")).then(function (r) {
+      if (!r.error && r.data) PUB.list = r.data.map(function (x) { return { id: x.account_id, slug: x.slug, name: x.name, cuisine: x.cuisine, city: x.city, count: x.dish_count }; });
+    });
+    var p2 = (slug && slug !== "demo") ? Promise.resolve(DB.from("public_menus").select("account_id,data").eq("slug", slug).maybeSingle()).then(function (r) {
+      if (r.error || !r.data) return;
+      PUB.data[r.data.account_id] = r.data.data;
+      return N.pullOcc(r.data.account_id);
+    }) : Promise.resolve();
+    return Promise.all([p1, p2]).catch(function () {});
+  };
+  // diner side: place an order (also claims the table), follow it, finish and rate it
+  N.placeOrder = function (rid, token, order) { return wrapRpc(DB.rpc("place_order", { p_rid: rid, p_token: token, p_data: order })); };
+  N.getOrder = function (id, token) { return wrapRpc(DB.rpc("get_order", { p_id: id, p_token: token })); };
+  N.finishOrder = function (id, token, rating, comment) { return wrapRpc(DB.rpc("finish_order", { p_id: id, p_token: token, p_rating: rating || null, p_comment: comment || "" })); };
+  N.pullOcc = function (rid) {
+    return wrapRpc(DB.rpc("get_occupancy", { p_rid: rid })).then(function (d) { wr(localStorage, "nourish-occ:" + rid, d || {}); }).catch(function () {});
+  };
+  // owner side: load this restaurant's orders, ratings and taken tables into the cache
+  N.pullOrders = function () {
+    if (!DB || !N.uid) return Promise.resolve({});
+    var me = N.uid, since = new Date(Date.now() - 3 * 864e5).toISOString();
+    return Promise.all([
+      DB.from("orders").select("*").eq("rid", me).gte("created_at", since).order("id"),
+      DB.from("orders").select("id,rating,comment,finished_at,data").eq("rid", me).not("rating", "is", null).order("id", { ascending: false }).limit(300),
+      DB.from("occupancy").select("table_no,token").eq("rid", me)
+    ]).then(function (x) {
+      if (x[0].error) throw x[0].error;
+      var slug = N.mySlug(), changed = {};
+      var mine = x[0].data.map(function (r) {
+        var o = {}, k; for (k in r.data) o[k] = r.data[k];
+        o.id = r.id; o.rid = r.rid; o.status = r.status; o.done = r.done; o.rating = r.rating; o.comment = r.comment;
+        if (!o.r) o.r = slug;
+        return o;
+      });
+      var all = rd(localStorage, "nourish-orders") || [];
+      if (JSON.stringify(all.filter(function (o) { return o.rid === me; })) !== JSON.stringify(mine)) {
+        changed.orders = true;
+        wr(localStorage, "nourish-orders", all.filter(function (o) { return o.rid !== me; }).concat(mine));
+      }
+      if (!x[1].error) {
+        var rs = (rd(localStorage, "nourish-ratings") || []).filter(function (r) { return r.rid !== me; }), mineR = [];
+        x[1].data.forEach(function (r) { mineR.push({ id: r.id, r: slug, rid: me, table: r.data && r.data.table, stars: r.rating, comment: r.comment || "", at: r.finished_at ? Date.parse(r.finished_at) : Date.now() }); });
+        var oldR = (rd(localStorage, "nourish-ratings") || []).filter(function (r) { return r.rid === me; });
+        if (JSON.stringify(oldR) !== JSON.stringify(mineR)) { changed.orders = true; wr(localStorage, "nourish-ratings", rs.concat(mineR)); }
+      }
+      if (!x[2].error) {
+        var oc = {}; x[2].data.forEach(function (r) { oc[r.table_no] = r.token; });
+        var key = "nourish-occ:" + me;
+        if (JSON.stringify(rd(localStorage, key) || {}) !== JSON.stringify(oc)) { changed.occ = true; wr(localStorage, key, oc); }
+      }
+      return changed;
+    }).catch(function () { return {}; });
+  };
+  N.pushOrder = function (o) {
+    if (!DB || !N.uid) return;
+    var skip = { id: 1, rid: 1, status: 1, done: 1, rating: 1, comment: 1 }, d = {}, k;
+    for (k in o) if (!skip[k]) d[k] = o[k];
+    Promise.resolve(DB.from("orders").update({ status: o.status, data: d }).eq("id", o.id).eq("rid", N.uid)).then(function (r) { if (r.error) syncFail(r.error); });
+  };
+  N.freeTable = function (n) {
+    if (!DB || !N.uid) return;
+    Promise.resolve(DB.from("occupancy").delete().eq("rid", N.uid).eq("table_no", String(n))).then(function (r) { if (r.error) syncFail(r.error); });
+  };
 
   /* ---- page guards ---- */
   if (opt.protect !== undefined && !N.session()) {

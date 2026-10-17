@@ -295,7 +295,7 @@ a.lnk{display:inline-block;line-height:44px;padding:0}
 <dialog id="sheet" aria-labelledby="sheetTitle"><div class="sheet" id="sheetBody"></div></dialog>
 
 <script>
-(function(){
+Nourish.loadPublic((new URLSearchParams(location.search).get("r")||"").replace(/[^\w-]/g,"").slice(0,40)).then(function(){
 "use strict";
 
 /* ------------------------------------------------------------------
@@ -434,7 +434,7 @@ var CAN_CHANGE=!!(N&&N.hasAccounts()&&!TABLE);
 var TBL=(REST&&DASH&&Array.isArray(DASH.tables))?DASH.tables:null,PICK=!TABLE&&!!TBL,wZone="";
 var ZL={std:"Standard table",window:"Near the window",middle:"In the middle",corner:"In a corner",alone:"Quiet, on its own",terrace:"On the terrace",bar:"At the bar",entrance:"Near the entrance",other:"Other"};
 function occ(){return REST?rd(localStorage,"nourish-occ:"+REST.id)||{}:{}}
-function tok(){var k=rd(sessionStorage,"nourish-diner-tok");if(!k){k=Math.random().toString(36).slice(2);wr(sessionStorage,"nourish-diner-tok",k)}return k}
+function tok(){var k=rd(sessionStorage,"nourish-diner-tok");if(!k){k=(window.crypto&&crypto.getRandomValues)?Array.prototype.map.call(crypto.getRandomValues(new Uint8Array(12)),function(b){return("0"+b.toString(16)).slice(-2)}).join(""):Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);wr(sessionStorage,"nourish-diner-tok",k)}return k}
 function tOpen(t){var o=occ()[t.n];return t.free!==false&&(!o||o===tok())}
 function tList(){return TBL.filter(function(t){return tOpen(t)&&(!t.seats||+t.seats>=wGuests)})}
 function tablesBlock(){
@@ -505,6 +505,7 @@ function finishVisit(){
  var tx=$("rcom"),text=(tx?tx.value:rateText).trim().slice(0,300),all=orders(),x=all.filter(function(q){return q.id===o.id})[0];
  if(x){x.done=true;x.doneAt=Date.now();if(rateStar){x.rating=rateStar;x.comment=text}wr(localStorage,"nourish-orders",all)}
  if(rateStar){var rs=rd(localStorage,"nourish-ratings")||[];rs.push({id:o.id,r:RID,rid:REST?REST.id:"",table:o.table,stars:rateStar,comment:text,at:Date.now()});wr(localStorage,"nourish-ratings",rs)}
+ if(N&&N.cloud)N.finishOrder(o.id,tok(),rateStar,text).catch(function(){});
  rateStar=0;rateText="";drawSheet();
 }
 function etaOf(items){return items.reduce(function(m,i){return Math.max(m,+i.prep||0)},0)}
@@ -738,7 +739,15 @@ function openSheet(v,focusSel){view=v;drawSheet(focusSel);if(!sheet.open)sheet.s
 function closeSheet(){if(sheet.open)sheet.close()}
 sheet.addEventListener("close",function(){stopPoll();renderBar();if(!$("bar").hidden)$("barBtn").focus()});
 sheet.addEventListener("click",function(e){if(e.target===sheet)closeSheet()});
-function startPoll(){stopPoll();if(view==="track")timer=setInterval(function(){if(sheet.open&&view==="track"){drawSheet(null,true);renderBar()}},1000)}
+function pullActive(){
+ var id=rd(sessionStorage,"nourish-diner-order");if(!id||!N||!N.cloud)return;
+ N.getOrder(id,tok()).then(function(o){
+  if(!o)return;var all=orders(),i=-1;all.forEach(function(x,k){if(x.id===id)i=k});
+  if(i<0)return;var m=all[i],k;for(k in o)m[k]=o[k];wr(localStorage,"nourish-orders",all);
+ }).catch(function(){});
+}
+var pollN=0;
+function startPoll(){stopPoll();if(view==="track")timer=setInterval(function(){if(++pollN%3===0)pullActive();if(sheet.open&&view==="track"){drawSheet(null,true);renderBar()}},1000)}
 function stopPoll(){if(timer){clearInterval(timer);timer=null}}
 window.addEventListener("storage",function(){renderBar();if(sheet.open&&view==="track")drawSheet(null,true)});
 
@@ -909,12 +918,22 @@ function sendOrder(){
   pay:payments.every(function(p){return p.method==="card"})?"card":"cash",
   payments:payments.map(function(p){return{by:gname(p.by),for:p.for.map(gname),method:p.method,amount:p.amount}}),
   server:SERVERS[Math.floor(Math.random()*SERVERS.length)],assignAt:Date.now()+3500,status:"pending",at:Date.now()};
- all.push(order);
- if(!wr(localStorage,"nourish-orders",all)){err.textContent="We couldn't send your order. Check that your browser allows storage and try again.";return}
- wr(sessionStorage,"nourish-diner-order",next);
- stage="track";carts=diners.map(function(){return{}});cur=0;cart=carts[0];payments=[];
- renderAll();
- view="track";drawSheet('[data-act="close"]');startPoll();
+ function go(id){
+  order.id=id;var l=orders();l.push(order);
+  if(!wr(localStorage,"nourish-orders",l)){err.textContent="We couldn't send your order. Check that your browser allows storage and try again.";return}
+  wr(sessionStorage,"nourish-diner-order",id);
+  stage="track";carts=diners.map(function(){return{}});cur=0;cart=carts[0];payments=[];
+  renderAll();
+  view="track";drawSheet('[data-act="close"]');startPoll();
+ }
+ if(REST&&N&&N.cloud){
+  err.textContent="Sending your order…";
+  N.placeOrder(REST.id,tok(),order).then(function(id){err.textContent="";go(id)}).catch(function(e){
+   if(/table_taken/.test(String(e&&e.message))){var o2=occ();delete o2[tableNo];wr(localStorage,"nourish-occ:"+REST.id,o2);tableNo="";wTable="";err.textContent="";renderTable();openWelcome("setup");return}
+   err.textContent="We couldn't send your order. Check your connection and try again."});
+  return;
+ }
+ go(next);
 }
 function trackView(){
  var o=activeOrder();
@@ -1146,7 +1165,7 @@ if(activeOrder())stage="track";
 renderTable();
 renderAll();
 if(stage!=="track"||!tableNo)openWelcome("setup");
-})();
+});
 </script>
 </body>
 </html>
