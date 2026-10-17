@@ -338,6 +338,24 @@ h2{letter-spacing:-.02em}
 }
 </style>
 
+<style id="ui-polish-2">
+/* ===== Promo codes + readability and accessibility refinements (CSS only) ===== */
+.inl{display:flex;gap:8px;align-items:center}.inl input{flex:1;min-width:0}.inl .btn{flex:none}
+.pcode{font:700 17px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.06em;background:var(--leaf-t);color:var(--leaf);padding:3px 11px;border-radius:8px}
+.srow .sinfo>span{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.srow .sinfo small{font-size:15px}
+.srow{padding:14px 4px;border-radius:10px}.srow:hover{background:color-mix(in srgb,var(--leaf-t) 45%,transparent)}
+.panel>h2{font-size:clamp(26px,3vw,34px);margin-bottom:8px}
+.sub{max-width:72ch}
+details.fold>summary{border-radius:12px;padding:4px 6px;margin-left:-6px}
+details.fold>summary:hover{background:var(--leaf-t);color:var(--ink)}
+.tab:focus-visible{outline-offset:-3px}
+.help{border:1px solid color-mix(in srgb,var(--leaf) 30%,var(--line));font-size:16px}
+.empty{background:color-mix(in srgb,var(--leaf-t) 35%,transparent)}
+.chip{padding:6px 6px 6px 14px;font-weight:500}
+@media (prefers-contrast:more){:root{--mute:var(--ink);--line:var(--mute)}}
+@media (max-width:560px){.inl{flex-wrap:wrap}.srow .row{width:100%}.srow .row .btn{flex:1}}
+</style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to main content</a>
@@ -375,6 +393,7 @@ h2{letter-spacing:-.02em}
   <div class="tgrp" role="presentation">Commerce</div>
   <button class="tab" role="tab" id="tb-menu" aria-controls="tab-menu" data-tab="menu" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3v7a2 2 0 0 0 2 2v9M10 3v7a2 2 0 0 1-2 2M8 3v5M17 21V3c-2 1-3 4-3 8h3"/></svg>Menu</button>
   <button class="tab" role="tab" id="tb-addmenu" aria-controls="tab-addmenu" data-tab="addmenu" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><path d="M12 8.5v7M8.5 12h7"/></svg>Add menu</button>
+  <button class="tab" role="tab" id="tb-promos" aria-controls="tab-promos" data-tab="promos" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12.5 3.5H20a.5.5 0 0 1 .5.5v7.5l-9 9a1.5 1.5 0 0 1-2.1 0L3.5 14.6a1.5 1.5 0 0 1 0-2.1z"/><circle cx="16" cy="8" r="1.3"/></svg>Promo codes</button>
   <button class="tab" role="tab" id="tb-inventory" aria-controls="tab-inventory" data-tab="inventory" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 8l9-5 9 5-9 5-9-5z"/><path d="M3 8v8l9 5 9-5V8M12 13v8"/></svg>Stock<span class="tabn" id="invBadge" hidden></span></button>
   <button class="tab" role="tab" id="tb-reviews" aria-controls="tab-reviews" data-tab="reviews" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5l2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-3-5.4 3 1.1-6L3.2 9.9l6.1-.8z"/></svg>Reviews</button>
   <button class="tab" role="tab" id="tb-payments" aria-controls="tab-payments" data-tab="payments" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 15h3"/></svg>Payments</button>
@@ -425,17 +444,7 @@ h2{letter-spacing:-.02em}
  <!-- MENU -->
  <section class="panel" id="tab-menu" role="tabpanel" aria-labelledby="tb-menu" tabindex="-1">
   <h2>Menu</h2>
-  <p class="sub">Your categories and your full menu are here. Start with a category (like Starters), then add dishes from “Add menu”. Only the name, category and price are required. Everything else is optional.</p>
-
-  <div class="card">
-   <h3>Categories</h3>
-   <div class="chips" id="cats" style="margin-bottom:14px"></div>
-   <form class="row" id="catForm">
-    <label class="f">New category<input type="text" id="catName" required maxlength="40" placeholder="e.g. Desserts"></label>
-    <label class="f">Type<select id="catType"><option value="food">Food</option><option value="beverage">Beverage</option></select></label>
-    <button class="btn" type="submit">Add category</button>
-   </form>
-  </div>
+  <p class="sub">Your full menu is here. Filter it, edit a dish or switch it off when it sells out. To add categories or new dishes, go to “Add menu”.</p>
 
 
   <div class="card"><h3>Your menu</h3>
@@ -450,7 +459,17 @@ h2{letter-spacing:-.02em}
  <!-- ADD MENU -->
  <section class="panel" id="tab-addmenu" role="tabpanel" aria-labelledby="tb-addmenu" tabindex="-1">
   <h2>Add menu</h2>
-  <p class="sub">Add your dishes and drinks one at a time, or import a whole menu from an Excel file. Everything you add shows up in the Menu section.</p>
+  <p class="sub">Start with your categories (like Starters or Desserts), then add dishes and drinks one at a time, or import a whole menu from an Excel file. Everything you add shows up in the Menu section.</p>
+
+  <details class="card fold" id="catFold" open>
+   <summary>Categories</summary>
+   <div class="chips" id="cats" style="margin-bottom:14px"></div>
+   <form class="row" id="catForm">
+    <label class="f">New category<input type="text" id="catName" required maxlength="40" placeholder="e.g. Desserts"></label>
+    <label class="f">Type<select id="catType"><option value="food">Food</option><option value="beverage">Beverage</option></select></label>
+    <button class="btn" type="submit">Add category</button>
+   </form>
+  </details>
 
   <details class="card fold" id="dishFold" open>
    <summary id="dishTitle">Add a dish or drink</summary>
@@ -495,6 +514,37 @@ h2{letter-spacing:-.02em}
 
   <details class="card imp fold" data-kind="dish"></details>
 
+ </section>
+
+ <!-- PROMO CODES -->
+ <section class="panel" id="tab-promos" role="tabpanel" aria-labelledby="tb-promos" tabindex="-1">
+  <h2>Promo codes</h2>
+  <p class="sub">Create discount codes for your guests, like WELCOME10. Choose a percentage or a fixed amount, add dates if you want, and pause a code at any time.</p>
+  <div class="help" role="note">Your codes are saved with your restaurant. Applying them at the guest checkout on the menu page is not switched on yet, so for now use this list to plan and track your offers.</div>
+  <div class="kpis" id="prKpis"></div>
+
+  <details class="card fold" id="prFold" open>
+   <summary id="prTitle">Create a promo code</summary>
+   <form id="prForm" novalidate>
+    <div class="grid">
+     <label class="f">Code<small>Letters and numbers, no spaces</small><span class="inl"><input type="text" id="prCode" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="e.g. WELCOME10"><button type="button" class="btn ghost sm" id="prGen">Suggest</button></span></label>
+     <label class="f">Discount type<select id="prType"><option value="percent">Percentage (%)</option><option value="fixed">Fixed amount</option></select></label>
+     <label class="f">Value<small id="prValHint">Percent off the bill, from 1 to 100</small><input type="number" id="prVal" min="1" step="1" inputmode="decimal"></label>
+     <label class="f">Minimum order<small>Optional</small><input type="number" id="prMin" min="0" step="1" inputmode="decimal"></label>
+     <label class="f">Starts<small>Optional</small><input type="date" id="prStart"></label>
+     <label class="f">Ends<small>Optional</small><input type="date" id="prEnd"></label>
+     <label class="f full">Note for your team<small>Optional. Only you see this.</small><input type="text" id="prNote" maxlength="80" autocomplete="off" placeholder="e.g. Ramadan evenings"></label>
+    </div>
+    <p class="warnr" id="prErr" role="alert" style="margin:12px 0 0"></p>
+    <div class="row" style="margin-top:14px"><button class="btn" type="submit" id="prSave">Create code</button><button class="btn ghost" type="button" id="prCancel" hidden>Cancel edit</button></div>
+   </form>
+  </details>
+
+  <div class="card">
+   <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:6px"><h3 style="margin:0">Your codes</h3>
+    <label class="f" style="min-width:190px"><span class="vh">Show</span><select id="prFilter"><option value="all">All codes</option><option value="active">Active</option><option value="scheduled">Scheduled</option><option value="paused">Paused</option><option value="expired">Expired</option></select></label></div>
+   <div id="prList"></div>
+  </div>
  </section>
 
  <!-- EMPLOYEES -->
@@ -751,6 +801,7 @@ Nourish.ready.then(function(){
  var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
  var editId=null,editIng=null,photoData="",S=load();
  if(!Array.isArray(S.staff))S.staff=[];
+ if(!Array.isArray(S.promos))S.promos=[];
 
  function load(){
   var s=null;try{s=JSON.parse(localStorage.getItem(KEY))}catch(e){}
@@ -801,13 +852,14 @@ Nourish.ready.then(function(){
  /* tabs */
  var flashT;
  function flash(msg){var t=$("toast");t.textContent=msg;t.hidden=false;clearTimeout(flashT);flashT=setTimeout(function(){t.hidden=true},2600)}
- var TABNAMES={overview:"Dashboard",orders:"Orders",tables:"Tables and QR codes",analytics:"Analytics",menu:"Menu",inventory:"Stock",reviews:"Reviews",payments:"Payments",invoices:"Invoices",purchases:"Purchases",sales:"Sales and profit",employees:"Employees",addmenu:"Add menu",addincome:"Add income or expense",history:"History",export:"Export data"};
+ var TABNAMES={overview:"Dashboard",orders:"Orders",tables:"Tables and QR codes",analytics:"Analytics",menu:"Menu",inventory:"Stock",reviews:"Reviews",payments:"Payments",invoices:"Invoices",purchases:"Purchases",sales:"Sales and profit",employees:"Employees",addmenu:"Add menu",promos:"Promo codes",addincome:"Add income or expense",history:"History",export:"Export data"};
  function showTab(name,focusPanel){
   var b=document.getElementById("tb-"+name);if(!b)return;
   [].forEach.call(document.querySelectorAll(".tab"),function(t){var on=t===b;t.setAttribute("aria-selected",on);t.tabIndex=on?0:-1});
   [].forEach.call(document.querySelectorAll(".panel"),function(p){p.classList.toggle("on",p.id==="tab-"+name)});
   if(name==="sales"||name==="addincome"||name==="history")sales();
   if(name==="employees")staff();
+  if(name==="promos")promos();
   if(name==="inventory")inventory();
   if(name==="orders")ordersTab();
   if(name==="overview")overview();
@@ -1733,7 +1785,7 @@ Nourish.ready.then(function(){
   }else if(k==="tables"){dlFile(pre+".csv","text/csv",genCsv(S.tables.slice().sort(function(a,b){return a.n-b.n})));
   }else if(k==="reviews"){dlFile(pre+".csv","text/csv",csvOf(["Date","Table","Stars","Comment"],ratingsList().map(function(x){return [ds(new Date(x.at||0)),x.table,x.stars,x.comment||""]})));
   }else if(k==="backup"){
-   dlFile(pre+".json","application/json",JSON.stringify({exported:new Date().toISOString(),restaurant:S.restaurant,categories:S.categories,dishes:S.dishes,ingredients:S.ingredients,moves:S.moves,tables:S.tables,staff:S.staff,ledger:S.ledger,orders:myOrders(),reviews:ratingsList()},null,2));
+   dlFile(pre+".json","application/json",JSON.stringify({exported:new Date().toISOString(),restaurant:S.restaurant,categories:S.categories,dishes:S.dishes,ingredients:S.ingredients,moves:S.moves,tables:S.tables,staff:S.staff,promos:S.promos,ledger:S.ledger,orders:myOrders(),reviews:ratingsList()},null,2));
   }
  }
 
@@ -1789,6 +1841,62 @@ Nourish.ready.then(function(){
   save();sales();flash("Payroll recorded as an expense");
  });
 
+ /* ---------- promo codes: saved in the same dashboard data as everything else ---------- */
+ var prEdit=null;
+ function prStatus(p){var t=ds(new Date());if(p.active===false)return"paused";if(p.end&&p.end<t)return"expired";if(p.start&&p.start>t)return"scheduled";return"active"}
+ function prHint(){var pc=$("prType").value==="percent";$("prValHint").textContent=pc?"Percent off the bill, from 1 to 100":"Amount taken off the bill, in "+S.restaurant.currency;if(pc)$("prVal").max=100;else $("prVal").removeAttribute("max")}
+ function resetPr(){$("prForm").reset();prEdit=null;$("prTitle").textContent="Create a promo code";$("prSave").textContent="Create code";$("prCancel").hidden=true;$("prErr").textContent="";prHint()}
+ function promos(){
+  var L=S.promos.slice().sort(function(a,b){return String(a.code).localeCompare(String(b.code))}),c={active:0,scheduled:0,paused:0,expired:0};
+  L.forEach(function(p){c[prStatus(p)]++});
+  var kpi=function(l,v,n){return '<div class="kpi"><span>'+l+'</span><b>'+v+'</b>'+(n?'<span>'+n+'</span>':"")+'</div>'};
+  $("prKpis").innerHTML=kpi("Active now",c.active,c.active?"Ready to share":"")+kpi("Scheduled",c.scheduled,"Start on a later date")+kpi("Paused or expired",c.paused+c.expired,"");
+  var f=$("prFilter").value,V=L.filter(function(p){return f==="all"||prStatus(p)===f});
+  $("prList").innerHTML=V.length?V.map(function(p){
+   var st=prStatus(p),lab={active:"Active",scheduled:"Scheduled",paused:"Paused",expired:"Expired"}[st],cls={active:"ok",scheduled:"low",paused:"rec",expired:"out"}[st],
+    bits=[p.type==="percent"?(+p.value)+"% off":fmtx(p.value)+" off"];
+   if(+p.min)bits.push("minimum order "+fmtx(p.min));
+   if(p.start||p.end)bits.push((p.start?"from "+esc(p.start):"")+(p.start&&p.end?" ":"")+(p.end?"until "+esc(p.end):""));
+   if(p.note)bits.push(esc(p.note));
+   return '<div class="srow"><div class="sinfo"><span><b class="pcode">'+esc(p.code)+'</b><span class="st '+cls+'">'+lab+'</span></span><small>'+bits.join(" · ")+'</small></div>'
+    +'<label class="sw"><input type="checkbox" class="prOnBox" data-id="'+p.id+'"'+(p.active===false?"":" checked")+'> Live</label>'
+    +'<div class="row"><button type="button" class="btn ghost sm" data-pact="copy" data-id="'+p.id+'">Copy code</button><button type="button" class="btn ghost sm" data-pact="edit" data-id="'+p.id+'">Edit</button><button type="button" class="btn del sm" data-pact="del" data-id="'+p.id+'">Delete</button></div></div>'}).join("")
+   :'<div class="empty"><b>'+(L.length?"No codes match this filter.":"No promo codes yet.")+'</b><br>'+(L.length?"Choose “All codes” to see everything.":"Create your first one above, for example WELCOME10.")+'</div>';
+ }
+ $("prType").addEventListener("change",prHint);$("prFilter").addEventListener("change",promos);
+ $("prGen").addEventListener("click",function(){var w=["WELCOME","SAVE","TREAT","LUNCH","FRESH","MINT"];$("prCode").value=w[Math.floor(Math.random()*w.length)]+(Math.floor(Math.random()*90)+10);$("prCode").focus()});
+ $("prForm").addEventListener("submit",function(e){
+  e.preventDefault();var err=$("prErr");err.textContent="";
+  var code=$("prCode").value.trim().toUpperCase().replace(/\s+/g,""),type=$("prType").value,val=+$("prVal").value,min=Math.max(0,+$("prMin").value||0),st=$("prStart").value,en=$("prEnd").value;
+  if(!/^[A-Z0-9-]{3,20}$/.test(code)){err.textContent="Use 3 to 20 letters, numbers or dashes for the code, with no spaces.";$("prCode").focus();return}
+  if(S.promos.some(function(p){return p.code===code&&p.id!==prEdit})){err.textContent="You already have a code called "+code+".";$("prCode").focus();return}
+  if(!(val>0)||(type==="percent"&&val>100)){err.textContent=type==="percent"?"Enter a percentage between 1 and 100.":"Enter an amount greater than 0.";$("prVal").focus();return}
+  if(st&&en&&en<st){err.textContent="The end date must be on or after the start date.";$("prEnd").focus();return}
+  var old=S.promos.filter(function(x){return x.id===prEdit})[0],o={id:prEdit||uid(),code:code,type:type,value:Math.round(val*100)/100,min:min,start:st,end:en,note:$("prNote").value.trim(),active:old?old.active!==false:true};
+  if(old)S.promos=S.promos.map(function(x){return x.id===prEdit?o:x});else S.promos.push(o);
+  save();resetPr();promos();flash(old?code+" saved":code+" created");$("prCode").focus();
+ });
+ $("prCancel").addEventListener("click",resetPr);
+ $("tab-promos").addEventListener("click",function(e){
+  var b=e.target.closest("[data-pact]");if(!b)return;
+  var p=S.promos.filter(function(x){return x.id===b.dataset.id})[0];if(!p)return;
+  if(b.dataset.pact==="copy"){
+   var done=function(){flash("Code "+p.code+" copied")};
+   try{navigator.clipboard.writeText(p.code).then(done,function(){flash("Copy it by hand: "+p.code)})}catch(x){flash("Copy it by hand: "+p.code)}
+  }else if(b.dataset.pact==="edit"){
+   prEdit=p.id;$("prCode").value=p.code;$("prType").value=p.type;prHint();$("prVal").value=p.value;$("prMin").value=p.min||"";$("prStart").value=p.start||"";$("prEnd").value=p.end||"";$("prNote").value=p.note||"";
+   $("prTitle").textContent="Edit promo code";$("prSave").textContent="Save changes";$("prCancel").hidden=false;$("prFold").open=true;$("prForm").scrollIntoView({behavior:"smooth"});$("prCode").focus();
+  }else if(b.dataset.pact==="del"){
+   if(!confirm("Delete the code "+p.code+"?"))return;
+   S.promos=S.promos.filter(function(x){return x.id!==p.id});if(prEdit===p.id)resetPr();save();promos();flash(p.code+" deleted");
+  }
+ });
+ $("tab-promos").addEventListener("change",function(e){
+  var c=e.target.closest(".prOnBox");if(!c)return;
+  var p=S.promos.filter(function(x){return x.id===c.dataset.id})[0];if(!p)return;
+  p.active=c.checked;save();promos();flash(p.code+(c.checked?" is live":" is paused"));
+ });
+
  /* ---------- top bar: orders bell (red), tables to free, search, side-menu toggle ---------- */
  function bell(){
   var L=myOrders(),occ=jr(OCCK())||{};
@@ -1841,6 +1949,7 @@ Nourish.ready.then(function(){
   S.ingredients.filter(function(i){return has(i.name)}).slice(0,6).forEach(function(i){out.push({g:"Stock",t:i.name,s:i.qty+" "+i.unit,go:function(){showTab("inventory");$("fSearch").value=i.name;inventory()}})});
   myOrders().filter(function(o){return has("#"+o.id)||has("order "+o.id)||has("table "+o.table)}).slice(-5).reverse().forEach(function(o){out.push({g:"Orders",t:"Order #"+o.id,s:"Table "+o.table,go:function(){showTab("orders",true)}})});
   S.staff.filter(function(m){return has(m.name)||has(m.position)}).slice(0,5).forEach(function(m){out.push({g:"Employees",t:m.name,s:m.position,go:function(){showTab("employees",true)}})});
+  S.promos.filter(function(p){return has(p.code)||has(p.note)}).slice(0,5).forEach(function(p){out.push({g:"Promo codes",t:p.code,s:p.type==="percent"?p.value+"% off":p.value+" "+S.restaurant.currency+" off",go:function(){showTab("promos",true)}})});
   S.tables.filter(function(t){return has("table "+t.n)||has(t.n)&&/^\d+$/.test(q)}).slice(0,5).forEach(function(t){out.push({g:"Tables",t:"Table "+t.n,s:"",go:function(){showTab("tables",true)}})});
   return out;
  }

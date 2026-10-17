@@ -1,8 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-config.js?v=3"></script>
-<script src="auth.js?v=3" data-menu></script>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -11,230 +8,275 @@
 <meta name="description" content="Scan the QR code on your table, see calories and allergens for every dish, and order from your phone. Restaurants add their menu and get orders live.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js?v=3"></script>
+<script src="auth.js?v=3" data-menu></script>
 <style>
-:root{--bg:#f4f8f4;--card:#fff;--ink:#14261c;--mute:#566a5d;--line:#d6e1d7;--leaf:#1f7a4d;--leaf-t:#dff1e6;--citrus:#a86a00;--citrus-t:#fdecc8;--on-leaf:#fff;--deep:#14261c;--on-deep:#e8f1ea;
+:root{--bg:#f6f9f6;--card:#fff;--ink:#12241a;--mute:#566a5d;--line:#dbe5dc;--leaf:#1f7a4d;--leaf-t:#e1f2e8;--citrus:#a86a00;--citrus-t:#fdecc8;--berry:#b8304f;--on-leaf:#fff;--deep:#12241a;--on-deep:#e8f1ea;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a14;--card:#16251c;--ink:#e8f1ea;--mute:#9db1a3;--line:#294034;--leaf:#4fc088;--leaf-t:#1b3a2a;--citrus:#f0b44a;--citrus-t:#3a2d12;--on-leaf:#0b1a12;--deep:#0a120e;--on-deep:#e8f1ea}}
-:root[data-theme="dark"]{--bg:#0f1a14;--card:#16251c;--ink:#e8f1ea;--mute:#9db1a3;--line:#294034;--leaf:#4fc088;--leaf-t:#1b3a2a;--citrus:#f0b44a;--citrus-t:#3a2d12;--on-leaf:#0b1a12;--deep:#0a120e;--on-deep:#e8f1ea}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1711;--card:#15231a;--ink:#e8f1ea;--mute:#9db1a3;--line:#274033;--leaf:#4fc088;--leaf-t:#1b3a2a;--citrus:#f0b44a;--citrus-t:#3a2d12;--berry:#ff7a96;--on-leaf:#0b1a12;--deep:#0a120e;--on-deep:#e8f1ea}}
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:calc(72px + env(safe-area-inset-top,0px))}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 Figtree,system-ui,-apple-system,Segoe UI,sans-serif}
-h1,h2,h3{font-family:"Bricolage Grotesque",Figtree,system-ui,sans-serif;margin:0;line-height:1.08;letter-spacing:-.015em}
-a{color:inherit}
-button,input{font:inherit;color:inherit}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.6 Figtree,system-ui,-apple-system,Segoe UI,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Bricolage Grotesque",Figtree,system-ui,sans-serif;margin:0;line-height:1.06;letter-spacing:-.025em}
+a{color:inherit}button,input,select{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--leaf);outline-offset:3px}
-.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--bg);border-bottom:1px solid var(--line)}
-header .wrap{display:flex;align-items:center;gap:22px;height:64px}
-.logo{font:800 23px "Bricolage Grotesque",sans-serif;color:var(--leaf);text-decoration:none;margin-right:auto}
-header nav{display:flex;gap:22px;align-items:center}
-header nav a{text-decoration:none;color:var(--mute);font-weight:500}
-.btn{display:inline-block;background:var(--leaf);color:var(--on-leaf);border:0;border-radius:10px;padding:12px 20px;font-weight:700;text-decoration:none;cursor:pointer}
-.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
-.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;padding:64px 0 72px}
-.hero h1{font-size:clamp(42px,7vw,76px);font-weight:800}
-.hero p.lead{font-size:20px;color:var(--mute);max-width:44ch;margin:20px 0 28px}
-.cta{display:flex;gap:12px;flex-wrap:wrap}
-.stage{position:relative;display:grid;place-items:center;padding:20px 0 40px}
-.tent{width:min(320px,100%);background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;text-align:center;transform:rotate(-2.5deg);box-shadow:0 18px 40px rgba(20,38,28,.14)}
-.tent b{font:800 22px "Bricolage Grotesque",sans-serif;display:block}
-.tent small{color:var(--mute)}
-.qr{position:relative;width:200px;height:200px;margin:14px auto;overflow:hidden;border-radius:6px}
-.qr svg{display:block;width:100%;height:100%;fill:var(--ink)}
-.qr::after{content:"";position:absolute;left:0;right:0;height:4px;background:var(--leaf);box-shadow:0 0 14px var(--leaf);animation:scan 2.6s ease-in-out 3}
-@keyframes scan{0%{top:0}50%{top:calc(100% - 4px)}100%{top:0}}
-.peek{position:absolute;right:-6px;bottom:0;width:230px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;transform:rotate(2deg);box-shadow:0 14px 30px rgba(20,38,28,.16)}
-.peek .r{display:flex;justify-content:space-between;gap:8px;font-weight:700}
-.peek .k{display:flex;align-items:center;gap:8px;margin-top:4px}
-.peek .k b{font:800 22px "Bricolage Grotesque",sans-serif}
-.badge{font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--leaf-t);color:var(--leaf)}
-section{padding:72px 0}
-section>.wrap>h2,.sec-h{font-size:clamp(30px,4.5vw,46px);font-weight:800;max-width:20ch;margin-bottom:12px}
-.sub{color:var(--mute);max-width:56ch;margin:0 0 40px}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line)}
-.step{padding:28px 28px 8px 0}
-.step+.step{padding-left:28px;border-left:1px solid var(--line)}
-.step .n{font:800 44px "Bricolage Grotesque",sans-serif;color:var(--leaf)}
-.step h3{font-size:22px;margin:8px 0}
-.step p{color:var(--mute);margin:0}
-.health{background:var(--leaf-t)}
-.hgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 56px}
-.hgrid div{padding:20px 0;border-top:1px solid var(--line)}
-.hgrid h3{font-size:21px;margin-bottom:6px}
-.hgrid p{margin:0;color:var(--mute)}
-.rest{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
-.rest ol{padding:0;margin:0 0 28px;list-style:none;counter-item:s}
-.rest li{display:flex;gap:14px;padding:16px 0;border-top:1px solid var(--line)}
-.rest li b{display:block;font-size:19px}
-.rest li span{color:var(--mute)}
-.rest li i{flex:none;width:30px;height:30px;border-radius:50%;background:var(--leaf);color:var(--on-leaf);display:grid;place-items:center;font:700 15px Figtree,sans-serif;font-style:normal}
-.ticket{background:var(--deep);color:var(--on-deep);border-radius:16px;padding:22px;max-width:360px}
-.ticket .t{display:flex;justify-content:space-between;font-weight:700;border-bottom:1px dashed #4b6354;padding-bottom:10px;margin-bottom:10px}
-.ticket p{margin:6px 0}
-.ticket em{font-style:normal;color:#f0b44a;font-size:14px;display:block}
-.ticket .s{margin-top:14px;display:flex;gap:8px}
-.ticket .s span{flex:1;text-align:center;padding:8px;border-radius:8px;background:#26402f;font-size:14px}
-.ticket .s span.on{background:var(--leaf);color:var(--on-leaf);font-weight:700}
-form{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px;display:grid;gap:14px;max-width:520px}
-form h3{font-size:26px}
+.wrap{max-width:1160px;margin:0 auto;padding:0 22px}
+section{padding:88px 0}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--leaf);background:var(--leaf-t);padding:6px 14px;border-radius:999px}
+.eyebrow::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--leaf)}
+.sec-h{font-size:clamp(34px,5vw,56px);font-weight:800;text-align:center;max-width:16ch;margin:16px auto 14px}
+.sec-sub{color:var(--mute);text-align:center;max-width:52ch;margin:0 auto 52px;font-size:19px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--leaf);color:var(--on-leaf);border:1px solid var(--leaf);border-radius:12px;padding:13px 22px;font-weight:700;text-decoration:none;cursor:pointer;transition:transform .15s,box-shadow .15s,filter .15s}
+.btn:hover{filter:brightness(1.07);transform:translateY(-1px);box-shadow:0 10px 24px -10px var(--leaf)}
+.btn.ghost{background:var(--card);color:var(--ink);border-color:var(--line)}.btn.ghost:hover{box-shadow:0 8px 20px -12px #000}
+.btn.sm{padding:9px 16px;font-size:15px;border-radius:10px}
+/* header */
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:color-mix(in srgb,var(--bg) 85%,transparent);-webkit-backdrop-filter:saturate(1.5) blur(12px);backdrop-filter:saturate(1.5) blur(12px);border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
+header .wrap{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:68px;gap:16px}
+.logo{font:800 24px "Bricolage Grotesque",sans-serif;color:var(--leaf);text-decoration:none}
+nav.links{display:flex;gap:30px}nav.links a{text-decoration:none;font-weight:500;font-size:16px;color:var(--ink);opacity:.85}nav.links a:hover{opacity:1;color:var(--leaf)}
+.acts{display:flex;align-items:center;gap:14px;justify-content:flex-end}
+.acts>a.si{text-decoration:none;font-weight:500}
+.lang{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px}
+.lang button{border:0;background:none;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;color:var(--mute)}
+.lang button[aria-pressed=true]{background:var(--leaf);color:var(--on-leaf)}
+.burger{display:none;width:42px;height:42px;border:1px solid var(--line);border-radius:12px;background:var(--card);cursor:pointer}
+.burger svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+/* hero */
+.hero{position:relative;padding:76px 0 40px;text-align:center;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:-120px 0 auto;height:640px;background:radial-gradient(60% 60% at 50% 0,color-mix(in srgb,var(--leaf) 20%,transparent),transparent 70%);pointer-events:none}
+.hero h1{position:relative;font-size:clamp(44px,8vw,92px);font-weight:800;max-width:14ch;margin:22px auto 0}
+.grad{background:linear-gradient(100deg,var(--leaf),color-mix(in srgb,var(--leaf) 45%,#e0a21b));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .lead{position:relative;font-size:21px;color:var(--mute);max-width:48ch;margin:22px auto 32px}
+.cta{position:relative;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.proof{position:relative;display:flex;gap:10px 28px;justify-content:center;flex-wrap:wrap;margin:26px 0 0;padding:0;list-style:none;color:var(--mute);font-size:15px;font-weight:500}
+.proof li::before{content:"✓";color:var(--leaf);font-weight:800;margin-right:7px}
+.app{position:relative;max-width:980px;margin:56px auto 0;background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:0 40px 80px -40px rgba(10,40,25,.45);text-align:left;overflow:hidden}
+.app .bar{display:flex;gap:7px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}.app .bar i{width:11px;height:11px;border-radius:50%;background:var(--line)}
+.app .bar span{margin-left:12px;font-size:13px;color:var(--mute)}
+.app .body{display:grid;grid-template-columns:200px 1fr;min-height:300px}
+.app aside{border-right:1px solid var(--line);padding:18px 14px;display:grid;gap:4px;align-content:start;font-size:15px;font-weight:500}
+.app aside b{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:6px 8px}
+.app aside span{padding:8px 10px;border-radius:9px}.app aside span.on{background:var(--leaf-t);color:var(--leaf);font-weight:700}
+.orders{padding:20px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-content:start}
+.o{border:1px solid var(--line);border-radius:14px;padding:14px;background:var(--bg)}
+.o .h{display:flex;justify-content:space-between;align-items:center;font-weight:700;margin-bottom:6px}
+.o p{margin:3px 0;color:var(--mute);font-size:15px}
+.chip{font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--leaf-t);color:var(--leaf)}.chip.w{background:var(--citrus-t);color:var(--citrus)}
+.phone{position:absolute;right:28px;bottom:-30px;width:210px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:14px;box-shadow:0 24px 50px -20px rgba(10,40,25,.5);transform:rotate(3deg)}
+.phone .r{display:flex;justify-content:space-between;font-weight:700;gap:8px}
+.phone .k{display:flex;align-items:center;gap:8px;margin-top:4px}.phone .k b{font:800 24px "Bricolage Grotesque",sans-serif}
+.phone small{color:var(--mute)}
+/* find */
+.find{padding:56px 0 0}
+.findbox{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:40px}
+.findbox h2{font-size:clamp(28px,4vw,40px);font-weight:800}
+.findbox p.sub{color:var(--mute);margin:12px 0 0}
+form{display:grid;gap:14px}form h3{font-size:22px}
 label{font-weight:500;font-size:15px;display:grid;gap:6px}
-input[type=text],input[type=email]{padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);width:100%}
-.ok{display:none;background:var(--leaf-t);color:var(--leaf);border-radius:10px;padding:12px 14px;font-weight:700}
-details{border-top:1px solid var(--line);padding:18px 0}
-details:last-of-type{border-bottom:1px solid var(--line)}
-summary{font:600 20px "Bricolage Grotesque",sans-serif;cursor:pointer}
-details p{color:var(--mute);margin:10px 0 0;max-width:62ch}
-details .badge{display:inline-block;background:var(--leaf-t);color:var(--leaf);font-weight:700;font-size:14px;padding:4px 12px;border-radius:999px;margin-top:6px}
+input[type=text],input[type=email]{padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:var(--bg);width:100%}
+input:focus{outline:none;border-color:var(--leaf);box-shadow:0 0 0 3px color-mix(in srgb,var(--leaf) 28%,transparent)}
+.note{color:var(--mute);margin:0}
+.ok{display:none;background:var(--leaf-t);color:var(--leaf);border-radius:12px;padding:12px 14px;font-weight:700}
+/* feature modules */
+.mods{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.mod{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px 24px;transition:transform .2s,box-shadow .2s,border-color .2s}
+.mod:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--leaf) 45%,var(--line));box-shadow:0 24px 40px -28px rgba(10,40,25,.5)}
+.ico{width:48px;height:48px;border-radius:14px;background:var(--leaf-t);color:var(--leaf);display:grid;place-items:center;margin-bottom:46px}
+.ico svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.mod h3{font-size:21px;margin-bottom:6px}.mod p{margin:0;color:var(--mute);font-size:15.5px}
+/* workflow */
+.flow{background:var(--deep);color:var(--on-deep)}
+.flow .sec-sub{color:#9db1a3}.flow .eyebrow{background:#1b3a2a;color:#4fc088}.flow .eyebrow::before{background:#4fc088}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.step{border:1px solid #274033;border-radius:20px;padding:28px;background:#0f1d15}
+.step .n{font:800 52px "Bricolage Grotesque",sans-serif;color:#4fc088;line-height:1}
+.step h3{font-size:22px;margin:14px 0 8px}.step p{margin:0;color:#9db1a3}
+/* pricing */
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:stretch}
+.plan{position:relative;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:30px;display:flex;flex-direction:column;gap:8px}
+.plan.pop{border:2px solid var(--leaf);box-shadow:0 30px 50px -34px var(--leaf)}
+.plan .tag{position:absolute;top:-13px;left:26px;background:var(--leaf);color:var(--on-leaf);font-size:12px;font-weight:700;padding:3px 12px;border-radius:999px}
+.plan h3{font-size:24px}.plan .p{font:800 44px "Bricolage Grotesque",sans-serif}.plan .p small{font:500 15px Figtree,sans-serif;color:var(--mute)}
+.plan ul{list-style:none;margin:10px 0 22px;padding:0;display:grid;gap:9px;color:var(--mute);flex:1}
+.plan li::before{content:"✓";color:var(--leaf);font-weight:800;margin-right:9px}
+.fine{text-align:center;color:var(--mute);font-size:14px;margin:26px 0 0}
+/* join + faq */
+.joinbox{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;background:var(--leaf-t);border-radius:24px;padding:44px}
+.joinbox h2{font-size:clamp(28px,4vw,42px);font-weight:800}.joinbox p{color:var(--mute);margin:12px 0 0}
+.joinbox form{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px}
+details{border-top:1px solid var(--line);padding:20px 0}details:last-of-type{border-bottom:1px solid var(--line)}
+summary{font:600 21px "Bricolage Grotesque",sans-serif;cursor:pointer}
+details p{color:var(--mute);margin:10px 0 0;max-width:64ch}
+.faq{max-width:820px;margin:0 auto}
+.badge{display:inline-block;background:var(--leaf-t);color:var(--leaf);font-weight:700;font-size:14px;padding:4px 12px;border-radius:999px;margin-top:8px}
 .people{list-style:none;margin:16px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .people li{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-weight:500}
-.people .av{flex:none;width:40px;height:40px;border-radius:50%;background:var(--leaf);color:var(--on-leaf);display:grid;place-items:center;font:700 14px Figtree,system-ui,sans-serif}
+.people .av{flex:none;width:40px;height:40px;border-radius:50%;background:var(--leaf);color:var(--on-leaf);display:grid;place-items:center;font:700 14px Figtree,sans-serif}
 .people small{display:block;color:var(--mute);font-weight:400;font-size:14px}
-@media (max-width:860px){.people{grid-template-columns:1fr}}
-footer{border-top:1px solid var(--line);padding:28px 0;color:var(--mute);font-size:15px}
+footer{border-top:1px solid var(--line);padding:30px 0;color:var(--mute);font-size:15px}
 footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
-@media (max-width:860px){
- .hero,.rest,.hgrid{grid-template-columns:1fr}
- .steps{grid-template-columns:1fr}
- .step,.step+.step{padding:24px 0 8px;border-left:0;border-top:1px solid var(--line)}
- .step:first-child{border-top:0}
- header nav a:not(.btn){display:none}
- .peek{right:0}
+@media (max-width:1000px){.mods{grid-template-columns:repeat(2,1fr)}.app .body{grid-template-columns:1fr}.app aside{display:none}.phone{display:none}}
+@media (max-width:900px){
+ header .wrap{grid-template-columns:auto 1fr}.burger{display:grid;place-items:center}
+ nav.links{display:none;position:absolute;left:0;right:0;top:68px;flex-direction:column;gap:0;background:var(--bg);border-bottom:1px solid var(--line);padding:8px 22px 16px}
+ nav.links.open{display:flex}nav.links a{padding:14px 0;border-top:1px solid var(--line)}
+ .acts .si{display:none}.findbox,.joinbox,.steps,.plans{grid-template-columns:1fr}.findbox,.joinbox{padding:28px}.people{grid-template-columns:1fr}.orders{grid-template-columns:1fr}
+ section{padding:64px 0}
 }
-@media (prefers-reduced-motion:reduce){.qr::after{animation:none;display:none}html{scroll-behavior:auto}}
-select,#rsel{padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;width:100%}
-#rsel::placeholder{color:var(--mute);opacity:1}
-#rsel option{background:var(--card);color:var(--ink)}
+@media (max-width:560px){.mods{grid-template-columns:1fr}.acts .btn{display:none}.ico{margin-bottom:28px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
 </style>
 </head>
 <body>
 <header><div class="wrap">
  <a class="logo" href="#top">Nourish</a>
- <nav><a href="#how">How it works</a><a href="#health">Eat well</a><a href="#find">Find a restaurant</a><a href="#restaurants">For restaurants</a><a href="#about">Who are we</a><a class="btn" href="signup.html">Add your restaurant</a></nav>
+ <nav class="links" id="nav" aria-label="Main">
+  <a href="#features" data-fr="Fonctionnalités">Features</a><a href="#workflow" data-fr="Fonctionnement">Workflow</a><a href="#find" data-fr="Restaurants">Restaurants</a><a href="#pricing" data-fr="Tarifs">Pricing</a><a href="#faq" data-fr="FAQ">FAQ</a>
+ </nav>
+ <div class="acts">
+  <div class="lang" role="group" aria-label="Language"><button type="button" id="lFR" aria-pressed="false">FR</button><button type="button" id="lEN" aria-pressed="true">EN</button></div>
+  <a class="si" href="login.html" data-fr="Connexion">Sign in</a>
+  <a class="btn sm" href="signup.html" data-fr="Ajouter mon restaurant">Add your restaurant</a>
+  <button class="burger" id="burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+ </div>
 </div></header>
 
 <main id="top">
-<div class="wrap hero">
- <div>
-  <h1>Scan the table. Order what fits you.</h1>
-  <p class="lead">Every dish shows its calories, protein and allergens before you order. No app to install and no waiting to flag down a waiter.</p>
-  <div class="cta"><a class="btn" href="#how">See how it works</a><a class="btn ghost" href="signup.html">I run a restaurant</a></div>
-</div>
- <div class="stage" aria-hidden="true">
-  <div class="tent"><b>Table 4</b><small>Scan to see the menu and order</small><div class="qr"><svg id="qr" viewBox="0 0 29 29" shape-rendering="crispEdges"></svg></div><small>No app needed</small></div>
-  <div class="peek"><div class="r"><span>Grilled Sea Bass</span><span>120 MAD</span></div><div class="k"><b>380 kcal</b><span class="badge">Light</span></div><small style="color:var(--mute)">42g protein · Contains fish</small></div>
+<section class="hero"><div class="wrap">
+ <span class="eyebrow" data-fr="Menus QR pour les restaurants du Maroc">QR menus for restaurants in Morocco</span>
+ <h1 data-fr="Scannez la table. <span class='grad'>Commandez</span> ce qui vous convient.">Scan the table. <span class="grad">Order</span> what fits you.</h1>
+ <p class="lead" data-fr="Chaque plat affiche ses calories, ses protéines et ses allergènes avant de commander. Aucune application à installer, pas besoin de héler le serveur.">Every dish shows its calories, protein and allergens before you order. No app to install and no waiting to flag down a waiter.</p>
+ <div class="cta"><a class="btn" href="#find" data-fr="Trouver mon restaurant">Find my restaurant</a><a class="btn ghost" href="signup.html" data-fr="Je gère un restaurant">I run a restaurant</a></div>
+ <ul class="proof"><li data-fr="14 jours d'essai gratuit">14-day free trial</li><li data-fr="Sans application">No app for diners</li><li data-fr="Commandes en direct">Live orders</li></ul>
+ <div class="app" aria-hidden="true">
+  <div class="bar"><i></i><i></i><i></i><span>nourish · dashboard</span></div>
+  <div class="body">
+   <aside><b>Operations</b><span>Dashboard</span><span class="on">Orders</span><span>Tables and QR codes</span><span>Employees</span><b>Commerce</b><span>Menu</span><span>Promo codes</span><span>Stock</span></aside>
+   <div class="orders">
+    <div class="o"><div class="h">Table 4<span class="chip w">Pending</span></div><p>2 × Chicken Couscous</p><p>2 × Mint Tea</p></div>
+    <div class="o"><div class="h">Table 7<span class="chip">Preparing</span></div><p>1 × Grilled Sea Bass</p><p>1 × Tagine</p></div>
+    <div class="o"><div class="h">Table 2<span class="chip">Ready</span></div><p>3 × Pastilla</p><p>Server: Salma</p></div>
+   </div>
+  </div>
+  <div class="phone"><div class="r"><span>Grilled Sea Bass</span><span>120 MAD</span></div><div class="k"><b>380 kcal</b><span class="chip">Light</span></div><small>42g protein · Contains fish</small></div>
  </div>
-</div>
+</div></section>
 
-<section id="find" style="padding-top:0"><div class="wrap rest">
+<section class="find" id="find"><div class="wrap"><div class="findbox">
  <div>
-  <h2 class="sec-h">Select your restaurant</h2>
-  <p class="sub">Choose where you are eating to open its menu. If you scanned the QR code on your table, you can skip this.</p>
+  <h2 data-fr="Où mangez-vous aujourd'hui ?">Where are you eating today?</h2>
+  <p class="sub" data-fr="Choisissez votre restaurant pour ouvrir son menu. Si vous avez scanné le QR code de votre table, vous pouvez passer cette étape.">Choose your restaurant to open its menu. If you scanned the QR code on your table, you can skip this.</p>
  </div>
  <form id="find-form">
-  <h3>Find a restaurant</h3>
-  <label for="rsel">Restaurant<input type="text" id="rsel" list="rlist" placeholder="Type or choose a restaurant" autocomplete="off" autocapitalize="words" spellcheck="false" aria-describedby="find-err"><datalist id="rlist"></datalist></label>
-  <p class="sub" id="find-err" role="alert" style="margin:0;color:var(--berry,#b8304f);font-weight:500" hidden></p>
-  <button class="btn" type="submit" id="find-go">See the menu</button>
-  <p class="sub" id="find-none" style="margin:0" hidden>No restaurant has joined in this browser yet. Add yours with the button at the top.</p>
+  <h3 data-fr="Trouver un restaurant">Find a restaurant</h3>
+  <label for="rsel"><span data-fr="Restaurant">Restaurant</span><input type="text" id="rsel" list="rlist" placeholder="Type or choose a restaurant" data-fr-ph="Tapez ou choisissez un restaurant" autocomplete="off" autocapitalize="words" spellcheck="false" aria-describedby="find-err"><datalist id="rlist"></datalist></label>
+  <p class="note" id="find-err" role="alert" style="color:var(--berry);font-weight:500" hidden></p>
+  <button class="btn" type="submit" id="find-go" data-fr="Voir le menu">See the menu</button>
+  <p class="note" id="find-none" hidden data-fr="Aucun restaurant n'a encore rejoint Nourish ici. Ajoutez le vôtre avec le bouton en haut.">No restaurant has joined yet. Add yours with the button at the top.</p>
  </form>
+</div></div></section>
+
+<section id="features"><div class="wrap">
+ <div style="text-align:center"><span class="eyebrow" data-fr="Fonctionnalités">Features</span></div>
+ <h2 class="sec-h" data-fr="Un outil pour chaque besoin.">A tool for every need.</h2>
+ <p class="sec-sub" data-fr="Tout est connecté, tout est synchronisé, dans une seule interface simple.">All connected, all in sync, in one simple dashboard.</p>
+ <div class="mods">
+  <div class="mod"><div class="ico"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 12h6M9 16h4"/></svg></div><h3 data-fr="Commandes">Orders</h3><p data-fr="Suivez chaque commande, de « en attente » à « prête ».">Track every order from pending to ready.</p></div>
+  <div class="mod"><div class="ico"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2M18 14v2"/></svg></div><h3 data-fr="Tables et QR">Tables &amp; QR</h3><p data-fr="Un QR code par table, prêt à imprimer.">One QR code per table, ready to print.</p></div>
+  <div class="mod"><div class="ico"><svg viewBox="0 0 24 24"><path d="M6 3v7a2 2 0 0 0 2 2v9M10 3v7a2 2 0 0 1-2 2M8 3v5M17 21V3c-2 1-3 4-3 8h3"/></svg></div><h3 data-fr="Menu">Menu</h3><p data-fr="Plats, catégories, photos, prix et options au même endroit.">Dishes, categories, photos, prices and add-ons together.</p></div>
+  <div class="mod"><div class="ico"><svg viewBox="0 0 24 24"><path d="M3 8l9-5 9 5-9 5-9-5zM3 8v8l9 5 9-5V8M12 13v8"/></svg></div><h3 data-fr="Stock">Stock</h3><p data-fr="Les plats en rupture se grisent tout seuls.">Sold-out dishes grey out on their own.</p></div>
+  <div class="mod"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0M16 6.5a3 3 0 0 1 0 5.5M17.5 14.5a5.5 5.5 0 0 1 3 4.5"/></svg></div><h3 data-fr="Équipe">Team</h3><p data-fr="Vos serveurs en service apparaissent sur le menu.">On-shift servers show up on the menu.</p></div>
+  <div class="mod"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 15h3"/></svg></div><h3 data-fr="Paiements">Payments</h3><p data-fr="Espèces ou carte à table, factures incluses.">Cash or card at the table, invoices included.</p></div>
+  <div class="mod"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12.5 3.5H20a.5.5 0 0 1 .5.5v7.5l-9 9a1.5 1.5 0 0 1-2.1 0L3.5 14.6a1.5 1.5 0 0 1 0-2.1z"/><circle cx="16" cy="8" r="1.3"/></svg></div><h3 data-fr="Codes promo">Promo codes</h3><p data-fr="Créez des offres en pourcentage ou en montant fixe.">Create percentage or fixed-amount offers.</p></div>
+  <div class="mod"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 20c-5-3-8-6-8-10a4.5 4.5 0 0 1 8-2.5A4.5 4.5 0 0 1 20 10c0 4-3 7-8 10z"/></svg></div><h3 data-fr="Calories et allergènes">Calories &amp; allergens</h3><p data-fr="Filtres de régime et alertes allergènes pour chaque convive.">Diet filters and allergen alerts for every diner.</p></div>
+ </div>
 </div></section>
 
-<section id="how"><div class="wrap">
- <h2>From table to kitchen in three taps</h2>
- <p class="sub">Diners never create an account. The QR code already knows which restaurant and which table they're at.</p>
+<section class="flow" id="workflow"><div class="wrap">
+ <div style="text-align:center"><span class="eyebrow" data-fr="Fonctionnement">Workflow</span></div>
+ <h2 class="sec-h" data-fr="De la table à la cuisine en trois gestes.">From table to kitchen in three taps.</h2>
+ <p class="sec-sub" data-fr="Les clients ne créent aucun compte. Le QR code sait déjà quel restaurant et quelle table.">Diners never create an account. The QR code already knows the restaurant and the table.</p>
  <div class="steps">
-  <div class="step"><div class="n">1</div><h3>Scan the QR code</h3><p>Point your phone camera at the code on your table. The menu opens in your browser.</p></div>
-  <div class="step"><div class="n">2</div><h3>Choose with the facts</h3><p>Filter by calories, diet or allergens, and watch your meal total against your own calorie goal.</p></div>
-  <div class="step"><div class="n">3</div><h3>Order and follow it</h3><p>Send your order straight to the kitchen, pay cash or by card at the table, and see its status live.</p></div>
+  <div class="step"><div class="n">1</div><h3 data-fr="Scannez le QR code">Scan the QR code</h3><p data-fr="Pointez l'appareil photo sur le code de la table. Le menu s'ouvre dans le navigateur.">Point your camera at the code on your table. The menu opens in your browser.</p></div>
+  <div class="step"><div class="n">2</div><h3 data-fr="Choisissez en connaissance">Choose with the facts</h3><p data-fr="Filtrez par calories, régime ou allergènes et suivez votre objectif calorique.">Filter by calories, diet or allergens and watch your calorie goal.</p></div>
+  <div class="step"><div class="n">3</div><h3 data-fr="Commandez et suivez">Order and follow it</h3><p data-fr="La commande part en cuisine. Payez à table et suivez son statut en direct.">Your order goes straight to the kitchen. Pay at the table and follow its status live.</p></div>
  </div>
 </div></section>
 
-<section class="health" id="health"><div class="wrap">
- <h2>Healthy choices, made easy</h2>
- <p class="sub">Nutrition info is only useful when it's easy to act on, so it's built into every step of ordering.</p>
- <div class="hgrid">
-  <div><h3>A calorie goal for your meal</h3><p>Set a target once. Your plate budget fills as you add dishes and tells you how many calories are left.</p></div>
-  <div><h3>Diet filters that stick</h3><p>Vegan, vegetarian, gluten-free, dairy-free, halal, high protein, low carb or low sodium. Only matching dishes show.</p></div>
-  <div><h3>Allergen alerts</h3><p>Pick the allergens you avoid and dishes that contain them disappear, so nothing slips past you.</p></div>
-  <div><h3>Lighter swaps</h3><p>Craving the burger? Nourish suggests a dish from the same section with at least a quarter fewer calories.</p></div>
+<section id="pricing"><div class="wrap">
+ <div style="text-align:center"><span class="eyebrow" data-fr="Tarifs">Pricing</span></div>
+ <h2 class="sec-h" data-fr="Un plan pour chaque restaurant.">A plan for every restaurant.</h2>
+ <p class="sec-sub" data-fr="Chaque plan démarre par 14 jours d'essai gratuit. Changez ou annulez à tout moment.">Every plan starts with a 14-day free trial. Change or cancel anytime.</p>
+ <div class="plans">
+  <div class="plan"><h3>Starter</h3><div class="p">199 <small>MAD / <span data-fr="mois">month</span></small></div><ul><li data-fr="Jusqu'à 10 tables">Up to 10 tables</li><li data-fr="Jusqu'à 50 plats">Up to 50 dishes</li><li data-fr="Écran de commandes en direct">Live order screen</li></ul><a class="btn ghost" href="signup.html" data-fr="Commencer l'essai">Start free trial</a></div>
+  <div class="plan pop"><span class="tag" data-fr="Le plus populaire">Most popular</span><h3>Standard</h3><div class="p">399 <small>MAD / <span data-fr="mois">month</span></small></div><ul><li data-fr="Jusqu'à 30 tables">Up to 30 tables</li><li data-fr="Plats illimités">Unlimited dishes</li><li data-fr="Calories et régimes">Calories and diet tags</li><li data-fr="Résumé quotidien des ventes">Daily sales summary</li></ul><a class="btn" href="signup.html" data-fr="Commencer l'essai">Start free trial</a></div>
+  <div class="plan"><h3>Premium</h3><div class="p">699 <small>MAD / <span data-fr="mois">month</span></small></div><ul><li data-fr="Tables illimitées">Unlimited tables</li><li data-fr="Comptes et rôles du personnel">Staff accounts and roles</li><li data-fr="Rapports nutritionnels">Nutrition reports</li><li data-fr="Support prioritaire">Priority support</li></ul><a class="btn ghost" href="signup.html" data-fr="Commencer l'essai">Start free trial</a></div>
  </div>
- <p style="color:var(--mute);font-size:15px;margin:24px 0 0;max-width:62ch">Nutrition values come from each restaurant and are estimates. They are not medical advice.</p>
+ <p class="fine" data-fr="Prix indicatifs pour le moment. Aucun débit avant la fin de l'essai.">Example prices for now. You won't be charged until your trial ends.</p>
 </div></section>
 
-<section id="restaurants"><div class="wrap rest">
- <div>
-  <h2 class="sec-h">Put your menu online in an afternoon</h2>
-  <p class="sub" style="margin-bottom:24px">Add your dishes, print your table codes and start receiving orders. No special hardware needed.</p>
-  <ol>
-   <li><i>1</i><div><b>Add your dishes</b><span>Names, prices, photos, calories, allergens and diet tags, with add-ons for extras.</span></div></li>
-   <li><i>2</i><div><b>Print a QR code for each table</b><span>Every code points to one table, so orders arrive with the table number attached.</span></div></li>
-   <li><i>3</i><div><b>Run service from one screen</b><span>New orders appear with a sound alert. Mark dishes sold out and they grey out for every diner instantly.</span></div></li>
-  </ol>
- </div>
- <div aria-hidden="true">
-  <div class="ticket">
-   <div class="t"><span>Table 4</span><span>12:41</span></div>
-   <p>2 × Chicken Couscous</p>
-   <p>1 × Grilled Sea Bass<em>No lemon, please</em></p>
-   <p>2 × Mint Tea<em>No sugar</em></p>
-   <div class="s"><span>Pending</span><span class="on">Preparing</span><span>Ready</span></div>
-  </div>
- </div>
-</div></section>
-
-<section id="join" style="padding-top:0"><div class="wrap rest">
- <div>
-  <h2 class="sec-h">Want Nourish at your restaurant?</h2>
-  <p class="sub">Leave your details and we'll get in touch to set up your menu and table codes.</p>
- </div>
+<section style="padding-top:0"><div class="wrap"><div class="joinbox">
+ <div><h2 data-fr="Nourish dans votre restaurant ?">Want Nourish at your restaurant?</h2><p data-fr="Laissez vos coordonnées et nous vous contactons pour configurer votre menu et vos codes de table.">Leave your details and we'll get in touch to set up your menu and table codes.</p></div>
  <form id="join-form">
-  <h3>Join the early list</h3>
-  <label>Restaurant name<input type="text" name="rname" required autocomplete="organization"></label>
-  <label>Email<input type="email" name="email" required autocomplete="email"></label>
-  <button class="btn" type="submit">Join the early list</button>
+  <h3 data-fr="Rejoindre la liste">Join the early list</h3>
+  <label><span data-fr="Nom du restaurant">Restaurant name</span><input type="text" name="rname" required autocomplete="organization"></label>
+  <label><span>Email</span><input type="email" name="email" required autocomplete="email"></label>
+  <button class="btn" type="submit" data-fr="Rejoindre la liste">Join the early list</button>
   <div class="ok" id="ok" role="status"></div>
  </form>
-</div></section>
+</div></div></section>
 
-<section style="padding-top:0"><div class="wrap">
- <h2 class="sec-h" style="margin-bottom:24px">Common questions</h2>
- <details><summary>Do diners need to install an app?</summary><p>No. Scanning the table's QR code opens the menu in the phone's browser, with no account or download.</p></details>
- <details><summary>What happens when a dish sells out?</summary><p>The restaurant switches it off once and it greys out on every diner's screen right away, so nobody orders something the kitchen can't make.</p></details>
- <details><summary>How accurate are the calories?</summary><p>Restaurants enter their own values, so they are estimates. Nourish shows them clearly but does not replace advice from a doctor or dietitian.</p></details>
- <details><summary>How do customers pay?</summary><p>For now, by cash or card at the table. Diners choose when they order and the staff mark it as paid.</p></details>
- <details id="about"><summary>Who are we</summary>
-  <p>We are students at HESTIM, and Nourish is our team project. Yasser Haouat came up with the original concept, and Romaissaa Laafou built the website as lead developer. Malak Elhamydy, Malak Aicha Daf and Aya Zouioual enriched the project with additional ideas and features, while Ibrahim Essbai handled the calculations and financial analysis.</p>
+<section id="faq" style="padding-top:0"><div class="wrap">
+ <h2 class="sec-h" data-fr="Questions fréquentes">Common questions</h2><p class="sec-sub"></p>
+ <div class="faq">
+ <details><summary data-fr="Les clients doivent-ils installer une application ?">Do diners need to install an app?</summary><p data-fr="Non. Le QR code de la table ouvre le menu dans le navigateur du téléphone, sans compte ni téléchargement.">No. Scanning the table's QR code opens the menu in the phone's browser, with no account or download.</p></details>
+ <details><summary data-fr="Que se passe-t-il quand un plat est épuisé ?">What happens when a dish sells out?</summary><p data-fr="Le restaurant le désactive une fois et il se grise aussitôt sur l'écran de chaque client.">The restaurant switches it off once and it greys out on every diner's screen right away.</p></details>
+ <details><summary data-fr="Les calories sont-elles exactes ?">How accurate are the calories?</summary><p data-fr="Chaque restaurant saisit ses valeurs : ce sont des estimations, qui ne remplacent pas l'avis d'un médecin ou d'un diététicien.">Restaurants enter their own values, so they are estimates. They do not replace advice from a doctor or dietitian.</p></details>
+ <details><summary data-fr="Comment les clients paient-ils ?">How do customers pay?</summary><p data-fr="Pour l'instant, en espèces ou par carte à table. Le client choisit à la commande et le personnel marque la commande comme payée.">For now, by cash or card at the table. Diners choose when they order and the staff mark it as paid.</p></details>
+ <details id="about"><summary data-fr="Qui sommes-nous">Who are we</summary>
+  <p data-fr="Nous sommes des étudiants de HESTIM et Nourish est notre projet d'équipe. Yasser Haouat a imaginé le concept, et Romaissaa Laafou a construit le site en tant que développeuse principale. Malak Elhamydy, Malak Aicha Daf et Aya Zouioual ont enrichi le projet d'idées et de fonctionnalités, et Ibrahim Essbai a géré les calculs et l'analyse financière.">We are students at HESTIM, and Nourish is our team project. Yasser Haouat came up with the original concept, and Romaissaa Laafou built the website as lead developer. Malak Elhamydy, Malak Aicha Daf and Aya Zouioual enriched the project with additional ideas and features, while Ibrahim Essbai handled the calculations and financial analysis.</p>
   <span class="badge">Class 4A-GIL</span>
   <ul class="people" aria-label="Project team">
- <li><span class="av" aria-hidden="true">RL</span><span>Romaissaa Laafou<small>Lead Developer</small></span></li>
- <li><span class="av" aria-hidden="true">ME</span><span>Malak Elhamydy<small>Contributed additional ideas and features</small></span></li>
- <li><span class="av" aria-hidden="true">MA</span><span>Malak Aicha Daf<small>Contributed additional ideas and features</small></span></li>
- <li><span class="av" aria-hidden="true">AZ</span><span>Aya Zouioual<small>Contributed additional ideas and features</small></span></li>
- <li><span class="av" aria-hidden="true">YH</span><span>Yasser Haouat<small>Project initiator and concept creator</small></span></li>
- <li><span class="av" aria-hidden="true">IE</span><span>Ibrahim Essbai<small>Calculations and financial analysis</small></span></li>
- </ul>
+   <li><span class="av" aria-hidden="true">RL</span><span>Romaissaa Laafou<small data-fr="Développeuse principale">Lead Developer</small></span></li>
+   <li><span class="av" aria-hidden="true">ME</span><span>Malak Elhamydy<small data-fr="Idées et fonctionnalités">Contributed additional ideas and features</small></span></li>
+   <li><span class="av" aria-hidden="true">MA</span><span>Malak Aicha Daf<small data-fr="Idées et fonctionnalités">Contributed additional ideas and features</small></span></li>
+   <li><span class="av" aria-hidden="true">AZ</span><span>Aya Zouioual<small data-fr="Idées et fonctionnalités">Contributed additional ideas and features</small></span></li>
+   <li><span class="av" aria-hidden="true">YH</span><span>Yasser Haouat<small data-fr="Initiateur et concepteur du projet">Project initiator and concept creator</small></span></li>
+   <li><span class="av" aria-hidden="true">IE</span><span>Ibrahim Essbai<small data-fr="Calculs et analyse financière">Calculations and financial analysis</small></span></li>
+  </ul>
  </details>
+ </div>
 </div></section>
 </main>
 
-<footer><div class="wrap"><span><b style="color:var(--leaf)">Nourish</b> Scan, order and eat well.</span><span>© 2026 Nourish · HESTIM, 4A-GIL</span></div></footer>
+<footer><div class="wrap"><span><b style="color:var(--leaf)">Nourish</b> <span data-fr="Scannez, commandez, mangez bien.">Scan, order and eat well.</span></span><span>© 2026 Nourish · HESTIM, 4A-GIL</span></div></footer>
 
 <script>
-// Decorative QR-style pattern (not scannable)
+/* language: English by default, French on request (remembered in this browser) */
+var LANG="en";
+function L(en,fr){return LANG==="fr"?fr:en}
 (function(){
- var n=29,s=7,out="",seed=11;
- function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff}
- function finder(x,y){return '<path fill-rule="evenodd" d="M'+x+' '+y+'h7v7h-7z M'+(x+1)+' '+(y+1)+'v5h5v-5z"/><rect x="'+(x+2)+'" y="'+(y+2)+'" width="3" height="3"/>'}
- for(var y=0;y<n;y++)for(var x=0;x<n;x++){
-  var inF=(x<8&&y<8)||(x>n-9&&y<8)||(x<8&&y>n-9);
-  if(!inF&&rnd()>.52)out+='<rect x="'+x+'" y="'+y+'" width="1" height="1"/>';
+ var els=[].slice.call(document.querySelectorAll("[data-fr]")),phs=[].slice.call(document.querySelectorAll("[data-fr-ph]"));
+ els.forEach(function(e){e.setAttribute("data-en",e.innerHTML)});phs.forEach(function(e){e.setAttribute("data-en-ph",e.placeholder)});
+ function set(l){
+  LANG=l;document.documentElement.lang=l;
+  els.forEach(function(e){e.innerHTML=l==="fr"?e.getAttribute("data-fr"):e.getAttribute("data-en")});
+  phs.forEach(function(e){e.placeholder=l==="fr"?e.getAttribute("data-fr-ph"):e.getAttribute("data-en-ph")});
+  document.getElementById("lFR").setAttribute("aria-pressed",l==="fr");document.getElementById("lEN").setAttribute("aria-pressed",l==="en");
+  try{localStorage.setItem("nourish-lang",l)}catch(x){}
  }
- document.getElementById("qr").innerHTML=out+finder(0,0)+finder(n-s,0)+finder(0,n-s);
+ document.getElementById("lFR").onclick=function(){set("fr")};document.getElementById("lEN").onclick=function(){set("en")};
+ var s=null;try{s=localStorage.getItem("nourish-lang")}catch(x){}if(s==="fr")set("fr");
+ var nav=document.getElementById("nav"),bg=document.getElementById("burger");
+ bg.onclick=function(){var o=nav.classList.toggle("open");bg.setAttribute("aria-expanded",o)};
+ nav.addEventListener("click",function(e){if(e.target.tagName==="A"){nav.classList.remove("open");bg.setAttribute("aria-expanded","false")}});
 })();
 document.getElementById("join-form").addEventListener("submit",function(e){
  e.preventDefault();
- var f=e.target,ok=document.getElementById("ok");
- ok.textContent="You're on the list, "+f.rname.value.trim()+". We'll email "+f.email.value.trim()+".";
+ var f=e.target,ok=document.getElementById("ok"),n=f.rname.value.trim(),m=f.email.value.trim();
+ ok.textContent=L("You're on the list, "+n+". We'll email "+m+".","Vous êtes sur la liste, "+n+". Nous écrirons à "+m+".");
  ok.style.display="block";f.reset();
 });
 </script>
@@ -257,7 +299,7 @@ Nourish.loadPublic().then(function(){
  document.getElementById("find-form").addEventListener("submit",function(e){
   e.preventDefault();
   var r=find(sel.value);
-  if(!r){err.textContent=sel.value.trim()?"We couldn't find that restaurant. Pick one from the list.":"Type the name of your restaurant or pick it from the list.";err.hidden=false;sel.focus();return}
+  if(!r){err.textContent=sel.value.trim()?L("We couldn't find that restaurant. Pick one from the list.","Restaurant introuvable. Choisissez-en un dans la liste."):L("Type the name of your restaurant or pick it from the list.","Tapez le nom de votre restaurant ou choisissez-le dans la liste.");err.hidden=false;sel.focus();return}
   location.href="menu.html?r="+encodeURIComponent(r.slug);
  });
 });
