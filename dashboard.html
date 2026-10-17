@@ -219,6 +219,13 @@ main.wrap>.tabs{grid-column:1;grid-row:1/span 30;position:sticky;top:16px;align-
 .ocard .otot b{font-size:22px}
 .obtn{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
 .obtn .btn{width:100%;justify-content:center}
+
+.invoice{background:#fff;color:#000;padding:28px;max-width:640px;margin:0 auto;font:16px system-ui,sans-serif}
+.invoice h1{font:800 26px "Bricolage Grotesque",sans-serif;margin:0 0 4px}
+.invoice table{width:100%;border-collapse:collapse;margin:18px 0}
+.invoice td,.invoice th{padding:7px 0;border-bottom:1px solid #ccc;text-align:left}
+.invoice td:last-child,.invoice th:last-child{text-align:right}
+@media print{#sheet .invoice{grid-column:1/-1}}
 </style>
 </head>
 <body>
@@ -239,12 +246,20 @@ main.wrap>.tabs{grid-column:1;grid-row:1/span 30;position:sticky;top:16px;align-
 
  <div class="tabs" role="tablist" aria-label="Dashboard sections" aria-orientation="vertical">
   <div class="tgrp" role="presentation">Operations</div>
+  <button class="tab" role="tab" id="tb-overview" aria-controls="tab-overview" data-tab="overview" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>Dashboard</button>
   <button class="tab" role="tab" id="tb-orders" aria-controls="tab-orders" data-tab="orders" aria-selected="true" tabindex="0"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 12h6M9 16h4"/></svg>Orders<span class="tabn" id="ordBadge" hidden></span></button>
   <button class="tab" role="tab" id="tb-tables" aria-controls="tab-tables" data-tab="tables" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h3v3M20 14v.01M14 20h.01M17 20h3v-3"/></svg>Tables and QR codes</button>
+  <button class="tab" role="tab" id="tb-analytics" aria-controls="tab-analytics" data-tab="analytics" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 4v16h16"/><path d="M8 17v-5M12 17V8M16 17v-8"/></svg>Analytics</button>
   <div class="tgrp" role="presentation">Commerce</div>
   <button class="tab" role="tab" id="tb-menu" aria-controls="tab-menu" data-tab="menu" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3v7a2 2 0 0 0 2 2v9M10 3v7a2 2 0 0 1-2 2M8 3v5M17 21V3c-2 1-3 4-3 8h3"/></svg>Menu</button>
   <button class="tab" role="tab" id="tb-inventory" aria-controls="tab-inventory" data-tab="inventory" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 8l9-5 9 5-9 5-9-5z"/><path d="M3 8v8l9 5 9-5V8M12 13v8"/></svg>Stock<span class="tabn" id="invBadge" hidden></span></button>
+  <button class="tab" role="tab" id="tb-reviews" aria-controls="tab-reviews" data-tab="reviews" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5l2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-3-5.4 3 1.1-6L3.2 9.9l6.1-.8z"/></svg>Reviews</button>
+  <button class="tab" role="tab" id="tb-payments" aria-controls="tab-payments" data-tab="payments" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 15h3"/></svg>Payments</button>
+  <button class="tab" role="tab" id="tb-invoices" aria-controls="tab-invoices" data-tab="invoices" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/></svg>Invoices</button>
+  <button class="tab" role="tab" id="tb-purchases" aria-controls="tab-purchases" data-tab="purchases" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>Purchases</button>
   <button class="tab" role="tab" id="tb-sales" aria-controls="tab-sales" data-tab="sales" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 4v16h16"/><path d="M8 17v-5M12 17V8M16 17v-8"/></svg>Sales and profit</button>
+  <div class="tgrp" role="presentation">Data</div>
+  <button class="tab" role="tab" id="tb-export" aria-controls="tab-export" data-tab="export" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4v11M8 11l4 4 4-4M5 20h14"/></svg>Export data</button>
  </div>
 
  <!-- ORDERS -->
@@ -465,6 +480,81 @@ main.wrap>.tabs{grid-column:1;grid-row:1/span 30;position:sticky;top:16px;align-
    <div id="ledger"></div>
   </div>
  </section>
+
+ <!-- DASHBOARD -->
+ <section class="panel" id="tab-overview" role="tabpanel" aria-labelledby="tb-overview" tabindex="-1">
+  <h2>Dashboard</h2>
+  <p class="sub">A quick look at your restaurant right now.</p>
+  <div class="kpis" id="ovKpis"></div>
+  <div class="card"><div class="row" style="justify-content:space-between;align-items:center"><h3 style="margin:0">Latest orders</h3><button class="btn ghost sm" data-act="go" data-go="orders">Open orders</button></div><div id="ovLatest"></div></div>
+ </section>
+
+ <!-- ANALYTICS -->
+ <section class="panel" id="tab-analytics" role="tabpanel" aria-labelledby="tb-analytics" tabindex="-1">
+  <h2>Analytics</h2>
+  <p class="sub">What sells, and when. This is built from the paid orders in your sales history.</p>
+  <div class="kpis" id="anKpis"></div>
+  <div class="two">
+   <div class="card"><h3>Best-selling dishes (income)</h3><div id="anDish"></div></div>
+   <div class="card"><h3>Dishes sold (quantity)</h3><div id="anQty"></div></div>
+  </div>
+  <div class="two">
+   <div class="card"><h3>Income by day of the week</h3><div id="anDow"></div></div>
+   <div class="card"><h3>Orders by hour</h3><div id="anHour"></div></div>
+  </div>
+ </section>
+
+ <!-- REVIEWS -->
+ <section class="panel" id="tab-reviews" role="tabpanel" aria-labelledby="tb-reviews" tabindex="-1">
+  <h2>Reviews</h2>
+  <p class="sub">Ratings and comments your guests leave after their meal.</p>
+  <div class="kpis" id="rvKpis"></div>
+  <div class="card"><h3>How guests rated you</h3><div id="rvDist"></div></div>
+  <div class="card"><h3>All reviews</h3><div id="rvList"></div></div>
+ </section>
+
+ <!-- PAYMENTS -->
+ <section class="panel" id="tab-payments" role="tabpanel" aria-labelledby="tb-payments" tabindex="-1">
+  <h2>Payments</h2>
+  <p class="sub">How guests paid for their recent orders. Confirm cash here when the guest has paid at the counter.</p>
+  <div class="kpis" id="pyKpis"></div>
+  <div class="card"><div id="pyList"></div></div>
+ </section>
+
+ <!-- INVOICES -->
+ <section class="panel" id="tab-invoices" role="tabpanel" aria-labelledby="tb-invoices" tabindex="-1">
+  <h2>Invoices</h2>
+  <p class="sub">An invoice for every paid order. Press Invoice, then print it or save it as a PDF.</p>
+  <div class="card"><div id="ivList"></div></div>
+ </section>
+
+ <!-- PURCHASES -->
+ <section class="panel" id="tab-purchases" role="tabpanel" aria-labelledby="tb-purchases" tabindex="-1">
+  <h2>Purchases</h2>
+  <p class="sub">What you buy for the restaurant. Every purchase is also counted as an expense in Sales and profit.</p>
+  <div class="kpis" id="puKpis"></div>
+  <div class="card">
+   <h3>Add a purchase</h3>
+   <div class="grid">
+    <label class="f">What did you buy, and from whom?<input type="text" id="puNote" maxlength="80"></label>
+    <label class="f">Category<select id="puCat"></select></label>
+    <label class="f">Amount<input type="number" id="puAmt" min="0.01" step="0.01" inputmode="decimal"></label>
+   </div>
+   <div class="row" style="margin-top:14px"><button class="btn" data-act="addPurchase">Add purchase</button></div>
+   <p class="note" id="puSay" role="status" style="margin:8px 0 0"></p>
+  </div>
+  <div class="two">
+   <div class="card"><h3>Where the money goes (last 30 days)</h3><div id="puBreak"></div></div>
+   <div class="card"><h3>Recent purchases</h3><div id="puList"></div></div>
+  </div>
+ </section>
+
+ <!-- EXPORT -->
+ <section class="panel" id="tab-export" role="tabpanel" aria-labelledby="tb-export" tabindex="-1">
+  <h2>Export data</h2>
+  <p class="sub">Download your data as spreadsheet files (CSV, they open in Excel and Google Sheets) or keep a full backup.</p>
+  <div class="card"><div id="exList"></div></div>
+ </section>
 </main>
 
 <div id="sheet"></div>
@@ -530,7 +620,7 @@ Nourish.ready.then(function(){
  }
 
  /* tabs */
- var TABNAMES={orders:"Orders",tables:"Tables and QR codes",menu:"Menu",inventory:"Stock",sales:"Sales and profit"};
+ var TABNAMES={overview:"Dashboard",orders:"Orders",tables:"Tables and QR codes",analytics:"Analytics",menu:"Menu",inventory:"Stock",reviews:"Reviews",payments:"Payments",invoices:"Invoices",purchases:"Purchases",sales:"Sales and profit",export:"Export data"};
  function showTab(name,focusPanel){
   var b=document.getElementById("tb-"+name);if(!b)return;
   [].forEach.call(document.querySelectorAll(".tab"),function(t){var on=t===b;t.setAttribute("aria-selected",on);t.tabIndex=on?0:-1});
@@ -538,6 +628,13 @@ Nourish.ready.then(function(){
   if(name==="sales")sales();
   if(name==="inventory")inventory();
   if(name==="orders")ordersTab();
+  if(name==="overview")overview();
+  if(name==="analytics")analytics();
+  if(name==="reviews")reviews();
+  if(name==="payments")payments();
+  if(name==="invoices")invoices();
+  if(name==="purchases")purchases();
+  if(name==="export")exportTab();
   if(name==="tables")tables();
   $("announce").textContent=TABNAMES[name]+" section";
   if(focusPanel){var h=document.querySelector("#tab-"+name+" > h2");if(h){h.tabIndex=-1;h.focus()}}
@@ -812,11 +909,12 @@ Nourish.ready.then(function(){
   var list=S.ledger.slice().sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:0}),show=list.slice(0,60);
   $("ledger").innerHTML=show.length?show.map(function(e){
    var inc=e.type==="income",extra=(e.note?esc(e.note):"")+(e.orders?(e.note?" · ":"")+e.orders+" orders":"");
-   return '<div class="led"><div>'+fd(e.date)+'</div><div>'+esc(e.cat)+'<small>'+(inc?"Income":"Expense")+(extra?" · "+extra:"")+'</small></div><b class="'+(inc?"in":"out")+'">'+(inc?"+":"−")+fmtx(e.amount)+'</b><button class="btn del sm" data-act="delRec" data-id="'+e.id+'" aria-label="Delete this record">Delete</button></div>';
+   return '<div class="led"><div>'+fd(e.date)+'</div><div>'+esc(e.title||e.cat)+'<small>'+(e.dishes?esc(e.dishes):(inc?"Income":"Expense")+(extra?" · "+extra:""))+'</small></div><b class="'+(inc?"in":"out")+'">'+(inc?"+":"−")+fmtx(e.amount)+'</b><button class="btn del sm" data-act="delRec" data-id="'+e.id+'" aria-label="Delete this record">Delete</button></div>';
   }).join("")+(list.length>60?'<p class="note" style="margin-top:10px">Showing the latest 60 of '+list.length+' records. Export CSV to see all of them.</p>':""):'<div class="empty"><b>No records yet.</b><br>Add your first income or expense above, or load sample data to see how it works.</div>';
   $("clrSample").hidden=!S.ledger.some(function(e){return e.sample});
  }
  function sales(){
+  syncOrderSales();
   var p=period(),c=sums(p.from,p.to),pv=p.pf?sums(p.pf,p.pt):null,has=!!(pv&&pv.n>0),v=$("verdict");
   if(!c.n){
    v.className="verdict flat";v.innerHTML='<b>No records in this period yet</b>Add your income and expenses above, or load sample data to see how the analysis works.';
@@ -1019,6 +1117,36 @@ Nourish.ready.then(function(){
   ordersTab();
  }
  function beep(){try{var c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=880;g.gain.value=.15;o.connect(g);g.connect(c.destination);o.start();setTimeout(function(){o.stop();c.close()},350)}catch(e){}}
+ function payParts(o){
+  var pm=o.payments||[],cash=0,card=0;
+  pm.forEach(function(p){cash+=p.cash!=null?p.cash:(p.method==="card"?0:p.amount);card+=p.card!=null?p.card:(p.method==="card"?p.amount:0)});
+  if(!pm.length){if(o.pay==="card")card=+o.total||0;else cash=+o.total||0}
+  return{cash:Math.round(cash*100)/100,card:Math.round(card*100)/100};
+ }
+ function isPaid(o){return payParts(o).cash<=0||!!o.cashPaid}
+ function confirmCash(id){
+  if(!myOrders().some(function(o){return o.id===id}))return;
+  var all=jr(OKEY)||[],o=all.filter(function(x){return x.id===id})[0];if(!o)return;
+  o.cashPaid=true;o.cashPaidAt=Date.now();
+  try{localStorage.setItem(OKEY,JSON.stringify(all))}catch(e){}
+  Nourish.pushOrder(o);
+  ordersTab();
+ }
+ /* paid orders become income records in the sales history, once each */
+ function syncOrderSales(){
+  S.settings=S.settings||{};var done=S.settings.ordSynced=S.settings.ordSynced||{},add=0;
+  myOrders().forEach(function(o){
+   if(!isPaid(o)||done[o.id]||!o.items||!o.items.length)return;
+   var d=ds(new Date(o.cashPaidAt||o.at||Date.now()));
+   if(!o.cashPaid)d=ds(new Date(o.at||Date.now()));
+   S.ledger.push({id:uid(),type:"income",date:d,cat:"Dine-in sales",amount:Math.round((+o.total||0)*100)/100,orders:1,
+    title:"Order #"+o.id+" · Table "+o.table,dishes:o.items.map(function(i){return i.qty+" × "+i.name}).join(", "),orderId:o.id,at:o.at||0,
+    lines:o.items.map(function(i){return{n:i.name,q:i.qty,p:i.price}}),note:""});
+   done[o.id]=1;add++;
+  });
+  if(add)save();
+  return add;
+ }
  function ocard(o){
   var t=S.tables.filter(function(x){return String(x.n)===String(o.table)})[0],eta=+o.eta||0,line;
   if(o.status==="pending")line="Received "+ago(o.at)+" min ago";
@@ -1028,11 +1156,8 @@ Nourish.ready.then(function(){
    :o.status==="preparing"?'<button class="btn" data-act="oDone" data-id="'+o.id+'">Done</button>'
    :(occ[o.table]?'<button class="btn ghost" data-act="tFree" data-n="'+esc(o.table)+'">Free table '+esc(o.table)+'</button>':"");
   var pill=o.status==="pending"?["rec","Received"]:o.status==="preparing"?["low","Cooking"]:["ok","Ready"];
-  var pm=o.payments||[],cash=0,card=0;
-  pm.forEach(function(p){cash+=p.cash!=null?p.cash:(p.method==="card"?0:p.amount);card+=p.card!=null?p.card:(p.method==="card"?p.amount:0)});
-  if(!pm.length){if(o.pay==="card")card=+o.total||0;else cash=+o.total||0}
-  cash=Math.round(cash*100)/100;
-  var payTxt=card>0&&cash>0?"Part card, part cash":cash>0?"Cash":"Card",paid=cash<=0,
+  var pp=payParts(o),cash=pp.cash,card=pp.card;
+  var payTxt=card>0&&cash>0?"Part card, part cash":cash>0?"Cash":"Card",paid=isPaid(o),
       tm=new Date(o.at||Date.now()),hh=("0"+tm.getHours()).slice(-2)+":"+("0"+tm.getMinutes()).slice(-2),
       clk='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" style="fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;vertical-align:-3px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
   var info=[(t&&t.zone&&t.zone!=="std"?esc(zl(t.zone)):""),o.party+(o.party==="1"?" guest":" guests"),(o.server?"server "+esc(o.server):"")].filter(Boolean).join(" · ");
@@ -1040,24 +1165,26 @@ Nourish.ready.then(function(){
    +'<ul>'+o.items.map(function(i){var x=[i.opts,i.note].filter(Boolean).join("; ");
      return '<li><span><b>'+i.qty+' ×</b> '+esc(i.name)+(i.who?' for '+esc(i.who):'')+(x?'<small>'+esc(x)+'</small>':'')+(i.prep?'<small>Cooking time '+i.prep+' min</small>':'')+'</span><span class="pr">'+fmtx(i.price*i.qty)+'</span></li>'}).join("")+'</ul>'
    +(o.tip>0?'<div class="orw"><span>Tip</span><span>'+fmtx(o.tip)+'</span></div>':'')
-   +'<div class="otot"><b>'+fmtx((+o.total||0)+(+o.tip||0))+'</b><span class="st '+(paid?'ok':'out')+'">'+(paid?'Paid':'Cash due '+fmtx(cash))+'</span></div>'
+   +'<div class="otot"><b>'+fmtx((+o.total||0)+(+o.tip||0))+'</b><span class="st '+(paid?'ok':'out')+'">'+(paid?(o.cashPaid?'Paid in cash':'Paid'):'Cash due '+fmtx(cash))+'</span></div>'
    +'<p class="meta">'+clk+hh+' · '+payTxt+'</p>'
    +(info?'<p class="meta">'+info+'</p>':'')
    +'<p class="meta">'+line+(eta?' · cooking time about '+eta+' min':'')+'</p>'
-   +(o.done?'<p class="meta"><b>The guest has finished'+(o.rating?' and rated '+o.rating+' out of 5':'')+'.</b>'+(o.comment?' "'+esc(o.comment)+'"':'')+'</p>':'')+(btn?'<div class="obtn">'+btn+'</div>':"")+'</div>';
+   +(o.done?'<p class="meta"><b>The guest has finished'+(o.rating?' and rated '+o.rating+' out of 5':'')+'.</b>'+(o.comment?' "'+esc(o.comment)+'"':'')+'</p>':'')+((btn||!paid)?'<div class="obtn">'+(paid?'':'<button class="btn" data-act="oPaid" data-id="'+o.id+'">Confirm '+fmtx(cash)+' cash received</button>')+btn+'</div>':"")+'</div>';
  }
  function ordersTab(){
+  var synced=syncOrderSales();
   var L=myOrders().sort(function(a,b){return a.at-b.at}),pend=L.filter(function(o){return o.status==="pending"}),
-      cook=L.filter(function(o){return o.status==="preparing"}),done=L.filter(function(o){return o.status==="ready"&&Date.now()-(o.readyAt||o.at)<15*60000}).reverse();
+      cook=L.filter(function(o){return o.status==="preparing"}),done=L.filter(function(o){return o.status==="ready"&&(Date.now()-(o.readyAt||o.at)<15*60000||!isPaid(o))}).reverse();
   var b=$("ordBadge");b.hidden=!pend.length;b.textContent=pend.length;b.setAttribute("aria-label",pend.length+" new orders");
   var ids=pend.map(function(o){return o.id}),fresh=[];
   if(seen===null)seen=ids.slice();else{fresh=ids.filter(function(i){return seen.indexOf(i)<0});seen=seen.concat(fresh)}
   if(fresh.length){$("ordSay").textContent="New order received: table "+pend.filter(function(o){return o.id===fresh[0]})[0].table+".";if(S.settings.sound)beep()}
-  $("oSound").checked=!!S.settings.sound;ratingsBox();
+  $("oSound").checked=!!S.settings.sound;ratingsBox();if(synced)sales();
   var sec=function(t,a){return a.length?'<h3 class="osec">'+t+' ('+a.length+')</h3><div class="ogrid">'+a.map(ocard).join("")+'</div>':""};
-  var doneBox=done.length?'<details class="fold zone" data-k="o:done"'+(openZ["o:done"]?" open":"")+'><summary>Done orders <span class="tcount">'+done.length+'</span></summary><p class="note" style="margin:0 0 10px">Finished orders stay here for 15 minutes, then they leave this screen.</p><div class="ogrid">'+done.map(ocard).join("")+'</div></details>':"";
+  var doneBox=done.length?'<details class="fold zone" data-k="o:done"'+(openZ["o:done"]?" open":"")+'><summary>Done orders <span class="tcount">'+done.length+'</span></summary><p class="note" style="margin:0 0 10px">Finished orders stay here for 15 minutes. Orders that still need a cash payment stay until you confirm it.</p><div class="ogrid">'+done.map(ocard).join("")+'</div></details>':"";
   $("ordBox").innerHTML=(pend.length||cook.length||done.length)?sec("New orders",pend)+sec("Cooking",cook)+doneBox
    :'<div class="empty"><b>No orders yet.</b><br>When a diner sends an order from your menu page, it appears here.</div>';
+  refreshActive();
  }
  function tblRows(){
   var fzs=$("fTblZone");
@@ -1096,7 +1223,13 @@ Nourish.ready.then(function(){
  });
  document.addEventListener("click",function(e){
   var b=e.target.closest("[data-act]");if(!b)return;var a=b.dataset.act;
-  if(a==="oStart")setOrder(b.dataset.id&&+b.dataset.id,"preparing");
+  if(a==="oPaid")confirmCash(+b.dataset.id);
+  else if(a==="go")showTab(b.dataset.go,true);
+  else if(a==="inv")invoice(b.dataset.id);
+  else if(a==="addPurchase")addPurchase();
+  else if(a==="delPur"){S.ledger=S.ledger.filter(function(x){return x.id!==b.dataset.id});save();purchases();sales()}
+  else if(a==="ex")doExport(b.dataset.k);
+  else if(a==="oStart")setOrder(b.dataset.id&&+b.dataset.id,"preparing");
   else if(a==="oDone")setOrder(+b.dataset.id,"ready");
   else if(a==="tFree"){var o=jr(OCCK())||{};delete o[b.dataset.n];try{localStorage.setItem(OCCK(),JSON.stringify(o))}catch(x){}Nourish.freeTable(b.dataset.n);tblRows();ordersTab()}
  });
@@ -1280,6 +1413,145 @@ Nourish.ready.then(function(){
   else if(a==="go"&&pending[k]){var msg=COMMIT[k](pending[k]);pending[k]=null;out.innerHTML='<p class="msg good" role="status">Done. '+esc(msg)+'</p><div class="row"><button type="button" class="btn ghost sm" data-imp="undo">Undo this import</button></div>'}
   else if(a==="undo"&&snaps[k]){UNDO[k]();snaps[k]=null;out.innerHTML='<p class="msg good" role="status">Import undone.</p>'}
  });
+
+
+ /* ---------- more sections: dashboard, analytics, reviews, payments, invoices, purchases, export ---------- */
+ function ratingsList(){var a=Nourish.account(),sl=Nourish.mySlug();return(jr("nourish-ratings")||[]).filter(function(x){return x.rid?x.rid===a.id:x.r===sl}).sort(function(x,y){return y.at-x.at})}
+ var STL={pending:"Received",preparing:"Cooking",ready:"Ready"};
+ function stPill(o){return '<span class="st '+(o.status==="pending"?"rec":o.status==="preparing"?"low":"ok")+'" style="margin-left:0">'+(STL[o.status]||esc(o.status))+'</span>'}
+ function hm(t){var d=new Date(t||0);return pad(d.getHours())+":"+pad(d.getMinutes())}
+ function emptyBox(t){return '<div class="empty">'+t+'</div>'}
+ function bars(map,total,cls,f){
+  var k=Object.keys(map).sort(function(a,b){return map[b]-map[a]}).slice(0,8);
+  if(!k.length)return '<p class="note">Nothing recorded yet.</p>';
+  return k.map(function(c){var pc=total?map[c]/total*100:0;
+   return '<div class="bk"><div class="row" style="justify-content:space-between"><span>'+esc(c)+'</span><b>'+f(map[c])+'</b></div><div class="bar"><i class="'+cls+'" style="width:'+pc+'%"></i></div></div>'}).join("");
+ }
+ function refreshActive(){
+  var on=document.querySelector(".panel.on");if(!on)return;var n=on.id.slice(4);
+  if(n==="overview")overview();else if(n==="payments")payments();
+ }
+ function overview(){
+  var L=myOrders(),today=ds(new Date()),
+   todayO=L.filter(function(o){return ds(new Date(o.at||0))===today}).length,
+   salesT=S.ledger.filter(function(e){return e.type==="income"&&e.date===today}).reduce(function(a,e){return a+e.amount},0),
+   newO=L.filter(function(o){return o.status==="pending"}).length,cook=L.filter(function(o){return o.status==="preparing"}).length,
+   due=L.filter(function(o){return !isPaid(o)}).reduce(function(a,o){return a+payParts(o).cash},0),
+   R=ratingsList(),avg=R.length?R.reduce(function(a,x){return a+x.stars},0)/R.length:null,
+   taken=Object.keys(jr(OCCK())||{}).length;
+  $("ovKpis").innerHTML=kpi("Orders today",todayO)+kpi("Sales today",fmt(salesT))+kpi("New orders",newO)+kpi("Cooking now",cook)
+   +kpi("Cash to collect",fmt(due),null,due>0)+kpi("Guest rating",avg===null?"n/a":avg.toFixed(1)+" / 5")+kpi("Tables taken",taken+" of "+S.tables.length);
+  var last=L.slice().sort(function(a,b){return (b.at||0)-(a.at||0)}).slice(0,6);
+  $("ovLatest").innerHTML=last.length?last.map(function(o){
+   var n=o.items.reduce(function(a,i){return a+i.qty},0);
+   return '<div class="led"><div>'+hm(o.at)+'</div><div>#'+o.id+' · Table '+esc(o.table)+'<small>'+n+' dish'+(n===1?"":"es")+' · '+(isPaid(o)?"Paid":"Cash due")+'</small></div><b>'+fmtx(o.total)+'</b>'+stPill(o)+'</div>'}).join(""):emptyBox("<b>No orders yet.</b><br>New orders from your menu page show up here.");
+ }
+ function analytics(){
+  var recs=S.ledger.filter(function(e){return e.type==="income"&&e.lines&&e.lines.length});
+  if(!recs.length){$("anKpis").innerHTML="";["anDish","anQty","anDow","anHour"].forEach(function(id){$(id).innerHTML=""});
+   $("anDish").innerHTML=emptyBox("<b>No data yet.</b><br>Once guests order and pay, your best sellers appear here.");return}
+  var rev={},qty={},dow={},hour={},tot=0,q=0,days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  recs.forEach(function(e){
+   tot+=e.amount;
+   e.lines.forEach(function(l){rev[l.n]=(rev[l.n]||0)+l.q*l.p;qty[l.n]=(qty[l.n]||0)+l.q;q+=l.q});
+   var d=days[parse(e.date).getDay()];dow[d]=(dow[d]||0)+e.amount;
+   if(e.at){var h=new Date(e.at).getHours(),k=pad(h)+":00";hour[k]=(hour[k]||0)+1}
+  });
+  var rt=Object.keys(rev).reduce(function(a,k){return a+rev[k]},0),qt=q;
+  $("anKpis").innerHTML=kpi("Paid orders",recs.length)+kpi("Income from orders",fmt(tot))+kpi("Average order",fmt(tot/recs.length))+kpi("Dishes sold",qt);
+  $("anDish").innerHTML=bars(rev,rt,"g",fmt);
+  $("anQty").innerHTML=bars(qty,qt,"g",function(v){return v+" sold"});
+  $("anDow").innerHTML=bars(dow,tot,"g",fmt);
+  var ho=0;Object.keys(hour).forEach(function(k){ho+=hour[k]});
+  $("anHour").innerHTML=bars(hour,ho,"g",function(v){return v+" order"+(v===1?"":"s")});
+ }
+ function reviews(){
+  var R=ratingsList();
+  if(!R.length){$("rvKpis").innerHTML="";$("rvDist").innerHTML=emptyBox("<b>No reviews yet.</b><br>Guests can rate their meal on their phone after eating.");$("rvList").innerHTML="";return}
+  var avg=R.reduce(function(a,x){return a+x.stars},0)/R.length,cm=R.filter(function(x){return x.comment}).length;
+  $("rvKpis").innerHTML=kpi("Average rating",avg.toFixed(1)+" / 5")+kpi("Reviews",R.length)+kpi("With a comment",cm);
+  var dist=[5,4,3,2,1].map(function(n){var c=R.filter(function(x){return x.stars===n}).length;
+   return '<div class="bk"><div class="row" style="justify-content:space-between"><span>'+n+' star'+(n===1?"":"s")+'</span><b>'+c+'</b></div><div class="bar"><i class="g" style="width:'+(c/R.length*100)+'%"></i></div></div>'}).join("");
+  $("rvDist").innerHTML=dist;
+  $("rvList").innerHTML=R.map(function(x){return '<div style="padding:10px 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px"><div><b>'+"★".repeat(x.stars)+"☆".repeat(5-x.stars)+'</b> Table '+esc(x.table)+(x.comment?'<p class="note" style="margin:2px 0 0">'+esc(x.comment)+'</p>':'')+'</div><span class="note">'+agoTxt(x.at)+'</span></div>'}).join("");
+ }
+ function payments(){
+  var L=myOrders().sort(function(a,b){return (b.at||0)-(a.at||0)}),card=0,cashIn=0,wait=0,tips=0;
+  L.forEach(function(o){var p=payParts(o);card+=p.card;if(isPaid(o))cashIn+=p.cash;else wait+=p.cash;tips+=+o.tip||0});
+  $("pyKpis").innerHTML=kpi("Paid by card",fmt(card))+kpi("Cash received",fmt(cashIn))+kpi("Cash waiting",fmt(wait),null,wait>0)+kpi("Tips",fmt(tips));
+  $("pyList").innerHTML=L.length?L.map(function(o){
+   var p=payParts(o),how=p.card>0&&p.cash>0?fmtx(p.card)+" card + "+fmtx(p.cash)+" cash":p.cash>0?"Cash":"Card";
+   return '<div class="led"><div>'+hm(o.at)+'</div><div>Order #'+o.id+' · Table '+esc(o.table)+'<small>'+how+((+o.tip)>0?' · tip '+fmtx(o.tip):'')+'</small></div><b class="in">'+fmtx((+o.total||0)+(+o.tip||0))+'</b>'
+    +(isPaid(o)?'<span class="st ok" style="margin-left:0">Paid</span>':'<button class="btn sm" data-act="oPaid" data-id="'+o.id+'">Confirm cash</button>')+'</div>'}).join("")
+   :emptyBox("<b>No payments yet.</b><br>Recent orders and how they were paid appear here (the last 3 days).");
+ }
+ function invoices(){
+  var R=S.ledger.filter(function(e){return e.orderId&&e.lines}).sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:(b.at||0)-(a.at||0)}).slice(0,80);
+  $("ivList").innerHTML=R.length?R.map(function(e){
+   return '<div class="led"><div>'+fd(e.date)+'</div><div>'+esc(e.title)+'<small>'+esc(e.dishes||"")+'</small></div><b class="in">'+fmtx(e.amount)+'</b><button class="btn ghost sm" data-act="inv" data-id="'+e.id+'">Invoice</button></div>'}).join("")
+   :emptyBox("<b>No invoices yet.</b><br>An invoice is ready for every order once it is paid.");
+ }
+ function invoice(id){
+  var e=S.ledger.filter(function(x){return x.id===id})[0];if(!e||!e.lines)return;
+  var rows=e.lines.map(function(l){return '<tr><td>'+l.q+' × '+esc(l.n)+'</td><td>'+fmtx(l.q*l.p)+'</td></tr>'}).join("");
+  $("sheet").innerHTML='<div class="invoice"><h1>'+esc(S.restaurant.name)+'</h1><p><b>Invoice N° '+esc(e.orderId)+'</b><br>'+esc(e.title)+'<br>'+fd(e.date)+'</p><table><tr><th>Item</th><th>Amount</th></tr>'+rows+'<tr><th>Total</th><th>'+fmtx(e.amount)+'</th></tr></table><p>Thank you for dining with us.</p></div>';
+  window.addEventListener("afterprint",function(){$("sheet").innerHTML=""},{once:true});
+  window.print();
+ }
+ function purchases(){
+  var sel=$("puCat");if(!sel.options.length)sel.innerHTML=EXP.map(function(c){return '<option>'+esc(c)+'</option>'}).join("");
+  var ex=S.ledger.filter(function(e){return e.type==="expense"}).sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:0}),
+   from=ds(addDays(new Date(),-29)),m={},tot=0;
+  ex.forEach(function(e){if(e.date>=from){m[e.cat]=(m[e.cat]||0)+e.amount;tot+=e.amount}});
+  var all=ex.reduce(function(a,e){return a+e.amount},0);
+  $("puKpis").innerHTML=kpi("Spent, last 30 days",fmt(tot))+kpi("All purchases",fmt(all))+kpi("Records",ex.length);
+  $("puBreak").innerHTML=brk(m,tot,"r");
+  $("puList").innerHTML=ex.length?ex.slice(0,40).map(function(e){return '<div class="led" style="grid-template-columns:90px 1fr auto auto"><div>'+fd(e.date)+'</div><div>'+esc(e.cat)+'<small>'+esc(e.note||"")+'</small></div><b class="out">−'+fmtx(e.amount)+'</b><button class="btn del sm" data-act="delPur" data-id="'+e.id+'" aria-label="Delete this purchase">Delete</button></div>'}).join(""):emptyBox("<b>No purchases yet.</b>");
+ }
+ function addPurchase(){
+  var amt=Math.round((+$("puAmt").value||0)*100)/100,say=$("puSay");
+  if(!(amt>0)){say.textContent="Enter the amount you paid.";return}
+  S.ledger.push({id:uid(),type:"expense",date:ds(new Date()),cat:$("puCat").value,amount:amt,orders:0,note:$("puNote").value.trim()});
+  save();$("puAmt").value="";$("puNote").value="";say.textContent="Purchase added.";purchases();sales();
+ }
+ /* export */
+ function dlFile(name,type,text){var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:type}));a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},2000)}
+ function csvOf(head,rows){return "\ufeff"+[head.map(cell).join(",")].concat(rows.map(function(r){return r.map(cell).join(",")})).join("\n")}
+ function genCsv(list,extraHead,extraFn){
+  var keys=[];list.forEach(function(o){Object.keys(o).forEach(function(k){if(keys.indexOf(k)<0)keys.push(k)})});
+  var head=(extraHead||[]).concat(keys);
+  return csvOf(head,list.map(function(o){return (extraFn?extraFn(o):[]).concat(keys.map(function(k){var v=o[k];return v!==null&&typeof v==="object"?JSON.stringify(v):v}))}));
+ }
+ var EXK=function(){return [
+  ["orders","Orders","Every order with dishes, totals, tips and payments (the last 3 days kept on this screen)",myOrders().length],
+  ["sales","Sales history","Every income and expense record, with the dishes of each order",S.ledger.length],
+  ["menu","Menu","All dishes with category, price, calories and allergens",S.dishes.length],
+  ["stock","Stock","All ingredients with quantity and cost",S.ingredients.length],
+  ["moves","Stock movements","Restocks, waste and other changes",S.moves.length],
+  ["tables","Tables","Tables with position, seats and notes",S.tables.length],
+  ["reviews","Reviews","Guest ratings and comments",ratingsList().length],
+  ["backup","Full backup (JSON)","Everything above in one file",""]]};
+ function exportTab(){
+  $("exList").innerHTML=EXK().map(function(x){return '<div class="led" style="grid-template-columns:1fr auto"><div><b>'+x[1]+'</b><small>'+x[2]+(x[3]!==""?' · '+x[3]+' row'+(x[3]===1?"":"s"):'')+'</small></div><button class="btn ghost sm" data-act="ex" data-k="'+x[0]+'">Download</button></div>'}).join("");
+ }
+ function doExport(k){
+  var pre="nourish-"+slug()+"-"+k+"-"+ds(new Date()),catName=function(id){var c=S.categories.filter(function(x){return x.id===id})[0];return c?c.name:""};
+  if(k==="orders"){
+   dlFile(pre+".csv","text/csv",csvOf(["Order","Date","Time","Table","Guests","Status","Dishes","Dishes total","Tip","Paid by card","Cash","Cash confirmed","Rating"],
+    myOrders().sort(function(a,b){return (a.at||0)-(b.at||0)}).map(function(o){var p=payParts(o),d=new Date(o.at||0);
+     return [o.id,ds(d),hm(o.at),o.table,o.party,STL[o.status]||o.status,o.items.map(function(i){return i.qty+" x "+i.name}).join("; "),o.total,o.tip||0,p.card,p.cash,p.cash>0?(o.cashPaid?"yes":"no"):"",o.rating||""]})));
+  }else if(k==="sales"){
+   dlFile(pre+".csv","text/csv",csvOf(["Date","Type","Category","Title","Dishes","Amount","Orders","Note"],
+    S.ledger.slice().sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0}).map(function(e){return [e.date,e.type,e.cat,e.title||"",e.dishes||"",e.amount,e.orders||0,e.note||""]})));
+  }else if(k==="menu"){dlFile(pre+".csv","text/csv",genCsv(S.dishes,["Category"],function(d){return [catName(d.cat)]}));
+  }else if(k==="stock"){dlFile(pre+".csv","text/csv",genCsv(S.ingredients));
+  }else if(k==="moves"){dlFile(pre+".csv","text/csv",genCsv(S.moves));
+  }else if(k==="tables"){dlFile(pre+".csv","text/csv",genCsv(S.tables.slice().sort(function(a,b){return a.n-b.n})));
+  }else if(k==="reviews"){dlFile(pre+".csv","text/csv",csvOf(["Date","Table","Stars","Comment"],ratingsList().map(function(x){return [ds(new Date(x.at||0)),x.table,x.stars,x.comment||""]})));
+  }else if(k==="backup"){
+   dlFile(pre+".json","application/json",JSON.stringify({exported:new Date().toISOString(),restaurant:S.restaurant,categories:S.categories,dishes:S.dishes,ingredients:S.ingredients,moves:S.moves,tables:S.tables,ledger:S.ledger,orders:myOrders(),reviews:ratingsList()},null,2));
+  }
+ }
 
  head();checks();cats();tables();dishes();lcats();sales();mvSel();inventory();ordersTab();save();
 });
