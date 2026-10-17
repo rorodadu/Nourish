@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Menu – Nourish</title>
+<link rel="icon" type="image/x-icon" href="icon.ico?v=2"><link rel="shortcut icon" href="icon.ico?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="auth.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+:root{--bg:#f4f8f4;--card:#fff;--ink:#14261c;--mute:#566a5d;--line:#d6e1d7;--leaf:#1f7a4d;--leaf-t:#dff1e6;--citrus:#a86a00;--citrus-t:#fdecc8;--berry:#b8304f;--on-leaf:#fff;--deep:#14261c;--on-deep:#e8f1ea;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a14;--card:#16251c;--ink:#e8f1ea;--mute:#9db1a3;--line:#294034;--leaf:#4fc088;--leaf-t:#1b3a2a;--citrus:#f0b44a;--citrus-t:#3a2d12;--berry:#ff7a96;--on-leaf:#0b1a12;--deep:#0a120e;--on-deep:#e8f1ea}}
+:root[data-theme="dark"]{--bg:#0f1a14;--card:#16251c;--ink:#e8f1ea;--mute:#9db1a3;--line:#294034;--leaf:#4fc088;--leaf-t:#1b3a2a;--citrus:#f0b44a;--citrus-t:#3a2d12;--berry:#ff7a96;--on-leaf:#0b1a12;--deep:#0a120e;--on-deep:#e8f1ea}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(116px + env(safe-area-inset-top,0px));-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.5 Figtree,system-ui,-apple-system,Segoe UI,sans-serif;padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+h1,h2,h3{font-family:"Bricolage Grotesque",Figtree,system-ui,sans-serif;margin:0;line-height:1.1;letter-spacing:-.015em}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--leaf);outline-offset:3px}
+[hidden]{display:none!important}
+.wrap{max-width:640px;margin:0 auto;padding:0 18px}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:12px;height:56px}
+.top .rn{font:800 21px "Bricolage Grotesque",sans-serif;color:var(--leaf);margin-right:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbl{flex:none;background:var(--leaf);color:var(--on-leaf);font-weight:700;border:0;border-radius:999px;padding:6px 14px;font-size:15px;min-height:36px}
+.tbl.none{background:var(--citrus-t);color:var(--citrus)}
+.secs{border-bottom:1px solid var(--line);background:var(--bg)}
+.secs .wrap{display:flex;gap:8px;overflow-x:auto;padding-top:8px;padding-bottom:8px;scrollbar-width:none}
+.secs a{flex:none;text-decoration:none;color:var(--ink);font-weight:500;font-size:15px;padding:8px 16px;border-radius:999px;border:1px solid var(--line)}
+.secs a:hover{background:var(--leaf-t)}
+.secsin{max-width:640px;margin:0 auto;position:relative}
+.secs .wrap{cursor:grab;scroll-behavior:smooth}
+.secs .wrap.drag{cursor:grabbing;scroll-behavior:auto}
+.snb{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font:700 22px/1 Figtree,system-ui,sans-serif;cursor:pointer;display:grid;place-items:center;box-shadow:0 2px 8px rgba(0,0,0,.25);padding:0}
+.snb.l{left:2px}.snb.r{right:2px}
+.snb[hidden]{display:none}
+@media (hover:none){.snb{display:none}}
+.stick{position:sticky;top:calc(56px + env(safe-area-inset-top,0px));z-index:19}
+
+/* intro, goal, filters */
+.intro{padding:26px 0 8px}
+.intro h1{font-size:clamp(30px,8vw,40px);font-weight:800}
+.intro p{color:var(--mute);margin:8px 0 0}
+.goal{margin:18px 0 0;border:1px solid var(--line);background:var(--card);border-radius:16px;padding:16px}
+.goal .gh{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.goal label{font-weight:700}
+.goal input{width:112px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);text-align:right}
+.meter{height:12px;border-radius:999px;background:var(--leaf-t);overflow:hidden;margin:12px 0 8px}
+.meter i{display:block;height:100%;width:0;background:var(--leaf);border-radius:999px;transition:width .25s}
+.meter.over i{background:var(--berry)}
+.gtxt{margin:0;font-size:15px;color:var(--mute)}
+.gtxt b{color:var(--ink)}
+.gtxt.over b{color:var(--berry)}
+details.flt{margin:12px 0 0;border:1px solid var(--line);background:var(--card);border-radius:16px;padding:0 16px}
+details.flt summary{padding:14px 0;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;gap:12px}
+details.flt summary span{color:var(--mute);font-weight:500}
+.fgroup{padding:2px 0 16px}
+.fgroup h3{font:700 16px Figtree,sans-serif;margin:0 0 4px}
+.fgroup p{margin:0 0 10px;font-size:14px;color:var(--mute)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative;padding:8px 14px;border:1px solid var(--line);border-radius:999px;font-size:15px;font-weight:500;cursor:pointer;background:var(--bg)}
+.chip input{position:absolute;opacity:0;inset:0;cursor:pointer;margin:0}
+.chip:has(input:checked){background:var(--leaf);color:var(--on-leaf);border-color:var(--leaf);font-weight:700}
+.chip.avoid:has(input:checked){background:var(--berry);border-color:var(--berry);color:#fff}
+.chip:has(input:focus-visible){outline:3px solid var(--leaf);outline-offset:2px}
+.hid{margin:14px 0 0;background:var(--citrus-t);color:var(--citrus);border-radius:12px;padding:10px 14px;font-size:15px;font-weight:500}
+.hid button{border:0;background:none;color:inherit;font-weight:700;text-decoration:underline;padding:0}
+
+/* dishes */
+.sec{padding-top:30px}
+.sec>h2{font-size:30px;font-weight:800;padding-bottom:10px;border-bottom:2px solid var(--ink)}
+.dish{display:grid;grid-template-columns:1fr auto;gap:6px 16px;padding:18px 0;border-bottom:1px solid var(--line)}
+.dish h3{font-size:21px;font-weight:600}
+.dish .desc{margin:4px 0 0;color:var(--mute);font-size:15px}
+.dish .facts{display:flex;flex-wrap:wrap;gap:4px 14px;margin:8px 0 0;font-size:14px;color:var(--mute)}
+.dish .al{margin:6px 0 0;font-size:14px;font-weight:700;color:var(--citrus)}
+.dish .al.none{color:var(--mute);font-weight:500}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tag{font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--leaf-t);color:var(--leaf)}
+.side{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right}
+.side [data-ctl]{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.kcal{font:800 30px/1 "Bricolage Grotesque",sans-serif}
+.kcal small{display:block;font:500 13px Figtree,sans-serif;color:var(--mute);margin-top:2px}
+.price{font-weight:700;margin:6px 0 8px}
+.dish.out .kcal,.dish.out h3,.dish.out .desc,.dish.out .facts,.dish.out .tags,.dish.out .price{opacity:.45}
+.soldout{font-weight:700;color:var(--mute);border:1px dashed var(--line);border-radius:10px;padding:8px 12px;font-size:14px}
+.add{background:var(--leaf);color:var(--on-leaf);border:0;border-radius:10px;padding:10px 20px;font-weight:700;min-height:44px}
+.add.cbtn{background:transparent;color:var(--leaf);border:2px solid var(--leaf)}
+.inord{font-size:13px;font-weight:700;color:var(--leaf)}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;background:var(--card)}
+.stepper button{width:44px;height:44px;border:0;background:none;font-size:22px;font-weight:700;border-radius:50%;color:var(--leaf)}
+.stepper button:hover{background:var(--leaf-t)}
+.stepper output{min-width:24px;text-align:center;font-weight:700}
+.empty{text-align:center;padding:50px 0;color:var(--mute)}
+.fine{color:var(--mute);font-size:14px;margin:34px 0 0}
+
+/* bottom bar */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--deep);color:var(--on-deep);padding:12px 0 calc(12px + env(safe-area-inset-bottom,0px))}
+.bar .wrap{display:flex;align-items:center;gap:14px}
+.bar .bi{margin-right:auto;display:flex;flex-wrap:wrap;gap:0 14px;align-items:baseline}
+.bar .bi b{font-size:18px}
+.bar .bi span{font-size:14px;opacity:.8}
+.bar button{background:var(--leaf);color:var(--on-leaf);border:0;border-radius:10px;padding:12px 20px;font-weight:700;min-height:46px}
+
+/* welcome screen */
+.welcome{position:fixed;inset:0;z-index:60;background:var(--bg);overflow:auto;display:grid;place-items:center;padding:24px 18px calc(24px + env(safe-area-inset-bottom,0px))}
+.wcard{width:100%;max-width:440px}
+.wr{font:800 22px "Bricolage Grotesque",sans-serif;color:var(--leaf);margin:0 0 26px}
+.wcard h1{font-size:clamp(46px,15vw,76px);font-weight:800}
+.wl{color:var(--mute);margin:10px 0 0}
+
+/* sheet */
+dialog{border:0;padding:0;background:var(--card);color:var(--ink);width:100%;max-width:560px;max-height:92dvh;margin:auto auto 0;border-radius:22px 22px 0 0;overflow:auto}
+dialog::backdrop{background:rgba(10,18,14,.6)}
+@media (min-width:640px){dialog{margin:auto;border-radius:22px}}
+.sheet{padding:22px 20px calc(24px + env(safe-area-inset-bottom,0px))}
+.sh{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+.sh h2{font-size:28px;font-weight:800}
+.x{flex:none;border:1px solid var(--line);background:none;border-radius:999px;width:44px;height:44px;font-size:20px}
+.sheet .sub{color:var(--mute);margin:0 0 4px;font-size:15px}
+.lines{list-style:none;margin:8px 0 0;padding:0}
+.line{padding:16px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center}
+.line .lt b{display:block;font-size:18px}
+.line .lt span{color:var(--mute);font-size:14px;display:block}
+.line .lt .cu{color:var(--ink)}
+.line .nt{grid-column:1/-1;display:grid;gap:4px;font-size:14px;color:var(--mute)}
+.line .nt input{padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);width:100%}
+.swap{grid-column:1/-1;text-align:left;background:var(--leaf-t);color:var(--leaf);border:0;border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+.tot{display:flex;justify-content:space-between;gap:12px;padding:14px 0 4px;font-size:19px;font-weight:700}
+.tot.k{font-size:15px;font-weight:500;color:var(--mute);padding-top:0}
+.fld{margin-top:18px;border:0;padding:0;min-width:0}
+.fld legend,.fld>label.t{font-weight:700;padding:0;margin-bottom:8px;display:block}
+.fld input.num,.fld input.txt{padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.fld input.num{width:110px}
+.fld input.txt{width:100%}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{position:relative;padding:10px 16px;border:1px solid var(--line);border-radius:999px;font-weight:500;cursor:pointer;min-height:44px;display:flex;align-items:center;gap:8px;background:var(--bg)}
+.pill input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.pill .pp{font-size:13px;opacity:.8;font-weight:500}
+.pill:has(input:checked){background:var(--leaf);color:var(--on-leaf);border-color:var(--leaf);font-weight:700}
+.pill.rm:has(input:checked){background:var(--berry);border-color:var(--berry);color:#fff}
+.pill:has(input:focus-visible){outline:3px solid var(--leaf);outline-offset:2px}
+.qrow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px}
+.qrow b{font-weight:700}
+.err{color:var(--berry);font-weight:500;font-size:15px;margin:12px 0 0}
+.err:empty{display:none}
+.send{width:100%;background:var(--leaf);color:var(--on-leaf);border:0;border-radius:12px;padding:16px 22px;font-weight:700;font-size:18px;margin-top:16px}
+.send:disabled{opacity:.6}
+.send.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.trk{list-style:none;padding:0;margin:20px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.trk li{text-align:center;padding:12px 6px;border-radius:10px;background:var(--leaf-t);color:var(--mute);font-size:15px;font-weight:500}
+.trk li.on{background:var(--leaf);color:var(--on-leaf);font-weight:700}
+.trk li.done{color:var(--leaf);font-weight:700}
+.summ{margin:0;padding:0;list-style:none;color:var(--mute);font-size:15px}
+.summ li{padding:4px 0}
+.sheet p.big{font-size:18px;margin:8px 0 0}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.meter i{transition:none}}
+
+/* ---- v2: photos, diner banner, budget, pay split, tracking ---- */
+.dish{grid-template-columns:96px 1fr;gap:14px;align-items:start}
+.ph{position:relative;width:96px;height:96px;border-radius:14px;background:var(--leaf-t);display:grid;place-items:center;font-size:44px;overflow:hidden}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.buy{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;flex-wrap:wrap}
+.kp{display:flex;align-items:baseline;gap:12px}
+.kcal{font-size:24px}
+.kcal small{display:inline;margin-left:3px}
+.price{margin:0}
+.dish.out .ph,.dish.lock .ph,.dish.lock h3,.dish.lock .desc,.dish.lock .facts,.dish.lock .tags,.dish.lock .kcal,.dish.lock .price{opacity:.45}
+.lockmsg{font-weight:700;color:var(--berry);border:1px dashed var(--berry);border-radius:10px;padding:8px 12px;font-size:14px}
+.dish .al b{color:var(--berry)}
+.wh{font-size:clamp(26px,7vw,34px);font-weight:800}
+.lnk{border:0;background:none;color:var(--leaf);font-weight:700;text-decoration:underline;padding:8px 0;min-height:44px}
+.meter.bud{background:var(--citrus-t)}
+.meter.bud i{background:var(--citrus)}
+.meter.bud.over i{background:var(--berry)}
+.sm{font:700 16px Figtree,sans-serif;margin:18px 0 0}
+.paid{list-style:none;padding:0;margin:8px 0 0}
+.paid li{padding:10px 12px;border-radius:10px;background:var(--leaf-t);margin-bottom:6px;font-size:15px}
+.cardf{display:grid;gap:12px;margin-top:14px}
+.cardf label{display:grid;gap:6px;font-weight:500;font-size:15px}
+.cardf .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.spin{width:54px;height:54px;border-radius:50%;border:6px solid var(--leaf-t);border-top-color:var(--leaf);margin:22px auto;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.trk{grid-template-columns:repeat(4,1fr)}
+.trk li{font-size:13px}
+.passbig{font-size:clamp(34px,10vw,52px);font-weight:800;margin:0 0 12px}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+
+/* ---- restaurant chooser ---- */
+.pick{padding:28px 0 calc(40px + env(safe-area-inset-bottom,0px))}
+.pick .wr{font:800 22px "Bricolage Grotesque",sans-serif;color:var(--leaf);margin:0 0 22px}
+.pick h1{font-size:clamp(34px,10vw,52px);font-weight:800}
+.pick .wl{color:var(--mute);margin:10px 0 20px}
+.pick input[type=search]{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:12px;background:var(--card);margin:0 0 14px;font-size:17px}
+.rlist{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.rcard{display:grid;grid-template-columns:1fr auto;gap:2px 14px;align-items:center;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;min-height:76px}
+.rcard:hover,.rcard:focus-visible{border-color:var(--leaf);background:var(--leaf-t)}
+.rcard .rname{font:800 22px "Bricolage Grotesque",sans-serif;grid-column:1}
+.rcard .rmeta{grid-column:1;color:var(--mute);font-size:15px}
+.rcard .rgo{grid-column:2;grid-row:1/span 2;color:var(--leaf);font-weight:700;white-space:nowrap}
+.pick .none{color:var(--mute);margin:14px 0 0}
+a.lnk{display:inline-block;line-height:44px;padding:0}
+/* ---- table picker + cooking time ---- */
+.tgrid{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.tcard{display:grid;place-items:center;min-width:48px;height:48px;padding:0 12px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);cursor:pointer;font:inherit;font-weight:700;font-size:17px}
+.tinfo{color:var(--mute);font-size:14px;margin:10px 0 0;min-height:1.4em}
+.tcard[aria-pressed="true"]{border-color:var(--leaf);background:var(--leaf-t)}
+.zrow{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 2px}
+.zb{padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--ink);cursor:pointer;font:inherit;min-height:40px}
+.zb[aria-pressed="true"]{background:var(--leaf);color:var(--on-leaf);border-color:var(--leaf)}
+.tnone{padding:14px;border:1px dashed var(--line);border-radius:12px;color:var(--mute);margin:10px 0 0}
+.prep{font-size:13px;color:var(--mute);margin-left:8px}
+/* ---- order animations, rating ---- */
+.scene{display:grid;place-items:center;margin:8px 0 0;animation:rise .45s ease both}
+.scene svg{width:176px;height:132px;overflow:visible}
+.scene .bg{fill:var(--leaf-t)}
+.scene .ink{fill:none;stroke:var(--ink);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.scene .fc{fill:var(--card)}.scene .lf{fill:var(--leaf)}.scene .ct{fill:var(--citrus,#f2a100)}
+.scene .sm2{fill:none;stroke:var(--mute);stroke-width:3;stroke-linecap:round}
+.scene .tk{stroke:var(--on-leaf);fill:none;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.scene .fb{transform-box:fill-box}
+@keyframes ring{0%,100%{transform:rotate(0)}12%{transform:rotate(14deg)}28%{transform:rotate(-12deg)}44%{transform:rotate(8deg)}60%{transform:rotate(-4deg)}80%{transform:rotate(0)}}
+@keyframes dotb{0%,80%,100%{transform:translateY(0);opacity:.35}40%{transform:translateY(-9px);opacity:1}}
+@keyframes rise{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes pop{0%{transform:scale(.2);opacity:0}70%{transform:scale(1.12);opacity:1}100%{transform:scale(1)}}
+@keyframes steam{0%{transform:translateY(10px);opacity:0}30%{opacity:.85}100%{transform:translateY(-24px);opacity:0}}
+@keyframes flame{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.4)}}
+@keyframes toss{0%,100%{transform:translateY(0) rotate(0)}45%{transform:translateY(-28px) rotate(170deg)}}
+@keyframes shake{0%,100%{transform:rotate(0)}50%{transform:rotate(-4deg)}}
+@keyframes lift{0%,25%{transform:translateY(0) rotate(0)}65%,100%{transform:translateY(-30px) rotate(-10deg)}}
+@keyframes spark{0%,100%{opacity:0;transform:scale(.3)}50%{opacity:1;transform:scale(1)}}
+.rate{margin-top:18px;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--card)}
+.rate textarea{width:100%;margin-top:6px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);font:inherit;color:var(--ink);resize:vertical}
+.stars{display:flex;gap:6px;margin:8px 0 12px}
+.stars .st{width:48px;height:48px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--line);font-size:28px;cursor:pointer;line-height:1}
+.stars .st.on{color:var(--citrus,#f2a100);border-color:var(--citrus,#f2a100)}
+/* ---- table QR code ---- */
+.tqr{margin-top:18px;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--card);text-align:center}
+.tqr .sm{margin-top:0}
+.qrbox{width:200px;max-width:70%;margin:12px auto;padding:8px;background:#fff;border-radius:12px;line-height:0}
+.qrbox svg{width:100%;height:auto;display:block}
+.tqr .wl{margin:6px 0 0;font-size:15px}
+.tqr .qrtog{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;padding:0;cursor:pointer;color:var(--ink);font:inherit;min-height:44px}
+.tqr .qrtog .pl{flex:none;width:44px;height:44px;border-radius:50%;background:var(--leaf);color:var(--on-leaf);display:grid;place-items:center;font:700 26px/1 Figtree,system-ui,sans-serif;transition:transform .2s}
+.tqr .qrtog[aria-expanded="true"] .pl{transform:rotate(45deg)}
+.tqr .qrtog b{display:block;font-weight:700}
+.tqr .qrtog small{display:block;color:var(--mute);font-size:14px}
+.tqr .qrbody{margin-top:8px}
+.tqr .lk{display:block;margin-top:8px;font-size:13px;color:var(--mute);word-break:break-all}
+@media (prefers-reduced-motion:reduce){.scene,.scene *{animation:none!important}.scene .tk{stroke-dashoffset:0!important}}
+</style>
+</head>
+<body>
+
+<div class="pick" id="pick" hidden></div>
+
+<header class="top"><div class="wrap">
+ <span class="rn" id="rn">Restaurant</span>
+ <button type="button" class="tbl" id="tbl"></button>
+</div></header>
+<nav class="secs stick" id="secsNav" aria-label="Menu sections"><div class="secsin"><button type="button" class="snb l" id="secL" aria-label="Scroll categories left" hidden>‹</button><div class="wrap" id="secs"></div><button type="button" class="snb r" id="secR" aria-label="Scroll categories right" hidden>›</button></div></nav>
+
+<main class="wrap">
+ <section class="goal" id="who" aria-label="Who is ordering">
+  <div class="gh"><h1 class="wh" id="wname">Menu</h1><button type="button" class="lnk" data-act="editprof">Edit allergies and goal</button></div>
+  <p class="gtxt" id="avl"></p>
+  <div class="meter" id="meter" hidden role="progressbar" aria-label="Calories in your order" aria-valuemin="0"><i id="meterFill"></i></div>
+  <p class="gtxt" id="gtxt"></p>
+  <div class="meter bud" id="bmeter" hidden role="progressbar" aria-label="Group budget used" aria-valuemin="0"><i id="bFill"></i></div>
+  <p class="gtxt" id="btxt" hidden></p>
+  <p class="err" id="bmsg" role="alert"></p>
+ </section>
+
+ <div id="menu"></div>
+
+ <p class="fine">This is a demo menu. Calories, protein and allergen details are entered by the restaurant and are estimates, not medical advice. If you have a serious allergy, tell your server before ordering.</p>
+</main>
+
+<div class="bar" id="bar" hidden><div class="wrap">
+ <div class="bi" id="barInfo"></div>
+ <button type="button" id="barBtn">View order</button>
+</div></div>
+
+<div class="welcome" id="welcome" role="dialog" aria-modal="true" aria-labelledby="wtitle" hidden></div>
+
+<dialog id="sheet" aria-labelledby="sheetTitle"><div class="sheet" id="sheetBody"></div></dialog>
+
+<script>
+(function(){
+"use strict";
+
+/* ------------------------------------------------------------------
+   DEMO DATA. Later this comes from the restaurant's own saved menu.
+   p = price (MAD), k = calories, pr = protein (g), c = carbs (g)
+   al = allergens, diet = diet tags the dish qualifies for, out = sold out
+   g  = option groups: t "one" = pick one, t "many" = pick any (extras)
+        each choice can change price (p), calories (k) and add allergens (al)
+   rm = ingredients the diner can take out
+------------------------------------------------------------------ */
+var MENU=[
+ {sec:"Starters",items:[
+  {id:"harira",n:"Harira soup",d:"Tomato, lentil and chickpea soup with fresh herbs.",p:35,k:210,pr:11,c:28,diet:["halal","dairy-free"],al:["gluten"]},
+  {id:"zaalouk",n:"Zaalouk",d:"Smoky aubergine and tomato salad with cumin and olive oil.",p:30,k:120,pr:3,c:12,diet:["vegan","vegetarian","gluten-free","dairy-free","halal","low-carb"],al:[]},
+  {id:"briouat",n:"Cheese briouat",d:"Crisp pastry parcels filled with soft cheese and mint.",p:40,k:340,pr:12,c:26,diet:["vegetarian","halal"],al:["gluten","dairy","eggs"]}
+ ]},
+ {sec:"Mains",items:[
+  {id:"seabass",n:"Grilled sea bass",d:"Whole fillet with lemon and herbs.",p:120,k:380,pr:42,c:6,diet:["gluten-free","dairy-free","halal","high-protein","low-carb"],al:["fish"],
+   g:[{n:"Choose your side",t:"one",c:[{n:"Steamed vegetables"},{n:"Saffron rice",p:10,k:150}]}],rm:["Lemon"]},
+  {id:"couscous",n:"Chicken couscous",d:"Steamed couscous with chicken, carrots, courgette and chickpeas.",p:95,k:640,pr:38,c:78,diet:["halal","dairy-free","high-protein"],al:["gluten"],
+   g:[{n:"Spice level",t:"one",c:[{n:"Mild"},{n:"Medium"},{n:"Spicy"}]},
+      {n:"Extras",t:"many",c:[{n:"Extra chicken",p:25,k:180},{n:"Extra chickpeas",p:8,k:90}]}],rm:["Raisins","Onions"]},
+  {id:"lamb",n:"Lamb tagine with prunes",d:"Slow-cooked lamb with prunes, almonds and sesame.",p:130,k:720,pr:41,c:55,diet:["halal","dairy-free","gluten-free","high-protein"],al:["nuts","sesame"],out:true},
+  {id:"vegtagine",n:"Vegetable tagine",d:"Seasonal vegetables slow-cooked with saffron and ginger.",p:75,k:340,pr:9,c:52,diet:["vegan","vegetarian","gluten-free","dairy-free","halal"],al:[],
+   g:[{n:"Extras",t:"many",c:[{n:"Add couscous",p:15,k:180,al:["gluten"]}]}]},
+  {id:"salad",n:"Grilled chicken salad",d:"Chicken breast, leaves, cucumber, tomato and lemon dressing.",p:70,k:360,pr:34,c:14,diet:["halal","gluten-free","dairy-free","high-protein","low-carb"],al:[],
+   g:[{n:"Dressing",t:"one",c:[{n:"Lemon dressing"},{n:"Dressing on the side"}]},
+      {n:"Extras",t:"many",c:[{n:"Avocado",p:15,k:160},{n:"Feta",p:12,k:100,al:["dairy"]}]}],rm:["Cucumber","Tomato"]},
+  {id:"burger",n:"Beef burger",d:"Beef patty, cheddar, house sauce and fries.",p:85,k:880,pr:36,c:62,diet:["halal","high-protein"],al:["gluten","dairy","eggs","sesame"],
+   g:[{n:"Cooking",t:"one",c:[{n:"Medium"},{n:"Well done"}]},
+      {n:"Side",t:"one",c:[{n:"Fries"},{n:"Green salad instead of fries",k:-250}]},
+      {n:"Extras",t:"many",c:[{n:"Extra cheddar",p:10,k:110,al:["dairy"]},{n:"Fried egg",p:8,k:90,al:["eggs"]}]}],rm:["Cheddar","House sauce","Onions"]}
+ ]},
+ {sec:"Desserts",items:[
+  {id:"orange",n:"Orange with cinnamon",d:"Sliced orange with cinnamon and orange blossom water.",p:25,k:110,pr:2,c:26,diet:["vegan","vegetarian","gluten-free","dairy-free","halal"],al:[]},
+  {id:"chebakia",n:"Chebakia",d:"Fried sesame pastry soaked in honey.",p:30,k:320,pr:5,c:38,diet:["vegetarian","halal","dairy-free"],al:["gluten","sesame"]}
+ ]},
+ {sec:"Drinks",items:[
+  {id:"tea",n:"Mint tea",d:"Fresh mint and green tea.",p:15,k:30,pr:0,c:7,diet:["vegan","vegetarian","gluten-free","dairy-free","halal","low-carb"],al:[],
+   g:[{n:"Sugar",t:"one",c:[{n:"No sugar"},{n:"1 sugar",k:20},{n:"2 sugars",k:40}]}]},
+  {id:"oj",n:"Fresh orange juice",d:"Pressed to order.",p:25,k:110,pr:2,c:26,diet:["vegan","vegetarian","gluten-free","dairy-free","halal"],al:[],
+   g:[{n:"Size",t:"one",c:[{n:"Small"},{n:"Large",p:10,k:60}]}]}
+ ]}
+];
+var DIETS=[["vegan","Vegan"],["vegetarian","Vegetarian"],["gluten-free","Gluten-free"],["dairy-free","Dairy-free"],["halal","Halal"],["high-protein","High protein"],["low-carb","Low carb"]];
+var ALLERGENS=[["gluten","Gluten"],["dairy","Dairy"],["eggs","Eggs"],["fish","Fish"],["shellfish","Shellfish"],["nuts","Tree nuts"],["peanuts","Peanuts"],["sesame","Sesame"],["soy","Soy"]];
+var LIGHT_KCAL=400;
+
+/* ---------- helpers ---------- */
+var $=function(id){return document.getElementById(id)};
+var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
+var CUR="MAD";var mad=function(n){return (Math.round(n*100)/100)+" "+CUR};
+var signed=function(n){return(n>0?"+":"")+n};
+function rd(store,k){try{return JSON.parse(store.getItem(k))}catch(e){return null}}
+function wr(store,k,v){try{store.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+var labelOf=function(list,id){for(var i=0;i<list.length;i++)if(list[i][0]===id)return list[i][1];return id};
+var num=function(a,b){return a-b};
+
+var byId={},secOf={};
+MENU.forEach(function(s){s.items.forEach(function(d){byId[d.id]=d;secOf[d.id]=s})});
+var hasOpts=function(d){return !!(d.g||d.rm)};
+
+/* ---------- link: which restaurant and table ---------- */
+var q=new URLSearchParams(location.search);
+var RID=(q.get("r")||"demo").replace(/[^\w-]/g,"").slice(0,40)||"demo";
+var tq=q.get("table")||q.get("t"),TABLE=(/^\d{1,3}$/.test(tq||"")&&+tq>=1)?String(+tq):"";
+var rest=rd(localStorage,"nourish-restaurant");
+var RNAME=(rest&&rest.rname)?rest.rname:"Demo restaurant";
+$("rn").textContent=RNAME;
+document.title="Menu – "+RNAME;
+
+/* ------------------------------------------------------------------
+   MENU FROM THE DASHBOARD. Every restaurant account has its own menu (auth.js).
+   The link ?r=<restaurant-slug> picks the restaurant, so one restaurant's dishes
+   are never shown under another. No accounts in this browser = demo menu above.
+------------------------------------------------------------------ */
+var slugOf=function(n){return String(n).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"restaurant"};
+ALLERGENS.push(["celery","Celery"]);DIETS.push(["low-sodium","Low sodium"]);
+var AL_ID={Gluten:"gluten",Dairy:"dairy",Nuts:"nuts",Peanuts:"peanuts",Egg:"eggs",Fish:"fish",Shellfish:"shellfish",Soy:"soy",Sesame:"sesame",Celery:"celery"};
+var N=window.Nourish,DASH=null,REST=null,MENU_STATE="demo";
+if(N&&N.hasAccounts()){
+ if(RID==="demo"||q.get("choose")==="1"){showPicker();return}
+ REST=N.restaurantBySlug(RID);
+ if(REST)DASH=N.dashData(REST.id)||{restaurant:{name:REST.name,currency:"MAD"},categories:[],dishes:[]};
+ else{MENU=[];MENU_STATE="missing"}
+}
+if(DASH&&DASH.restaurant&&Array.isArray(DASH.dishes)&&Array.isArray(DASH.categories)){
+ {
+  MENU_STATE=DASH.dishes.length?"dash":"empty";
+  CUR=DASH.restaurant.currency||"MAD";
+  RNAME=DASH.restaurant.name||RNAME;$("rn").textContent=RNAME;document.title="Menu – "+RNAME;
+  var conv=function(d,bev){
+   var short=(DASH.ingredients||[]).length&&(d.ing||[]).some(function(r){
+    var i=DASH.ingredients.filter(function(x){return x.id===r.id})[0];return i&&(i.qty<=0||i.qty<r.qty)});
+   var o={id:d.id,n:d.name,d:d.desc||"",p:+d.price||0,k:d.kcal==null?0:+d.kcal,nok:d.kcal==null,pr:d.p,c:d.c,bev:bev,tm:+d.prep||0,photo:d.photo||"",
+    diet:(d.diet||[]).map(slugOf),al:(d.allergens||[]).map(function(x){return AL_ID[x]||slugOf(x)}),out:d.available===false||!!short};
+   if((d.opts||[]).length)o.g=[{n:"Options",t:"many",c:d.opts.map(function(x){return{n:x.name,p:+x.price||0,k:+x.kcal||0}})}];
+   return o;
+  };
+  MENU=DASH.categories.map(function(c){
+   return{sec:c.name,items:DASH.dishes.filter(function(d){return d.cat===c.id}).map(function(d){return conv(d,c.type==="beverage")})};
+  }).filter(function(s){return s.items.length});
+ }
+}
+if(MENU_STATE!=="demo"){
+ byId={};secOf={};
+ MENU.forEach(function(s){s.items.forEach(function(d){byId[d.id]=d;secOf[d.id]=s})});
+}
+/* ---------- choose which signed-up restaurant to eat at ---------- */
+function showPicker(){
+ var list=N.restaurants(),box=$("pick");
+ [document.querySelector("header.top"),$("secsNav"),document.querySelector("main"),$("bar"),$("welcome")].forEach(function(el){if(el)el.hidden=true});
+ document.body.style.paddingBottom="0";
+ document.title="Choose a restaurant – Nourish";
+ var items=list.map(function(r){
+  var d=N.dashData(r.id),n=(d&&Array.isArray(d.dishes))?d.dishes.length:0;
+  var bits=[r.cuisine,r.city].filter(Boolean);bits.push(n?n+(n===1?" dish":" dishes"):"Menu coming soon");
+  return '<li data-s="'+esc((r.name+" "+bits.join(" ")).toLowerCase())+'"><a class="rcard" href="menu.html?r='+encodeURIComponent(r.slug)+'">'+
+   '<span class="rname">'+esc(r.name)+'</span><span class="rgo">See menu</span><span class="rmeta">'+bits.map(esc).join(" · ")+'</span></a></li>';
+ }).join("");
+ box.innerHTML='<div class="wrap"><p class="wr">Nourish</p><h1>Where are you eating?</h1>'+
+  '<p class="wl">Choose the restaurant to open its menu. If you scanned the QR code on your table, you can skip this step.</p>'+
+  (list.length>5?'<label class="t" for="pq" style="display:block;font-weight:700;margin-bottom:6px">Search</label><input id="pq" type="search" placeholder="Type a name, city or food" autocomplete="off">':'')+
+  '<ul class="rlist">'+items+'</ul><p class="none" id="pnone" role="status" hidden>No restaurant matches your search.</p>'+
+  '<p class="fine"><a class="lnk" href="index.html">Back to home</a></p></div>';
+ box.hidden=false;
+ var sb=$("pq");
+ if(sb)sb.addEventListener("input",function(){
+  var v=sb.value.trim().toLowerCase(),n=0;
+  [].forEach.call(box.querySelectorAll("li[data-s]"),function(li){var ok=!v||li.dataset.s.indexOf(v)>-1;li.hidden=!ok;if(ok)n++});
+  $("pnone").hidden=n>0;
+ });
+}
+var CAN_CHANGE=!!(N&&N.hasAccounts()&&!TABLE);
+/* ---------- tables: the diner picks one that the restaurant marked as available ---------- */
+var TBL=(REST&&DASH&&Array.isArray(DASH.tables))?DASH.tables:null,PICK=!TABLE&&!!TBL,wZone="";
+var ZL={std:"Standard table",window:"Near the window",middle:"In the middle",corner:"In a corner",alone:"Quiet, on its own",terrace:"On the terrace",bar:"At the bar",entrance:"Near the entrance",other:"Other"};
+function occ(){return REST?rd(localStorage,"nourish-occ:"+REST.id)||{}:{}}
+function tok(){var k=rd(sessionStorage,"nourish-diner-tok");if(!k){k=Math.random().toString(36).slice(2);wr(sessionStorage,"nourish-diner-tok",k)}return k}
+function tOpen(t){var o=occ()[t.n];return t.free!==false&&(!o||o===tok())}
+function tList(){return TBL.filter(function(t){return tOpen(t)&&(!t.seats||+t.seats>=wGuests)})}
+function tablesBlock(){
+ var all=TBL.filter(tOpen),list=tList(),zs=[];
+ list.forEach(function(t){var z=t.zone||"std";if(zs.indexOf(z)<0)zs.push(z)});
+ if(wZone&&zs.indexOf(wZone)<0)wZone="";
+ var h='<fieldset class="fld" id="tfs"><legend>Your table number</legend>';
+ if(!list.length)return h+'<p class="tnone" role="status">'+(all.length?'No free table seats '+wGuests+' guests. Please ask a member of staff.':'No tables are available right now. Please ask a member of staff.')+'</p></fieldset>';
+ if(zs.length>1)h+='<div class="zrow" role="group" aria-label="Filter by position">'+[""].concat(zs).map(function(z){return '<button type="button" class="zb" data-act="tzone" data-z="'+esc(z)+'" aria-pressed="'+(wZone===z)+'">'+(z===""?"All":esc(ZL[z]||"Other"))+'</button>'}).join("")+'</div>';
+ var shown=wZone?list.filter(function(t){return (t.zone||"std")===wZone}):list;
+ var sel=list.filter(function(t){return String(t.n)===String(wTable)})[0],info="";
+ if(sel){var b=[ZL[sel.zone||"std"]||"Other"];if(sel.seats)b.push("seats "+sel.seats);if(sel.note)b.push(sel.note);info="Table "+sel.n+": "+b.join(", ")}
+ return h+'<div class="tgrid" role="group" aria-label="Free tables">'+shown.map(function(t){
+  return '<button type="button" class="tcard" data-act="tpick" data-n="'+t.n+'" aria-label="Table '+esc(t.n)+'" aria-pressed="'+(String(wTable)===String(t.n))+'">'+esc(t.n)+'</button>';
+ }).join("")+'</div><p class="tinfo" role="status">'+esc(info)+'</p></fieldset>';
+}
+function refreshTables(focusSel){
+ var f=$("tfs");if(!f)return;f.outerHTML=tablesBlock();
+ if(focusSel){var x=document.querySelector(focusSel);if(x)x.focus()}
+}
+var rateStar=0,rateText="",qrOpen=false;
+function cartEta(){var m=0;carts.forEach(function(c){for(var k in c){if(c[k]&&c[k].qty>0){var d=byId[c[k].id];if(d&&d.tm>m)m=d.tm}}});return m}
+function scene(o,asg){
+ var k=asg?"assign":o.status==="ready"?"ready":o.status==="preparing"?"cooking":"received",L={assign:"Finding a server for your order",received:"Order received",cooking:"Your food is cooking",ready:"Your food is ready"}[k],g="";
+ if(k==="assign")g='<g class="fb" style="transform-origin:88px 46px;animation:ring 1.8s ease-in-out infinite"><path class="ink fc" d="M66 80c0-16 7-28 22-28s22 12 22 28z"/><path class="ink" d="M60 80h56M88 52v-7"/><circle class="lf" cx="88" cy="88" r="5"/></g>'+[70,88,106].map(function(x,i){return '<circle class="lf fb" cx="'+x+'" cy="112" r="4.5" style="animation:dotb 1.2s '+(i*.18)+'s infinite"/>'}).join("");
+ else if(k==="received")g='<g style="animation:rise .6s ease both"><path class="ink fc" d="M58 26h56v66l-9.3-6-9.4 6-9.3-6-9.4 6-9.3-6-9.3 6z"/><path class="ink" d="M69 42h34M69 54h24M69 66h30"/></g><circle class="lf fb" cx="114" cy="86" r="18" style="animation:pop .55s .5s ease both"/><path class="tk" d="M105 86l6.5 6.5L123 79" stroke-dasharray="32" stroke-dashoffset="32" style="animation:draw .5s 1s ease forwards"/>';
+ else if(k==="cooking")g=[68,88,108].map(function(x,i){return '<path class="sm2" d="M'+x+' 62c-7-8 6-13 0-22" style="animation:steam 2.2s '+(i*.55)+'s infinite"/>'}).join("")+'<circle class="ct fb" cx="80" cy="76" r="6" style="animation:toss 1.5s infinite"/><circle class="lf fb" cx="96" cy="76" r="5" style="animation:toss 1.5s .35s infinite"/><rect class="ct fb" x="86" y="70" width="9" height="9" rx="2" style="animation:toss 1.5s .7s infinite"/>'+
+  '<g class="fb" style="transform-origin:86px 84px;animation:shake 1.5s ease-in-out infinite"><path class="ink fc" d="M48 82h76c0 15-11 24-38 24s-38-9-38-24z"/><path class="ink" d="M124 86l28-6"/></g>'+[66,86,106].map(function(x,i){return '<path class="ct fb" d="M'+x+' 122c-6-6-2-11 0-16 2 5 6 10 0 16z" style="transform-origin:'+x+'px 122px;animation:flame .7s '+(i*.15)+'s infinite"/>'}).join("");
+ else g='<ellipse class="ink fc" cx="88" cy="96" rx="48" ry="10"/><circle class="ct" cx="88" cy="86" r="8"/><circle class="lf" cx="76" cy="90" r="5"/><circle class="lf" cx="100" cy="90" r="5"/><g class="fb" style="transform-origin:88px 94px;animation:lift 2.6s ease-in-out infinite"><path class="ink fc" d="M52 92c0-28 16-44 36-44s36 16 36 44z"/><circle class="ink fc" cx="88" cy="43" r="5"/></g>'+[[40,40,0],[140,50,.6],[132,20,1.2]].map(function(p){return '<path class="ct fb" d="M'+p[0]+' '+p[1]+'l2.4 6.6 6.6 2.4-6.6 2.4-2.4 6.6-2.4-6.6-6.6-2.4 6.6-2.4z" style="transform-origin:'+(p[0])+'px '+(p[1]+9)+'px;animation:spark 1.8s '+p[2]+'s infinite"/>'}).join("");
+ return '<div class="scene" data-scene="'+k+'" aria-hidden="true"><svg viewBox="0 0 176 132" role="img" aria-label="'+L+'"><circle class="bg" cx="88" cy="64" r="58"/>'+g+'</svg></div>';
+}
+function qrSVG(text){
+ if(!window.qrcode)return "";
+ try{
+  var qr=qrcode(0,"M");qr.addData(text);qr.make();
+  var n=qr.getModuleCount(),m=4,z=n+m*2,d="",r,c;
+  for(r=0;r<n;r++)for(c=0;c<n;c++)if(qr.isDark(r,c))d+="M"+(c+m)+" "+(r+m)+"h1v1h-1z";
+  return '<svg viewBox="0 0 '+z+' '+z+'" shape-rendering="crispEdges" role="img" aria-label="QR code for your table"><rect width="'+z+'" height="'+z+'" fill="#fff"/><path d="'+d+'" fill="#000"/></svg>';
+ }catch(e){return ""}
+}
+function payText(o){
+ var p=o.payments||[];
+ if(!p.length)return o.pay==="card"?"Card":"Cash";
+ var m={};p.forEach(function(x){m[x.method]=1});
+ if(Object.keys(m).length===1)return p[0].method==="card"?"Card":"Cash";
+ return p.map(function(x){return x.by+": "+(x.method==="card"?"card":"cash")}).join(", ");
+}
+function qrText(o){return RNAME+"\nTable "+o.table+"\nOrder #"+o.id+"\nPayment: "+payText(o)}
+function tableQR(o){
+ if(!o||!o.table)return "";
+ var txt=qrText(o),svg=qrSVG(txt),pt=payText(o),cardOnly=pt==="Card",cashAny=/cash/i.test(pt);
+ var msg=cardOnly?"Show this code to the person at reception to be seated. You've paid by card, so you're all set."
+  :cashAny?"Show this code to the person at reception to pay and be seated. Your cash payment is due at reception."
+  :"Show this code to the person at reception.";
+ return '<div class="tqr"><button type="button" class="qrtog" data-act="qrtog" aria-expanded="'+qrOpen+'" aria-controls="qrbody">'+
+  '<span class="pl" aria-hidden="true">+</span><span><b>Your table QR code</b><small>Table '+esc(o.table)+' · Tap to '+(qrOpen?'hide':'show')+'</small></span></button>'+
+  (qrOpen?'<div class="qrbody" id="qrbody">'+(svg?'<div class="qrbox">'+svg+'</div>':'')+
+  '<p class="wl"><b>Payment: '+esc(pt)+'</b></p><p class="wl">'+msg+'</p></div>':'')+'</div>';
+}
+function rateBlock(o){
+ if(o.done)return '<div class="rate" role="status"><h3 class="sm">Thank you'+(o.rating?' for rating us '+o.rating+' out of 5':'')+'!</h3><p class="wl">We hope to see you again soon.</p></div>';
+ var v=o.rating||rateStar;
+ return '<div class="rate"><h3 class="sm">How was your experience?</h3><div class="stars" role="radiogroup" aria-label="Rating out of 5">'+[1,2,3,4,5].map(function(n){return '<button type="button" class="st'+(n<=v?' on':'')+'" role="radio" aria-checked="'+(n===v)+'" aria-label="'+n+' out of 5" data-act="star" data-v="'+n+'">★</button>'}).join("")+'</div>'+
+  '<label class="t" for="rcom">Comment (optional)</label><textarea id="rcom" maxlength="300" rows="2" placeholder="Tell us what you liked"></textarea></div>';
+}
+function finishVisit(){
+ var o=activeOrder();if(!o)return;
+ var tx=$("rcom"),text=(tx?tx.value:rateText).trim().slice(0,300),all=orders(),x=all.filter(function(q){return q.id===o.id})[0];
+ if(x){x.done=true;x.doneAt=Date.now();if(rateStar){x.rating=rateStar;x.comment=text}wr(localStorage,"nourish-orders",all)}
+ if(rateStar){var rs=rd(localStorage,"nourish-ratings")||[];rs.push({id:o.id,r:RID,rid:REST?REST.id:"",table:o.table,stars:rateStar,comment:text,at:Date.now()});wr(localStorage,"nourish-ratings",rs)}
+ rateStar=0;rateText="";drawSheet();
+}
+function etaOf(items){return items.reduce(function(m,i){return Math.max(m,+i.prep||0)},0)}
+function etaLine(o,asg){
+ var eta=+o.eta||0;if(!eta||asg||o.status==="ready")return"";
+ var left=Math.max(0,Math.ceil(eta-(Date.now()-(o.startedAt||o.at))/60000));
+ return '<p class="wl">Estimated cooking time: about '+eta+' min'+(o.status==="preparing"?' ('+(left?'about '+left+' min left':'almost ready')+')':'')+'.</p>';
+}
+var tb=$("tbl"),sheet=$("sheet"),wel=$("welcome");
+var sess=rd(sessionStorage,"nourish-diner-session");
+var tableNo="",nGuests=0,budget=0;
+if(sess&&sess.r===RID&&(!TABLE||sess.table===TABLE)){tableNo=sess.table||"";nGuests=+sess.guests||0;budget=+sess.budget||0}
+else if(TABLE)tableNo=TABLE;
+
+/* Photos: put one file per dish in an "images" folder next to menu.html, named after the dish id
+   (images/harira.jpg, images/seabass.jpg ...). Until a photo exists, the emoji shows instead. */
+var EMOJI={harira:"🍲",zaalouk:"🥗",briouat:"🥟",seabass:"🐟",couscous:"🍛",lamb:"🍖",vegtagine:"🥘",salad:"🥗",burger:"🍔",orange:"🍊",chebakia:"🍯",tea:"🍵",oj:"🧃"};
+var SERVERS=["Yassine","Salma","Omar","Hajar","Mehdi"];
+
+var diners=[],carts=[],cur=0,payments=[],stage="setup",cart={};
+var pf={payer:-1,more:[],method:"card",card:{}};
+var wstep="setup",wGuests=nGuests||2,wTable=tableNo,wBudget=budget?String(budget):"",hiddenN=0;
+var cust=null,view="cart",timer=null,lastHTML="";
+var P=function(){return diners[cur]||{name:"",avoid:[],diets:[],goal:0}};
+var lower=function(list,id){return labelOf(list,id).toLowerCase()};
+var gname=function(i){return diners[i].name};
+
+function renderTable(){
+ if(tableNo&&nGuests){
+  var g=nGuests+(nGuests===1?" guest":" guests");
+  tb.className="tbl";tb.textContent="Table "+tableNo+", "+g;tb.setAttribute("aria-label","Table "+tableNo+", "+g+". Change");
+ }else{tb.className="tbl none";tb.textContent="Choose table";tb.removeAttribute("aria-label")}
+}
+
+/* ---------- allergies and diets (per person) ---------- */
+function dietOK(d){return P().diets.every(function(t){return d.diet.indexOf(t)>-1})}
+function conflicts(d){return d.al.filter(function(a){return P().avoid.indexOf(a)>-1})}
+function allowed(d){return dietOK(d)&&!conflicts(d).length}
+function visibleChoices(g){
+ return g.c.map(function(c,i){return{c:c,i:i}}).filter(function(x){
+  return !(x.c.al||[]).some(function(a){return P().avoid.indexOf(a)>-1});
+ });
+}
+function lineAl(l){
+ var d=byId[l.id],a=d.al.slice();
+ (d.g||[]).forEach(function(g,gi){(l.sel[gi]||[]).forEach(function(ci){(g.c[ci].al||[]).forEach(function(x){a.push(x)})})});
+ return a;
+}
+function purge(){
+ var n=0;
+ Object.keys(cart).forEach(function(k){
+  if(lineAl(cart[k]).some(function(a){return P().avoid.indexOf(a)>-1})){delete cart[k];n++}
+ });
+ return n;
+}
+
+/* ---------- options, prices, totals ---------- */
+function defaultSel(d){
+ return (d.g||[]).map(function(g){
+  if(g.t!=="one")return [];
+  var v=visibleChoices(g);return v.length?[v[0].i]:[];
+ });
+}
+function lineKey(id,sel,rm){
+ var d=byId[id];if(!hasOpts(d))return id;
+ return id+"|"+sel.map(function(a){return a.slice().sort(num).join(".")}).join(",")+"|"+rm.slice().sort(num).join(".");
+}
+function unit(d,sel){
+ var p=d.p,k=d.k;
+ (d.g||[]).forEach(function(g,gi){(sel[gi]||[]).forEach(function(ci){var c=g.c[ci];p+=c.p||0;k+=c.k||0})});
+ return{p:p,k:k};
+}
+function describe(l){
+ var d=byId[l.id],parts=[];
+ (d.g||[]).forEach(function(g,gi){(l.sel[gi]||[]).forEach(function(ci){parts.push(g.c[ci].n)})});
+ (l.rm||[]).forEach(function(ri){parts.push("no "+d.rm[ri].toLowerCase())});
+ return parts.join(", ");
+}
+function cartKeys(){return Object.keys(cart).filter(function(k){return cart[k].qty>0&&byId[cart[k].id]})}
+function qtyOf(id){var n=0;Object.keys(cart).forEach(function(k){if(cart[k].id===id)n+=cart[k].qty});return n}
+function cartTotalOf(c){
+ var n=0,k=0,p=0;
+ Object.keys(c).forEach(function(key){var l=c[key];if(l.qty>0&&byId[l.id]){var u=unit(byId[l.id],l.sel);n+=l.qty;k+=u.k*l.qty;p+=u.p*l.qty}});
+ return{n:n,k:k,p:p};
+}
+function totals(){return cartTotalOf(cart)}
+function grand(){var r={n:0,k:0,p:0};carts.forEach(function(c){var t=cartTotalOf(c);r.n+=t.n;r.k+=t.k;r.p+=t.p});return r}
+function say(m){var e=(sheet.open&&$("err"))?$("err"):$("bmsg");e.textContent=m}
+function afford(x){
+ if(!budget||grand().p+x<=budget)return true;
+ say("That would go over your group budget of "+mad(budget)+".");return false;
+}
+
+/* ---------- menu ---------- */
+function stepper(key,name,qty){
+ return '<div class="stepper" role="group" aria-label="'+esc(name)+' quantity">'+
+  '<button type="button" data-act="dec" data-key="'+esc(key)+'" aria-label="Remove one '+esc(name)+'">−</button>'+
+  '<output aria-live="polite">'+qty+'</output>'+
+  '<button type="button" data-act="inc" data-key="'+esc(key)+'" aria-label="Add one more '+esc(name)+'">+</button></div>';
+}
+function ctl(d){
+ if(d.out)return '<span class="soldout">Sold out</span>';
+ var c=conflicts(d);
+ if(c.length)return '<span class="lockmsg">Not for you: contains '+c.map(function(a){return esc(lower(ALLERGENS,a))}).join(", ")+'</span>';
+ var qty=qtyOf(d.id);
+ if(hasOpts(d))return (qty?'<span class="inord">'+qty+' in order</span>':'')+
+  '<button type="button" class="add cbtn" data-act="custom" data-id="'+d.id+'" aria-label="Customize '+esc(d.n)+'">Customize</button>';
+ if(!qty)return '<button type="button" class="add" data-act="inc" data-key="'+d.id+'" aria-label="Add '+esc(d.n)+' to your order">Add</button>';
+ return stepper(d.id,d.n,qty);
+}
+function dishHTML(d){
+ var c=conflicts(d);
+ var al=d.al.length?'<p class="al">Contains: '+d.al.map(function(a){var t=esc(lower(ALLERGENS,a));return c.indexOf(a)>-1?'<b>'+t+'</b>':t}).join(", ")+'</p>'
+                   :'<p class="al none">No major allergens listed</p>';
+ var tags=d.diet.map(function(t){return '<span class="tag">'+esc(labelOf(DIETS,t))+'</span>'}).join("");
+ if(!d.nok&&d.k<=LIGHT_KCAL)tags='<span class="tag">Light</span>'+tags;
+ return '<article class="dish'+(d.out?" out":"")+(c.length?" lock":"")+'" id="dish-'+d.id+'">'+
+  '<div class="ph"><span aria-hidden="true">'+(EMOJI[d.id]||(d.bev?"🥤":"🍽️"))+'</span><img src="'+(d.photo?esc(d.photo):'images/'+d.id+'.jpg')+'" alt="'+esc(d.n)+'" loading="lazy" onerror="this.remove()"></div>'+
+  '<div class="body"><h3>'+esc(d.n)+'</h3><p class="desc">'+esc(d.d)+'</p>'+
+  ((d.pr!=null||d.c!=null)?'<div class="facts">'+(d.pr!=null?'<span>'+d.pr+' g protein</span>':'')+(d.c!=null?'<span>'+d.c+' g carbs</span>':'')+'</div>':'')+al+
+  '<div class="tags">'+tags+'</div>'+
+  '<div class="buy"><div class="kp">'+(d.nok?'':'<span class="kcal">'+d.k+'<small>kcal</small></span>')+(d.tm?'<span class="prep" title="Estimated cooking time">⏱ about '+d.tm+' min</span>':'')+'<span class="price">'+(hasOpts(d)?"from ":"")+mad(d.p)+'</span></div>'+
+  '<div data-ctl="'+d.id+'">'+ctl(d)+'</div></div></div></article>';
+}
+function renderMenu(){
+ var navs=[];hiddenN=0;
+ var html=MENU.map(function(s){
+  var list=s.items.filter(function(d){var ok=dietOK(d);if(!ok)hiddenN++;return ok});
+  if(!list.length)return "";
+  navs.push('<a href="#sec-'+slugOf(s.sec)+'">'+esc(s.sec)+'</a>');
+  return '<section class="sec" id="sec-'+slugOf(s.sec)+'"><h2>'+esc(s.sec)+'</h2>'+list.map(dishHTML).join("")+'</section>';
+ }).join("");
+ $("menu").innerHTML=html||'<div class="empty"><p>'+(MENU_STATE==="missing"?'We could not find this restaurant. <a class="lnk" href="menu.html?choose=1">Choose a restaurant</a> or scan the QR code on your table.':MENU_STATE==="empty"?"This restaurant has not added any dishes yet. Add them in the dashboard, then refresh this page.":"No dishes match your diet choices.")+'</p></div>';
+ $("secs").innerHTML=navs.join("");
+ $("secsNav").hidden=!navs.length;navArrows();
+}
+/* category bar: arrows, mouse wheel and drag so every category can be reached */
+function navArrows(){
+ var s=$("secs"),max=s.scrollWidth-s.clientWidth;
+ $("secL").hidden=s.scrollLeft<4;$("secR").hidden=max<=4||s.scrollLeft>=max-4;
+}
+(function(){
+ var s=$("secs"),down=false,moved=false,x0=0,l0=0;
+ $("secL").addEventListener("click",function(){s.scrollBy({left:-s.clientWidth*0.7})});
+ $("secR").addEventListener("click",function(){s.scrollBy({left:s.clientWidth*0.7})});
+ s.addEventListener("scroll",navArrows,{passive:true});
+ window.addEventListener("resize",navArrows);window.addEventListener("load",navArrows);
+ s.addEventListener("wheel",function(e){
+  var max=s.scrollWidth-s.clientWidth;if(max<=0||Math.abs(e.deltaY)<=Math.abs(e.deltaX))return;
+  if((e.deltaY<0&&s.scrollLeft<=0)||(e.deltaY>0&&s.scrollLeft>=max-1))return;
+  e.preventDefault();s.scrollLeft+=e.deltaY;
+ },{passive:false});
+ s.addEventListener("mousedown",function(e){down=true;moved=false;x0=e.clientX;l0=s.scrollLeft});
+ window.addEventListener("mousemove",function(e){
+  if(!down)return;var dx=e.clientX-x0;
+  if(Math.abs(dx)>5){moved=true;s.classList.add("drag")}
+  if(moved)s.scrollLeft=l0-dx;
+ });
+ window.addEventListener("mouseup",function(){down=false;s.classList.remove("drag")});
+ s.addEventListener("click",function(e){if(moved){e.preventDefault();e.stopPropagation();moved=false}},true);
+})();
+function refreshCtl(id){
+ var el=document.querySelector('#menu [data-ctl="'+id+'"]');
+ if(el)el.innerHTML=ctl(byId[id]);
+}
+
+/* ---------- who is ordering, calories, group budget ---------- */
+function renderWho(){
+ var p=P(),av=[];
+ $("wname").textContent=p.name?(diners.length>1?p.name+", your turn":"Hi "+p.name):"Menu";
+ if(p.avoid.length)av.push("Avoiding "+p.avoid.map(function(a){return lower(ALLERGENS,a)}).join(", "));
+ if(p.diets.length)av.push("Diet: "+p.diets.map(function(t){return lower(DIETS,t)}).join(", "));
+ if(hiddenN)av.push(hiddenN+(hiddenN===1?" dish is":" dishes are")+" hidden by your diet");
+ $("avl").textContent=(diners.length>1?"Person "+(cur+1)+" of "+diners.length+". ":"")+(av.length?av.join(". ")+".":"No allergies or diet set.");
+}
+function renderGoal(){
+ var t=totals(),m=$("meter"),txt=$("gtxt"),g=P().goal;
+ if(!g){m.hidden=true;txt.className="gtxt";txt.textContent="Add a calorie goal in your profile to see how much room is left."}
+ else{
+  m.hidden=false;
+  $("meterFill").style.width=Math.min(100,Math.round(t.k/g*100))+"%";
+  m.setAttribute("aria-valuemax",g);m.setAttribute("aria-valuenow",t.k);
+  var over=t.k>g;
+  m.className="meter"+(over?" over":"");txt.className="gtxt"+(over?" over":"");
+  txt.innerHTML=over?'<b>'+(t.k-g)+' kcal over</b> your goal of '+g+' kcal.':'<b>'+t.k+'</b> of '+g+' kcal. <b>'+(g-t.k)+' kcal</b> left.';
+ }
+ var bm=$("bmeter"),bt=$("btxt");
+ if(!budget){bm.hidden=true;bt.hidden=true;return}
+ var sp=grand().p;
+ bm.hidden=false;bt.hidden=false;
+ $("bFill").style.width=Math.min(100,Math.round(sp/budget*100))+"%";
+ bm.setAttribute("aria-valuemax",budget);bm.setAttribute("aria-valuenow",sp);
+ bm.className="meter bud"+(sp>=budget?" over":"");
+ bt.innerHTML='Group budget: <b>'+mad(sp)+'</b> of '+mad(budget)+'. <b>'+mad(Math.max(0,budget-sp))+'</b> left for the table.';
+}
+
+/* ---------- orders (saved in this browser for the demo) ---------- */
+function orders(){return rd(localStorage,"nourish-orders")||[]}
+function activeOrder(){
+ var id=rd(sessionStorage,"nourish-diner-order");if(!id)return null;
+ return orders().filter(function(x){return x.id===id&&x.r===RID})[0]||null;
+}
+var STATUS=["pending","preparing","ready"];
+
+function renderBar(){
+ var bar=$("bar"),ao=activeOrder();
+ if(stage==="order"&&diners.length){
+  var t=totals();bar.hidden=false;
+  $("barInfo").innerHTML='<b>'+esc(P().name)+'</b><span>'+t.n+(t.n===1?" item":" items")+'</span><span>'+t.k+' kcal</span><span>'+mad(t.p)+'</span>';
+  $("barBtn").textContent="Review and finish";
+ }else if(stage==="pay"){
+  bar.hidden=false;$("barInfo").innerHTML='<b>Payment</b><span>'+mad(grand().p)+'</span>';$("barBtn").textContent="Continue to payment";
+ }else if(ao){
+  bar.hidden=false;$("barInfo").innerHTML='<b>Order #'+ao.id+'</b><span>Table '+esc(ao.table)+'</span>';$("barBtn").textContent="Track order";
+ }else bar.hidden=true;
+}
+function refreshAll(){$("bmsg").textContent="";renderGoal();renderBar()}
+function renderAll(){renderMenu();renderWho();refreshAll()}
+
+/* ---------- sheet ---------- */
+var closeBtn='<button type="button" class="x" data-act="close" aria-label="Close">✕</button>';
+function drawSheet(focusSel,quiet){
+ var h=view==="track"?trackView():view==="custom"?customView():view==="pay"?payView():cartView();
+ if(quiet&&h===lastHTML)return;
+ lastHTML=h;$("sheetBody").innerHTML=h;
+ if(view==="custom"&&cust)updateCust();
+ var el=focusSel&&sheet.querySelector(focusSel);
+ if(el)el.focus();
+}
+function openSheet(v,focusSel){view=v;drawSheet(focusSel);if(!sheet.open)sheet.showModal();startPoll()}
+function closeSheet(){if(sheet.open)sheet.close()}
+sheet.addEventListener("close",function(){stopPoll();renderBar();if(!$("bar").hidden)$("barBtn").focus()});
+sheet.addEventListener("click",function(e){if(e.target===sheet)closeSheet()});
+function startPoll(){stopPoll();if(view==="track")timer=setInterval(function(){if(sheet.open&&view==="track"){drawSheet(null,true);renderBar()}},1000)}
+function stopPoll(){if(timer){clearInterval(timer);timer=null}}
+window.addEventListener("storage",function(){renderBar();if(sheet.open&&view==="track")drawSheet(null,true)});
+
+/* ---------- sheet: customize one dish ---------- */
+function openCustom(id){
+ cust={id:id,sel:defaultSel(byId[id]),rm:[],qty:1,note:""};
+ openSheet("custom",'[data-act="cadd"]');
+ var first=sheet.querySelector('input[type="radio"],input[type="checkbox"]');
+ if(first)first.focus();
+}
+function customView(){
+ var d=byId[cust.id];
+ var groups=(d.g||[]).map(function(g,gi){
+  var vis=visibleChoices(g);if(!vis.length)return "";
+  var type=g.t==="one"?"radio":"checkbox";
+  return '<fieldset class="fld"><legend>'+esc(g.n)+(g.t==="one"?"":" (optional)")+'</legend><div class="pills">'+vis.map(function(x){
+   var bits=[];if(x.c.p)bits.push(signed(x.c.p)+" "+CUR);if(x.c.k)bits.push(signed(x.c.k)+" kcal");
+   return '<label class="pill"><input type="'+type+'" name="g'+gi+'" value="'+x.i+'"'+(cust.sel[gi].indexOf(x.i)>-1?" checked":"")+'>'+esc(x.c.n)+(bits.length?'<span class="pp">'+bits.join(", ")+'</span>':'')+'</label>';
+  }).join("")+'</div></fieldset>';
+ }).join("");
+ var rm=d.rm?'<fieldset class="fld"><legend>Take out (optional)</legend><div class="pills">'+d.rm.map(function(n,ri){
+  return '<label class="pill rm"><input type="checkbox" name="rm" value="'+ri+'"'+(cust.rm.indexOf(ri)>-1?" checked":"")+'>No '+esc(n.toLowerCase())+'</label>';
+ }).join("")+'</div></fieldset>':"";
+ return '<div class="sh"><h2 id="sheetTitle">'+esc(d.n)+'</h2>'+closeBtn+'</div>'+
+  '<p class="sub">'+esc(d.d)+' Standard dish: '+d.k+' kcal.</p>'+groups+rm+
+  '<div class="fld"><label class="t" for="cnote">Note for the kitchen (optional)</label><input class="txt" id="cnote" type="text" maxlength="80" placeholder="e.g. no salt" value="'+esc(cust.note)+'"></div>'+
+  '<div class="qrow"><b>Quantity</b><div class="stepper" role="group" aria-label="Quantity">'+
+   '<button type="button" data-act="cdec" aria-label="One less">−</button><output id="cq" aria-live="polite">'+cust.qty+'</output><button type="button" data-act="cinc" aria-label="One more">+</button></div></div>'+
+  '<div class="tot k" style="padding-top:14px"><span>Calories</span><span id="ck"></span></div>'+
+  '<div class="err" id="err" role="alert"></div>'+
+  '<button type="button" class="send" id="cadd" data-act="cadd"></button>';
+}
+function updateCust(){
+ var u=unit(byId[cust.id],cust.sel);
+ $("cq").textContent=cust.qty;$("ck").textContent=(u.k*cust.qty)+" kcal";
+ $("cadd").textContent="Add to order, "+mad(u.p*cust.qty);
+}
+function addCustom(){
+ var u=unit(byId[cust.id],cust.sel);
+ if(!afford(u.p*cust.qty))return;
+ var key=lineKey(cust.id,cust.sel,cust.rm),ex=cart[key],note=cust.note.trim();
+ if(ex){ex.qty=Math.min(20,ex.qty+cust.qty);if(!ex.note&&note)ex.note=note}
+ else cart[key]={id:cust.id,sel:cust.sel.map(function(a){return a.slice()}),rm:cust.rm.slice(),qty:cust.qty,note:note};
+ var id=cust.id;cust=null;
+ refreshCtl(id);refreshAll();closeSheet();
+}
+
+/* ---------- sheet: my order, then finish my turn ---------- */
+function suggestion(l){
+ var d=byId[l.id],k=unit(d,l.sel).k,best=null;if(d.nok)return null;
+ secOf[d.id].items.forEach(function(x){
+  if(x.id===d.id||x.out||x.nok||!allowed(x))return;
+  if(unit(x,defaultSel(x)).k>k*0.75)return;
+  if(!best||(x.pr||0)>(best.pr||0))best=x;
+ });
+ return best;
+}
+function cartView(){
+ var keys=cartKeys(),t=totals(),g=P().goal,last=cur>=diners.length-1;
+ var lines=keys.map(function(key){
+  var l=cart[key],d=byId[l.id],u=unit(d,l.sel),s=suggestion(l),cu=describe(l),sk=s?unit(s,defaultSel(s)).k:0;
+  return '<li class="line"><div class="lt"><b>'+esc(d.n)+'</b>'+(cu?'<span class="cu">'+esc(cu)+'</span>':'')+'<span>'+u.k+' kcal, '+mad(u.p)+' each</span></div>'+stepper(key,d.n,l.qty)+
+   '<label class="nt">Note for the kitchen<input type="text" data-note="'+esc(key)+'" maxlength="80" placeholder="e.g. no lemon" value="'+esc(l.note||"")+'"></label>'+
+   (s?'<button type="button" class="swap" data-act="swap" data-key="'+esc(key)+'" data-to="'+s.id+'">Lighter option: '+esc(s.n)+', '+(u.k-sk)+' kcal less. Swap</button>':'')+'</li>';
+ }).join("");
+ return '<div class="sh"><h2 id="sheetTitle">'+esc(P().name)+'\'s order</h2>'+closeBtn+'</div>'+
+  '<p class="sub">Table '+esc(tableNo)+(diners.length>1?', person '+(cur+1)+' of '+diners.length:'')+'</p>'+
+  (lines?'<ul class="lines">'+lines+'</ul>':'<p class="sub" style="margin-top:14px">Nothing added yet. You can also finish without ordering.</p>')+
+  '<div class="tot"><span>Total</span><span>'+mad(t.p)+'</span></div>'+
+  (cartEta()?'<div class="tot k"><span>Estimated cooking time</span><span>about '+cartEta()+' min</span></div>':'')+
+  '<div class="tot k"><span>Calories</span><span>'+t.k+' kcal</span></div>'+
+  (g?'<div class="tot k"><span>Calorie goal</span><span>'+(t.k>g?(t.k-g)+' kcal over':(g-t.k)+' kcal left')+'</span></div>':'')+
+  (budget?'<div class="tot k"><span>Group budget left</span><span>'+mad(Math.max(0,budget-grand().p))+'</span></div>':'')+
+  '<div class="err" id="err" role="alert"></div>'+
+  '<button type="button" class="send" data-act="finish">'+(last?"Done, go to payment":"Done, pass the phone to the next person")+'</button>';
+}
+function finish(){
+ var err=$("err");err.textContent="";
+ if(cur<diners.length-1){closeSheet();openWelcome("pass");return}
+ if(!grand().n){err.textContent="Nobody has added a dish yet.";return}
+ stage="pay";payments=[];pf={payer:-1,more:[],method:"card",card:{}};
+ openSheet("pay");renderBar();
+}
+
+/* ---------- sheet: who pays for whom ---------- */
+function covered(){var s={};payments.forEach(function(p){p.for.forEach(function(i){s[i]=1})});return s}
+function remaining(){var c=covered();return diners.map(function(d,i){return i}).filter(function(i){return !c[i]&&cartTotalOf(carts[i]).p>0})}
+function amt(list){return list.reduce(function(a,i){return a+cartTotalOf(carts[i]).p},0)}
+function luhn(s){var sum=0,alt=false,n;for(var i=s.length-1;i>=0;i--){n=+s[i];if(alt){n*=2;if(n>9)n-=9}sum+=n;alt=!alt}return sum%10===0}
+function payView(){
+ var rem=remaining();
+ if(rem.length===1&&pf.payer<0)pf.payer=rem[0];
+ var g=grand();
+ var tl=diners.map(function(d,i){var p=cartTotalOf(carts[i]).p;return p?'<li>'+esc(d.name)+': <b>'+mad(p)+'</b></li>':''}).join("");
+ var paid=payments.map(function(p){
+  return '<li><b>'+esc(gname(p.by))+'</b> pays '+mad(p.amount)+' for '+p.for.map(function(i){return esc(gname(i))}).join(", ")+', '+(p.method==="card"?"by card on phone":"in cash")+'</li>';
+ }).join("");
+ var head='<div class="sh"><h2 id="sheetTitle">Who pays for what?</h2>'+closeBtn+'</div>';
+ var body='<p class="sub">Table '+esc(tableNo)+'. Total '+mad(g.p)+(budget?' of your '+mad(budget)+' budget':'')+'.</p><ul class="summ">'+tl+'</ul>'+
+  (paid?'<h3 class="sm">Already chosen</h3><ul class="paid">'+paid+'</ul>':'');
+ if(!rem.length)return head+body+'<p class="big" role="status">Everyone is covered.</p><div class="err" id="err" role="alert"></div>'+
+  '<button type="button" class="send" data-act="sendorder">Send order</button><button type="button" class="send ghost" data-act="payreset">Change who pays</button>';
+ var pay=rem.indexOf(pf.payer)>-1?pf.payer:-1;
+ var f='<fieldset class="fld"><legend>Pick your name</legend><div class="pills">'+rem.map(function(i){
+  return '<label class="pill"><input type="radio" name="payer" value="'+i+'"'+(i===pay?" checked":"")+'>'+esc(gname(i))+'<span class="pp">'+mad(cartTotalOf(carts[i]).p)+'</span></label>';
+ }).join("")+'</div></fieldset>';
+ if(pay<0)return head+body+f+'<div class="err" id="err" role="alert"></div>';
+ var others=rem.filter(function(i){return i!==pay});
+ if(others.length)f+='<fieldset class="fld"><legend>Also paying for (optional)</legend><div class="pills">'+others.map(function(i){
+  return '<label class="pill"><input type="checkbox" name="more" value="'+i+'"'+(pf.more.indexOf(i)>-1?" checked":"")+'>'+esc(gname(i))+'<span class="pp">'+mad(cartTotalOf(carts[i]).p)+'</span></label>';
+ }).join("")+'</div></fieldset>';
+ f+='<fieldset class="fld"><legend>How will you pay?</legend><div class="pills">'+
+  '<label class="pill"><input type="radio" name="pm" value="card"'+(pf.method==="card"?" checked":"")+'>Card on my phone</label>'+
+  '<label class="pill"><input type="radio" name="pm" value="cash"'+(pf.method==="cash"?" checked":"")+'>Cash to the server</label></div></fieldset>';
+ if(pf.method==="card"){var c=pf.card;f+='<div class="cardf"><p class="sub">Demo checkout: no card is charged or saved. Try 4242 4242 4242 4242.</p>'+
+  '<label>Name on card<input class="txt" id="pcname" type="text" autocomplete="cc-name" value="'+esc(c.name||"")+'"></label>'+
+  '<label>Card number<input class="txt" id="pcnum" type="text" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="1234 5678 9012 3456" value="'+esc(c.num||"")+'"></label>'+
+  '<div class="two"><label>Expiry<input class="txt" id="pcexp" type="text" inputmode="numeric" autocomplete="cc-exp" maxlength="7" placeholder="MM / YY" value="'+esc(c.exp||"")+'"></label>'+
+  '<label>Security code<input class="txt" id="pccvc" type="text" inputmode="numeric" autocomplete="cc-csc" maxlength="4" value="'+esc(c.cvc||"")+'"></label></div></div>';
+ }else f+='<p class="sub" style="margin-top:14px">Hand the cash to your server when your order arrives.</p>';
+ var grp=[pay].concat(pf.more.filter(function(i){return others.indexOf(i)>-1}));
+ return head+body+f+'<div class="tot"><span>'+esc(gname(pay))+' pays</span><span>'+mad(amt(grp))+'</span></div>'+
+  '<div class="err" id="err" role="alert"></div><button type="button" class="send" data-act="paygo">Confirm</button>';
+}
+function payGo(){
+ var err=$("err");err.textContent="";
+ var rem=remaining();
+ if(rem.indexOf(pf.payer)<0){err.textContent="Pick your name first.";return}
+ var last4="";
+ if(pf.method==="card"){
+  var c=pf.card,dg=(c.num||"").replace(/\D/g,""),ex=(c.exp||"").replace(/\D/g,""),mm=+ex.slice(0,2),yy=2000+(+ex.slice(2,4)),now=new Date();
+  if((c.name||"").trim().length<2){err.textContent="Enter the name on the card.";return}
+  if(dg.length<13||!luhn(dg)){err.textContent="Enter a valid card number.";return}
+  if(ex.length<4||mm<1||mm>12||yy<now.getFullYear()||(yy===now.getFullYear()&&mm<now.getMonth()+1)){err.textContent="Enter a valid expiry date as MM / YY.";return}
+  if(!/^\d{3,4}$/.test(c.cvc||"")){err.textContent="Enter the security code.";return}
+  last4=dg.slice(-4);
+ }
+ var grp=[pf.payer].concat(pf.more.filter(function(i){return i!==pf.payer&&rem.indexOf(i)>-1}));
+ payments.push({by:pf.payer,for:grp,method:pf.method,amount:amt(grp),last4:last4});
+ pf={payer:-1,more:[],method:pf.method,card:{}};
+ drawSheet('input[name="payer"]');
+}
+
+/* ---------- sending, then following the order ---------- */
+function sendOrder(){
+ if(remaining().length)return;
+ var items=[],t={p:0,k:0};
+ diners.forEach(function(d,i){
+  Object.keys(carts[i]).forEach(function(key){
+   var l=carts[i][key];if(l.qty<1||!byId[l.id]||byId[l.id].out)return;
+   var u=unit(byId[l.id],l.sel);
+   items.push({id:l.id,name:byId[l.id].n,qty:l.qty,opts:describe(l),note:(l.note||"").trim(),price:u.p,kcal:u.k,who:d.name,prep:byId[l.id].tm||0});
+   t.p+=u.p*l.qty;t.k+=u.k*l.qty;
+  });
+ });
+ var err=$("err");
+ if(!items.length){err.textContent="Your order is empty.";return}
+ if(REST){
+  var oc=occ(),tk=tok();
+  if(PICK){
+   var tt=TBL.filter(function(x){return String(x.n)===String(tableNo)})[0];
+   if(!tt||tt.free===false||(oc[tableNo]&&oc[tableNo]!==tk)){tableNo="";wTable="";renderTable();openWelcome("setup");return}
+  }
+  oc[tableNo]=tk;wr(localStorage,"nourish-occ:"+REST.id,oc);
+ }
+ var all=orders(),next=all.reduce(function(m,o){return Math.max(m,o.id)},0)+1;
+ var order={id:next,r:RID,rid:REST?REST.id:"",table:tableNo,party:String(diners.length),items:items,eta:etaOf(items),total:t.p,kcal:t.k,
+  pay:payments.every(function(p){return p.method==="card"})?"card":"cash",
+  payments:payments.map(function(p){return{by:gname(p.by),for:p.for.map(gname),method:p.method,amount:p.amount}}),
+  server:SERVERS[Math.floor(Math.random()*SERVERS.length)],assignAt:Date.now()+3500,status:"pending",at:Date.now()};
+ all.push(order);
+ if(!wr(localStorage,"nourish-orders",all)){err.textContent="We couldn't send your order. Check that your browser allows storage and try again.";return}
+ wr(sessionStorage,"nourish-diner-order",next);
+ stage="track";carts=diners.map(function(){return{}});cur=0;cart=carts[0];payments=[];
+ renderAll();
+ view="track";drawSheet('[data-act="close"]');startPoll();
+}
+function trackView(){
+ var o=activeOrder();
+ if(!o)return '<div class="sh"><h2 id="sheetTitle">No active order</h2>'+closeBtn+'</div>';
+ var assigning=Date.now()<(o.assignAt||0),at=assigning?0:1+STATUS.indexOf(o.status),sv=esc(o.server||"Your server");
+ var steps=["Assigning","Received","Preparing","Ready"].map(function(s,i){
+  return '<li class="'+(i===at?"on":i<at?"done":"")+'"'+(i===at?' aria-current="step"':'')+'>'+s+'</li>';
+ }).join("");
+ var title=assigning?"Assigning your order to a server":o.status==="ready"?"Your order is ready":o.status==="preparing"?"Your order is being prepared":"Order received by the kitchen";
+ var msg=assigning?"Please wait a moment.":
+  o.status==="ready"?'<b>'+sv+'</b> is picking up your order and bringing it to table '+esc(o.table)+'.':
+  o.status==="preparing"?'The kitchen is preparing your order. <b>'+sv+'</b> will pick it up when it is ready.':
+  '<b>'+sv+'</b> is your server. The kitchen has your order and will start soon.';
+ return '<div class="sh"><h2 id="sheetTitle">Order #'+o.id+'</h2>'+closeBtn+'</div>'+
+  '<h3 class="sm" style="margin-top:10px">'+title+'</h3>'+scene(o,assigning)+
+  '<p class="big" role="status">'+msg+'</p>'+etaLine(o,assigning)+
+  '<ol class="trk" aria-label="Order status">'+steps+'</ol>'+
+  '<ul class="summ">'+o.items.map(function(i){
+   var extra=[i.opts,i.note].filter(Boolean).join("; ");
+   return '<li>'+i.qty+' × '+esc(i.name)+(i.who?' for '+esc(i.who):'')+(extra?' ('+esc(extra)+')':'')+'</li>';
+  }).join("")+'<li><b>'+mad(o.total)+'</b>, '+o.kcal+' kcal</li>'+
+  (o.payments||[]).map(function(p){return '<li>'+esc(p.by)+' pays '+mad(p.amount)+(p.for.length>1?' for '+p.for.map(esc).join(", "):'')+', '+(p.method==="card"?"by card":"in cash")+'</li>'}).join("")+'</ul>'+tableQR(o)+
+  (o.status==="ready"?rateBlock(o):'')+
+  (o.status==="ready"&&!o.done?'<button type="button" class="send" data-act="imdone">I\'m done</button>':'')+
+  '<button type="button" class="send ghost" data-act="newround">Order more dishes</button>';
+}
+function startRound(){
+ if(!diners.length){openWelcome("setup");return}
+ qrOpen=false;carts=diners.map(function(){return{}});cur=0;cart=carts[0];payments=[];stage="order";
+ try{sessionStorage.removeItem("nourish-diner-order")}catch(x){}
+ renderAll();openWelcome("profile");
+}
+
+/* ---------- actions ---------- */
+function setQty(key,delta){
+ var c=cart[key];if(!c)return;
+ var id=c.id;
+ c.qty=Math.max(0,Math.min(20,c.qty+delta));
+ if(!c.qty)delete cart[key];
+ refreshCtl(id);
+}
+document.addEventListener("click",function(e){
+ var b=e.target.closest("[data-act]");if(!b)return;
+ var act=b.dataset.act,key=b.dataset.key;
+ if(act==="ginc"||act==="gdec"){wGuests=Math.max(1,Math.min(12,wGuests+(act==="ginc"?1:-1)));$("gout").textContent=wGuests;if(PICK){if(wTable&&!tList().some(function(t){return String(t.n)===String(wTable)}))wTable="";refreshTables()}return}
+ if(act==="tzone"){wZone=b.dataset.z;refreshTables('.zb[aria-pressed="true"]');return}
+ if(act==="tpick"){wTable=b.dataset.n;refreshTables('.tcard[aria-pressed="true"]');return}
+ if(act==="setupgo"){setupGo();return}
+ if(act==="wcancel"){closeWelcome();return}
+ if(act==="pgo"){profileGo();return}
+ if(act==="pstart"){if(cur<diners.length-1){cur++;cart=carts[cur]}openWelcome("profile");return}
+ if(act==="editprof"){if(stage!=="order")startRound();else openWelcome("profile");return}
+ if(act==="finish"){finish();return}
+ if(act==="paygo"){payGo();return}
+ if(act==="payreset"){payments=[];pf={payer:-1,more:[],method:"card",card:{}};drawSheet();return}
+ if(act==="sendorder"){sendOrder();return}
+ if(act==="star"){var tx0=$("rcom");if(tx0)rateText=tx0.value;rateStar=+b.dataset.v;drawSheet('.st[aria-checked="true"]');var tx1=$("rcom");if(tx1)tx1.value=rateText;return}
+ if(act==="qrtog"){qrOpen=!qrOpen;drawSheet('[data-act="qrtog"]');return}
+ if(act==="imdone"){finishVisit();return}
+ if(act==="newround"){closeSheet();startRound();return}
+ if((act==="inc"||act==="custom")&&stage!=="order"){if(stage==="pay")openSheet("pay");else startRound();return}
+ if(act==="inc"||act==="dec"){
+  if(act==="inc"){
+   var ln=cart[key]||(byId[key]?{id:key,sel:defaultSel(byId[key]),rm:[],qty:0,note:""}:null);
+   if(!ln||!afford(unit(byId[ln.id],ln.sel).p))return;
+   cart[key]=ln;
+  }
+  setQty(key,act==="inc"?1:-1);
+  refreshAll();
+  var sel='[data-key="'+key.replace(/"/g,'\\"')+'"][data-act="'+act+'"]';
+  if(sheet.open&&view==="cart"){
+   drawSheet(sel);
+   if(!sheet.contains(document.activeElement))drawSheet('[data-act="close"]');
+  }else{
+   var ctx=document.querySelector('#menu [data-ctl="'+key+'"]');
+   var f=ctx&&(ctx.querySelector('[data-act="'+act+'"]')||ctx.querySelector('[data-act="inc"]'));
+   if(f)f.focus();
+  }
+  return;
+ }
+ if(act==="custom"){openCustom(b.dataset.id);return}
+ if(act==="cinc"||act==="cdec"){cust.qty=Math.max(1,Math.min(20,cust.qty+(act==="cinc"?1:-1)));updateCust();return}
+ if(act==="cadd"){addCustom();return}
+ if(act==="swap"){
+  var from=cart[key];if(!from)return;
+  var to=b.dataset.to,d2=byId[to],sel2=defaultSel(d2),k2=lineKey(to,sel2,[]),n=from.qty;
+  var diff=(unit(d2,sel2).p-unit(byId[from.id],from.sel).p)*n;
+  if(diff>0&&!afford(diff))return;
+  var fromId=from.id,note=from.note;delete cart[key];
+  var tgt=cart[k2]||(cart[k2]={id:to,sel:sel2,rm:[],qty:0,note:""});
+  tgt.qty=Math.min(20,tgt.qty+n);if(!tgt.note)tgt.note=note;
+  refreshCtl(fromId);refreshCtl(to);refreshAll();
+  drawSheet('[data-act="inc"]');
+  return;
+ }
+ if(act==="close"){closeSheet();return}
+});
+$("barBtn").addEventListener("click",function(){
+ if(stage==="order")openSheet("cart");else if(stage==="pay")openSheet("pay");else openSheet("track");
+});
+
+/* typing */
+document.addEventListener("input",function(e){
+ var t=e.target;
+ if(t.dataset&&t.dataset.note!==undefined&&cart[t.dataset.note]){cart[t.dataset.note].note=t.value;return}
+ if(t.id==="cnote"&&cust){cust.note=t.value;return}
+ if(t.id==="wtbl"){wTable=t.value.replace(/\D/g,"").slice(0,3);if(t.value!==wTable)t.value=wTable;return}
+ if(t.id==="wbud"){wBudget=t.value.replace(/\D/g,"").slice(0,6);if(t.value!==wBudget)t.value=wBudget;return}
+ if(t.id==="pname"){P().name=t.value;return}
+ if(t.id==="pgoal"){var v=Math.floor(+t.value);P().goal=v>0&&v<=5000?v:0;return}
+ if(/^pc/.test(t.id)){
+  var k=t.id.slice(2);
+  if(k==="num"){var dg=t.value.replace(/\D/g,"").slice(0,16);t.value=dg.replace(/(.{4})/g,"$1 ").trim()}
+  if(k==="exp"){var x=t.value.replace(/\D/g,"").slice(0,4);t.value=x.length>2?x.slice(0,2)+" / "+x.slice(2):x}
+  if(k==="cvc")t.value=t.value.replace(/\D/g,"").slice(0,4);
+  pf.card[k]=t.value;
+ }
+});
+/* choices, allergies, payment options */
+document.addEventListener("change",function(e){
+ var t=e.target;
+ if(view==="custom"&&cust&&sheet.open){
+  var m=/^g(\d+)$/.exec(t.name||"");
+  if(m){
+   var gi=+m[1],g=byId[cust.id].g[gi],ci=+t.value;
+   if(g.t==="one")cust.sel[gi]=[ci];
+   else{var a=cust.sel[gi],ix=a.indexOf(ci);if(t.checked&&ix<0)a.push(ci);if(!t.checked&&ix>-1)a.splice(ix,1)}
+   updateCust();return;
+  }
+  if(t.name==="rm"){
+   var ri=+t.value,j=cust.rm.indexOf(ri);
+   if(t.checked&&j<0)cust.rm.push(ri);
+   if(!t.checked&&j>-1)cust.rm.splice(j,1);
+   return;
+  }
+ }
+ if(t.name==="avoid"||t.name==="diet"){
+  var arr=P()[t.name==="diet"?"diets":"avoid"],i=arr.indexOf(t.value);
+  if(t.checked&&i<0)arr.push(t.value);
+  if(!t.checked&&i>-1)arr.splice(i,1);
+  return;
+ }
+ if(t.name==="payer"){pf.payer=+t.value;pf.more=pf.more.filter(function(i){return i!==pf.payer});drawSheet('input[name="payer"]:checked');return}
+ if(t.name==="more"){
+  var n=+t.value,p=pf.more.indexOf(n);
+  if(t.checked&&p<0)pf.more.push(n);if(!t.checked&&p>-1)pf.more.splice(p,1);
+  drawSheet('input[name="more"][value="'+n+'"]');return;
+ }
+ if(t.name==="pm"){pf.method=t.value;drawSheet('input[name="pm"]:checked')}
+});
+
+/* ---------- full-screen steps: table and guests, personal profile, pass the phone ---------- */
+var guards=[document.querySelector("header.top"),$("secsNav"),document.querySelector("main"),$("bar")];
+function chips(list,name,sel,cls){
+ return list.map(function(x){return '<label class="chip'+(cls?" "+cls:"")+'"><input type="checkbox" name="'+name+'" value="'+x[0]+'"'+(sel.indexOf(x[0])>-1?" checked":"")+'>'+esc(x[1])+'</label>'}).join("");
+}
+function welcomeHTML(){
+ var head='<div class="wcard"><p class="wr">'+esc(RNAME)+'</p>';
+ if(wstep==="pass")return head+'<p class="wl">Order saved for '+esc(P().name)+'.</p><h1 class="passbig" id="wtitle">Pass the phone to the next person</h1>'+
+  '<p class="wl">Person '+(cur+2)+' of '+diners.length+' orders next.</p><button type="button" class="send" data-act="pstart">I am next</button></div>';
+ if(wstep==="profile")return head+'<h1 id="wtitle">'+(diners.length>1?"Person "+(cur+1)+" of "+diners.length:"About you")+'</h1>'+
+  '<p class="wl">Tell us what you cannot eat. Dishes with those allergens will be blocked for you.</p>'+
+  '<div class="fld"><label class="t" for="pname">Your name</label><input class="txt" id="pname" type="text" maxlength="24" autocomplete="off" value="'+esc(P().name)+'"></div>'+
+  '<fieldset class="fld"><legend>Allergies</legend><div class="chips">'+chips(ALLERGENS,"avoid",P().avoid,"avoid")+'</div></fieldset>'+
+  '<fieldset class="fld"><legend>I eat (optional)</legend><div class="chips">'+chips(DIETS,"diet",P().diets,"")+'</div></fieldset>'+
+  '<div class="fld"><label class="t" for="pgoal">Calorie goal for this meal (optional)</label><input class="num" id="pgoal" type="number" inputmode="numeric" min="0" max="5000" placeholder="e.g. 700" value="'+(P().goal||"")+'"> kcal</div>'+
+  '<div class="err" id="perr" role="alert"></div><button type="button" class="send" data-act="pgo">Show me the menu</button></div>';
+ var ready=!!(tableNo&&diners.length);
+ var top=TABLE?'<h1 id="wtitle">Table '+esc(TABLE)+'</h1><p class="wl">Your table is saved from the QR code.</p>'
+              :PICK?'<h1 id="wtitle">Welcome</h1>'
+              :'<h1 id="wtitle">Welcome</h1><div class="fld"><label class="t" for="wtbl">Your table number</label><input class="num" id="wtbl" type="text" inputmode="numeric" maxlength="3" value="'+esc(wTable)+'" placeholder="e.g. 4"></div>';
+ return head+top+
+  '<div class="qrow"><b>How many guests?</b><div class="stepper" role="group" aria-label="Guests"><button type="button" data-act="gdec" aria-label="One less guest">−</button><output id="gout" aria-live="polite">'+wGuests+'</output><button type="button" data-act="ginc" aria-label="One more guest">+</button></div></div>'+(PICK?tablesBlock():'')+
+  '<div class="fld"><label class="t" for="wbud">Group budget for the table (optional)</label><input class="num" id="wbud" type="text" inputmode="numeric" maxlength="6" value="'+esc(wBudget)+'" placeholder="e.g. 500"> MAD</div>'+
+  (CAN_CHANGE?'<p class="wl"><a class="lnk" href="menu.html?choose=1">Not '+esc(RNAME)+'? Choose another restaurant</a></p>':'')+
+  '<div class="err" id="werr" role="alert"></div><button type="button" class="send" data-act="setupgo">Continue</button>'+
+  (ready?'<button type="button" class="send ghost" data-act="wcancel">Cancel</button>':'')+'</div>';
+}
+function openWelcome(step){
+ if(sheet.open)closeSheet();
+ wstep=step;wTable=wTable||tableNo;
+ wel.innerHTML=welcomeHTML();wel.hidden=false;
+ guards.forEach(function(el){if(el)el.inert=true});
+ document.body.style.overflow="hidden";
+ var f=wel.querySelector("input:not([type=checkbox]),button");if(f)f.focus();
+}
+function closeWelcome(){
+ wel.hidden=true;
+ guards.forEach(function(el){if(el)el.inert=false});
+ document.body.style.overflow="";
+ tb.focus();
+}
+function setupGo(){
+ var err=$("werr");err.textContent="";
+ var t=TABLE||String(wTable||"").trim();
+ if(!/^\d{1,3}$/.test(t)||+t<1){err.textContent=PICK?"Choose your table to continue.":"Enter your table number.";var wt=$("wtbl");if(wt)wt.focus();return}
+ if(PICK&&!tList().some(function(x){return String(x.n)===String(+t)})){err.textContent="That table is no longer available. Please choose another.";wTable="";refreshTables();return}
+ var changed=wGuests!==diners.length;
+ tableNo=String(+t);nGuests=wGuests;budget=+wBudget||0;
+ wr(sessionStorage,"nourish-diner-session",{r:RID,table:tableNo,guests:nGuests,budget:budget});
+ renderTable();
+ if(changed||!diners.length){
+  diners=[];carts=[];
+  for(var i=0;i<nGuests;i++){diners.push({name:"",avoid:[],diets:[],goal:0});carts.push({})}
+  cur=0;cart=carts[0];payments=[];stage="order";
+  openWelcome("profile");return;
+ }
+ if(stage!=="order"&&stage!=="pay")stage="order";
+ closeWelcome();renderAll();window.scrollTo(0,0);
+}
+function profileGo(){
+ var err=$("perr");err.textContent="";
+ var p=P(),nm=(p.name||"").trim();
+ if(!nm){err.textContent="Enter your name so your friends can find you when it is time to pay.";$("pname").focus();return}
+ if(diners.some(function(d,i){return i!==cur&&d.name.trim().toLowerCase()===nm.toLowerCase()})){err.textContent="Another guest already uses that name. Add an initial.";$("pname").focus();return}
+ p.name=nm;
+ var n=purge();
+ stage="order";closeWelcome();renderAll();
+ if(n)say("Removed "+n+(n===1?" dish":" dishes")+" that contain your allergens.");
+ window.scrollTo(0,0);
+}
+tb.addEventListener("click",function(){if(stage==="order"||stage==="track")openWelcome("setup")});
+document.addEventListener("keydown",function(e){
+ if(e.key==="Escape"&&!wel.hidden&&wstep==="setup"&&tableNo&&diners.length)closeWelcome();
+});
+
+/* ---------- start ---------- */
+if(activeOrder())stage="track";
+renderTable();
+renderAll();
+if(stage!=="track"||!tableNo)openWelcome("setup");
+})();
+</script>
+</body>
+</html>

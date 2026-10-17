@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Add your restaurant – Nourish</title>
+<link rel="icon" type="image/x-icon" href="icon.ico?v=2"><link rel="shortcut icon" href="icon.ico?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="auth.js"></script>
+<style>
+:root{--bg:#f4f8f4;--card:#fff;--ink:#14261c;--mute:#566a5d;--line:#d6e1d7;--leaf:#1f7a4d;--leaf-t:#dff1e6;--citrus:#a86a00;--citrus-t:#fdecc8;--berry:#b8304f;--on-leaf:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a14;--card:#16251c;--ink:#e8f1ea;--mute:#9db1a3;--line:#294034;--leaf:#4fc088;--leaf-t:#1b3a2a;--citrus:#f0b44a;--citrus-t:#3a2d12;--berry:#ff7a96;--on-leaf:#0b1a12}}
+:root[data-theme="dark"]{--bg:#0f1a14;--card:#16251c;--ink:#e8f1ea;--mute:#9db1a3;--line:#294034;--leaf:#4fc088;--leaf-t:#1b3a2a;--citrus:#f0b44a;--citrus-t:#3a2d12;--berry:#ff7a96;--on-leaf:#0b1a12}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 Figtree,system-ui,-apple-system,Segoe UI,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque",Figtree,system-ui,sans-serif;margin:0;line-height:1.1;letter-spacing:-.015em}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--leaf);outline-offset:3px}
+[hidden]{display:none!important}
+.wrap{max-width:900px;margin:0 auto;padding:0 20px}
+header{border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;height:64px;max-width:1120px;gap:18px}
+.logo{font:800 23px "Bricolage Grotesque",sans-serif;color:var(--leaf);text-decoration:none;margin-right:auto}
+header a.back{color:var(--mute);text-decoration:none;font-weight:500}
+main{padding:40px 0 80px}
+h1{font-size:clamp(32px,5vw,48px);font-weight:800}
+.lead{color:var(--mute);margin:10px 0 28px;max-width:54ch}
+.notice{background:var(--citrus-t);color:var(--citrus);border-radius:12px;padding:12px 14px;font-size:15px;font-weight:500;margin-bottom:20px}
+.notice a{color:inherit}
+.progress{display:flex;list-style:none;padding:0;margin:0 0 28px;counter-reset:s}
+.progress li{flex:1;padding:10px 0 0;border-top:4px solid var(--line);color:var(--mute);font-weight:500;font-size:15px;counter-increment:s}
+.progress li::before{content:counter(s) ". "}
+.progress li.on{border-color:var(--leaf);color:var(--ink);font-weight:700}
+.progress li+li{margin-left:8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px}
+.pane{display:none}
+.pane.on{display:block}
+.pane h2{font-size:26px;margin-bottom:6px}
+.pane>p{color:var(--mute);margin:0 0 22px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.full{grid-column:1/-1}
+label.f{display:grid;gap:6px;font-weight:500;font-size:15px}
+label.f small{color:var(--mute);font-weight:400}
+input[type=text],input[type=email],input[type=tel],input[type=password],input[type=number],select{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+input:user-invalid,select:user-invalid{border-color:var(--berry)}
+.actions{display:flex;gap:12px;justify-content:space-between;margin-top:26px;flex-wrap:wrap}
+.btn{background:var(--leaf);color:var(--on-leaf);border:0;border-radius:10px;padding:13px 22px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+.btn:disabled{opacity:.6;cursor:wait}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.bill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:4px;margin-bottom:20px}
+.bill label{padding:7px 16px;border-radius:999px;cursor:pointer;font-weight:500}
+.bill input,.plan input{position:absolute;opacity:0}
+.bill label:has(input:checked){background:var(--leaf);color:var(--on-leaf);font-weight:700}
+.bill label:has(input:focus-visible),.plan:has(input:focus-visible){outline:3px solid var(--leaf);outline-offset:2px}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.plan{position:relative;display:flex;flex-direction:column;gap:6px;border:2px solid var(--line);border-radius:16px;padding:20px;cursor:pointer}
+.plan:has(input:checked){border-color:var(--leaf);background:var(--leaf-t)}
+.plan h3{font-size:22px}
+.plan .tag{position:absolute;top:-12px;left:16px;background:var(--leaf);color:var(--on-leaf);font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px}
+.plan .p{font:800 32px "Bricolage Grotesque",sans-serif}
+.plan .p small{font:500 15px Figtree,sans-serif;color:var(--mute)}
+.plan ul{margin:8px 0 0;padding-left:18px;color:var(--mute);font-size:15px}
+.note{color:var(--mute);font-size:14px;margin:16px 0 0}
+@media (max-width:760px){.grid,.plans{grid-template-columns:1fr}.progress li{font-size:13px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><a class="logo" href="index.html">Nourish</a><a class="back" href="login.html">Log in</a><a class="back" href="index.html">Back to home</a></div></header>
+
+<main><div class="wrap">
+ <h1>Add your restaurant</h1>
+ <p class="lead">Tell us about your place, pick a plan and add your card to start your free trial. You'll use your email and password to log in later.</p>
+
+ <div class="notice" id="exists" hidden>An account already exists in this browser. Signing up again will replace it. <a href="login.html">Log in instead</a>.</div>
+
+ <ol class="progress" aria-label="Sign-up progress">
+  <li class="on" aria-current="step">Your restaurant</li><li>Choose a plan</li><li>Payment</li>
+ </ol>
+
+ <form class="card" id="f" novalidate>
+  <!-- STEP 1 -->
+  <section class="pane on" tabindex="-1" aria-labelledby="h1">
+   <h2 id="h1">Your restaurant</h2>
+   <p>This is what diners will see on your menu page.</p>
+   <div class="grid">
+    <label class="f full">Restaurant name<input type="text" name="rname" required autocomplete="organization"></label>
+    <label class="f">Type of food<select name="cuisine" required>
+      <option value="">Choose one</option><option>Moroccan</option><option>Mediterranean</option><option>Italian</option><option>French</option><option>Asian</option><option>Middle Eastern</option><option>Burgers and fast food</option><option>Seafood</option><option>Café and bakery</option><option>Vegetarian and vegan</option><option>Other</option></select></label>
+    <label class="f">Number of tables<small>We'll create one QR code per table</small><input type="number" name="tables" min="1" max="500" required inputmode="numeric"></label>
+    <label class="f full">Street address<input type="text" name="street" required autocomplete="street-address"></label>
+    <label class="f">City<input type="text" name="city" required autocomplete="address-level2"></label>
+    <label class="f">Country<input type="text" name="country" required value="Morocco" autocomplete="country-name"></label>
+    <label class="f">Your full name<input type="text" name="owner" required autocomplete="name"></label>
+    <label class="f">Phone number<input type="tel" name="phone" required autocomplete="tel" pattern="[0-9+\s\-\(\)]{8,20}" title="Enter a phone number, for example +212 6 12 34 56 78"></label>
+    <label class="f">Email<small>You'll log in with this</small><input type="email" name="email" required autocomplete="username"></label>
+    <span></span>
+    <label class="f">Password<small>At least 8 characters</small><input type="password" name="pw" required minlength="8" autocomplete="new-password"></label>
+    <label class="f">Confirm password<small>Type it again</small><input type="password" name="pw2" required minlength="8" autocomplete="new-password"></label>
+   </div>
+   <div class="actions"><a class="btn ghost" href="index.html">Cancel</a><button class="btn" type="button" data-go="1">Continue to plans</button></div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="pane" tabindex="-1" aria-labelledby="h2">
+   <h2 id="h2">Choose your plan</h2>
+   <p>Every plan starts with a 14-day free trial. You can change or cancel anytime.</p>
+   <div class="bill" role="radiogroup" aria-label="Billing period">
+    <label><input type="radio" name="billing" value="monthly" checked>Monthly</label>
+    <label><input type="radio" name="billing" value="yearly">Yearly (save 20%)</label>
+   </div>
+   <div class="plans" role="radiogroup" aria-label="Plans">
+    <label class="plan"><input type="radio" name="plan" value="Starter" data-price="199"><h3>Starter</h3><div class="p"><span class="amt"></span> <small>MAD / month</small></div>
+     <ul><li>Up to 10 tables</li><li>Up to 50 dishes</li><li>Live order screen</li></ul></label>
+    <label class="plan"><span class="tag">Most popular</span><input type="radio" name="plan" value="Standard" data-price="399" checked><h3>Standard</h3><div class="p"><span class="amt"></span> <small>MAD / month</small></div>
+     <ul><li>Up to 30 tables</li><li>Unlimited dishes</li><li>Calories and diet tags</li><li>Daily sales summary</li></ul></label>
+    <label class="plan"><input type="radio" name="plan" value="Premium" data-price="699"><h3>Premium</h3><div class="p"><span class="amt"></span> <small>MAD / month</small></div>
+     <ul><li>Unlimited tables</li><li>Staff accounts and roles</li><li>Nutrition reports</li><li>Priority support</li></ul></label>
+   </div>
+   <p class="note">Prices are examples for now. You'll add your card on the next page and won't be charged until your trial ends.</p>
+   <div class="actions"><button class="btn ghost" type="button" data-go="0">Back</button><button class="btn" type="submit" id="next">Continue to payment</button></div>
+  </section>
+ </form>
+</div></main>
+
+<script>
+(function(){
+ var N=window.Nourish,f=document.getElementById("f"),panes=[].slice.call(f.querySelectorAll(".pane")),
+     steps=[].slice.call(document.querySelectorAll(".progress li"));
+ /* several restaurants can share this browser */
+
+ function show(n){
+  panes.forEach(function(p,i){p.classList.toggle("on",i===n)});
+  steps.forEach(function(s,i){s.classList.toggle("on",i<=n);i===n?s.setAttribute("aria-current","step"):s.removeAttribute("aria-current")});
+  panes[n].focus();window.scrollTo({top:0});
+ }
+ function match(){var a=f.elements.pw,b=f.elements.pw2;b.setCustomValidity(a.value!==b.value?"The two passwords don't match.":"")}
+ f.elements.pw.addEventListener("input",match);f.elements.pw2.addEventListener("input",match);
+ function valid(n){
+  if(n===0)match();
+  var bad=[].slice.call(panes[n].querySelectorAll("input,select")).filter(function(i){return !i.checkValidity()})[0];
+  if(bad){bad.reportValidity();return false}return true;
+ }
+ function bill(){return f.querySelector('input[name="billing"]:checked').value}
+ function prices(){
+  var yearly=bill()==="yearly";
+  [].forEach.call(f.querySelectorAll('input[name="plan"]'),function(r){
+   var p=+r.dataset.price;r.closest(".plan").querySelector(".amt").textContent=yearly?Math.round(p*0.8):p;
+  });
+ }
+ f.addEventListener("click",function(e){
+  var b=e.target.closest("[data-go]");if(!b)return;var to=+b.dataset.go;
+  if(to===1&&!valid(0))return;
+  show(to);
+ });
+ f.addEventListener("change",function(e){if(e.target.name==="billing")prices()});
+ f.addEventListener("submit",function(e){
+  e.preventDefault();
+  if(panes[0].classList.contains("on")){if(valid(0))show(1);return}
+  var v=function(n){return f.elements[n].value.trim()},plan=f.querySelector('input[name="plan"]:checked'),btn=document.getElementById("next");
+  btn.disabled=true;
+  var email=v("email").toLowerCase(),pw=f.elements.pw.value,db=window.nourishDB;
+  var fail=function(m){btn.disabled=false;alert(m)};
+  if(!db){fail("Sign-up needs a connection to our database. Please check your connection and try again.");return}
+  var exists="An account with this email already exists. Please log in instead.";
+  db.auth.signUp({email:email,password:pw}).then(function(r){
+   if(!r.error)return r;
+   if(!/already/i.test(r.error.message))throw r.error;
+   // an earlier sign-up may have been abandoned before payment: let them continue if so
+   return db.auth.signInWithPassword({email:email,password:pw}).then(function(x){
+    if(x.error)throw new Error(exists);
+    return db.from("accounts").select("id").eq("id",x.data.user.id).maybeSingle().then(function(q){
+     if(q.data)return db.auth.signOut({scope:"local"}).then(function(){throw new Error(exists)});
+     return x;
+    });
+   });
+  }).then(function(r){
+   if(!r.data||!r.data.session)throw new Error("Please confirm your email using the link we sent you, then log in to continue.");
+   sessionStorage.setItem("nourish-signup",JSON.stringify({
+    rname:v("rname"),cuisine:v("cuisine"),tables:v("tables"),owner:v("owner"),email:email,phone:v("phone"),
+    street:v("street"),city:v("city"),country:v("country"),
+    plan:plan.value,price:+plan.dataset.price,billing:bill()
+   }));
+   location.href="payment.html";
+  }).catch(function(e){fail(e&&e.message?e.message:"We couldn't continue. Please try again.")});
+ });
+ prices();
+})();
+</script>
+</body>
+</html>

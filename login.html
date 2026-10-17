@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Log in – Nourish</title>
+<link rel="icon" type="image/x-icon" href="icon.ico?v=2"><link rel="shortcut icon" href="icon.ico?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="auth.js" data-guest></script>
+<style>
+:root{--bg:#f4f8f4;--card:#fff;--ink:#14261c;--mute:#566a5d;--line:#d6e1d7;--leaf:#1f7a4d;--leaf-t:#dff1e6;--citrus:#a86a00;--citrus-t:#fdecc8;--berry:#b8304f;--on-leaf:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a14;--card:#16251c;--ink:#e8f1ea;--mute:#9db1a3;--line:#294034;--leaf:#4fc088;--leaf-t:#1b3a2a;--citrus:#f0b44a;--citrus-t:#3a2d12;--berry:#ff7a96;--on-leaf:#0b1a12}}
+:root[data-theme="dark"]{--bg:#0f1a14;--card:#16251c;--ink:#e8f1ea;--mute:#9db1a3;--line:#294034;--leaf:#4fc088;--leaf-t:#1b3a2a;--citrus:#f0b44a;--citrus-t:#3a2d12;--berry:#ff7a96;--on-leaf:#0b1a12}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 Figtree,system-ui,-apple-system,Segoe UI,sans-serif}
+h1,h2{font-family:"Bricolage Grotesque",Figtree,system-ui,sans-serif;margin:0;line-height:1.1;letter-spacing:-.015em}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--leaf);outline-offset:3px}
+[hidden]{display:none!important}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+header{border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;height:64px}
+.logo{font:800 23px "Bricolage Grotesque",sans-serif;color:var(--leaf);text-decoration:none;margin-right:auto}
+header a.back{color:var(--mute);text-decoration:none;font-weight:500}
+main{padding:56px 20px 80px;max-width:480px;margin:0 auto}
+h1{font-size:clamp(32px,6vw,44px);font-weight:800}
+.lead{color:var(--mute);margin:10px 0 26px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px;display:grid;gap:16px}
+label.f{display:grid;gap:6px;font-weight:500;font-size:15px}
+input[type=email],input[type=password],input[type=text]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.pw{position:relative}
+.pw input{padding-right:78px}
+.pw button{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--leaf);font-weight:700;cursor:pointer;padding:8px 10px;border-radius:8px}
+.chk{display:flex;gap:10px;align-items:center;font-size:15px;color:var(--mute);cursor:pointer}
+.chk input{width:18px;height:18px;accent-color:var(--leaf)}
+.btn{background:var(--leaf);color:var(--on-leaf);border:0;border-radius:10px;padding:14px 22px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;display:block;width:100%}
+.btn:disabled{opacity:.6;cursor:wait}
+.err{color:var(--berry);font-weight:500;font-size:15px}
+.err:empty{display:none}
+.notice{background:var(--citrus-t);color:var(--citrus);border-radius:12px;padding:12px 14px;font-size:15px;font-weight:500;margin-bottom:16px}
+.notice a{color:inherit}
+.alt{text-align:center;color:var(--mute);margin:20px 0 0}
+.alt a{color:var(--leaf);font-weight:700}
+.small{color:var(--mute);font-size:14px;margin:16px 0 0;text-align:center}
+</style>
+</head>
+<body>
+<header><div class="wrap"><a class="logo" href="index.html">Nourish</a><a class="back" href="index.html">Back to home</a></div></header>
+
+<main>
+ <h1>Welcome back</h1>
+ <p class="lead">Log in to manage your menu, tables and stock.</p>
+
+ <div class="notice" id="noacct" hidden>No restaurant account was found in this browser yet. <a href="signup.html">Add your restaurant</a> first.</div>
+
+ <form class="card" id="f" novalidate>
+  <label class="f">Email<input type="email" name="email" autocomplete="username" required autofocus></label>
+  <label class="f">Password
+   <span class="pw"><input type="password" name="pw" id="pw" autocomplete="current-password" required><button type="button" id="show" aria-pressed="false" aria-controls="pw">Show</button></span>
+  </label>
+  <div class="err" id="err" role="alert"></div>
+  <button class="btn" type="submit" id="go">Log in</button>
+ </form>
+
+ <p class="alt">New here? <a href="signup.html">Add your restaurant</a></p>
+ <p class="small">Use the email and password you chose when you signed up. Your account works on any device.</p>
+</main>
+
+<script>
+(function(){
+ var N=window.Nourish,f=document.getElementById("f"),err=document.getElementById("err"),btn=document.getElementById("go");
+ 
+
+ document.getElementById("show").addEventListener("click",function(){
+  var p=document.getElementById("pw"),show=p.type==="password";
+  p.type=show?"text":"password";this.textContent=show?"Hide":"Show";this.setAttribute("aria-pressed",String(show));
+ });
+
+ function fails(){var x=null;try{x=JSON.parse(sessionStorage.getItem("nourish-fails"))}catch(e){}return x||{n:0,until:0}}
+ function say(m){err.textContent=m}
+
+ f.addEventListener("submit",function(e){
+  e.preventDefault();say("");
+  var l=fails(),now=Date.now();
+  if(l.until>now){say("Too many attempts. Try again in "+Math.ceil((l.until-now)/1000)+" seconds.");return}
+  var email=f.elements.email.value.trim().toLowerCase(),pw=f.elements.pw.value,a=N.accountFor(email);
+  if(!email||!pw){say("Enter your email and password.");return}
+  btn.disabled=true;
+  var db=window.nourishDB;
+  if(!db){say("We can't reach the login service. Check your connection and try again.");btn.disabled=false;return}
+  db.auth.signInWithPassword({email:email,password:pw}).then(function(r){
+   if(r.error){
+    l.n++;if(l.n>=5){l.until=Date.now()+30000;l.n=0}
+    try{sessionStorage.setItem("nourish-fails",JSON.stringify(l))}catch(x){}
+    say(l.until>Date.now()?"Too many attempts. Try again in 30 seconds.":"The email or password is incorrect.");
+    return;
+   }
+   try{sessionStorage.removeItem("nourish-fails")}catch(x){}
+   return N.refresh().then(function(has){
+    if(has){location.href="dashboard.html";return}
+    say("Your sign-up wasn't finished. Please add your restaurant and choose a plan first.");
+    return db.auth.signOut({scope:"local"});
+   });
+  }).catch(function(){say("We couldn't log you in. Check your connection and try again.")}).then(function(){btn.disabled=false});
+ });
+})();
+</script>
+</body>
+</html>

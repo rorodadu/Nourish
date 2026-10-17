@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Manage account – Nourish</title>
+<link rel="icon" type="image/x-icon" href="icon.ico?v=2"><link rel="shortcut icon" href="icon.ico?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="auth.js" data-protect data-menu></script>
+<style>
+:root{--bg:#f4f8f4;--card:#fff;--ink:#14261c;--mute:#566a5d;--line:#d6e1d7;--leaf:#1f7a4d;--leaf-t:#dff1e6;--citrus:#a86a00;--citrus-t:#fdecc8;--berry:#b8304f;--berry-t:#fbe4ea;--on-leaf:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a14;--card:#16251c;--ink:#e8f1ea;--mute:#9db1a3;--line:#294034;--leaf:#4fc088;--leaf-t:#1b3a2a;--citrus:#f0b44a;--citrus-t:#3a2d12;--berry:#ff7a96;--berry-t:#3f1a25;--on-leaf:#0b1a12}}
+:root[data-theme="dark"]{--bg:#0f1a14;--card:#16251c;--ink:#e8f1ea;--mute:#9db1a3;--line:#294034;--leaf:#4fc088;--leaf-t:#1b3a2a;--citrus:#f0b44a;--citrus-t:#3a2d12;--berry:#ff7a96;--berry-t:#3f1a25;--on-leaf:#0b1a12}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 Figtree,system-ui,-apple-system,Segoe UI,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque",Figtree,system-ui,sans-serif;margin:0;line-height:1.1;letter-spacing:-.01em}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--leaf);outline-offset:2px}
+[hidden]{display:none!important}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+header{background:var(--bg);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;gap:16px;height:64px}
+.logo{font:800 23px "Bricolage Grotesque",sans-serif;color:var(--leaf);text-decoration:none;margin-right:auto}
+header a.back{color:var(--mute);text-decoration:none;font-weight:500}
+main{padding:32px 0 90px}
+h1{font-size:clamp(30px,5vw,42px);font-weight:800;margin-bottom:22px}
+.layout{display:grid;grid-template-columns:210px 1fr;gap:28px;align-items:start}
+.side{position:sticky;top:16px;display:grid;gap:2px}
+.side a{display:block;padding:9px 12px;border-radius:8px;text-decoration:none;color:var(--mute);font-weight:500}
+.side a:hover,.side a:focus-visible{background:var(--leaf-t);color:var(--ink)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:20px}
+.card h2{font-size:24px;margin-bottom:4px}
+.card>.sub{color:var(--mute);margin:0 0 18px}
+.card.danger{border-color:var(--berry)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.full{grid-column:1/-1}
+label.f{display:grid;gap:5px;font-weight:500;font-size:14px}
+label.f small{color:var(--mute);font-weight:400}
+input[type=text],input[type=email],input[type=tel],input[type=password],input[type=number],select{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+input[aria-invalid=true]{border-color:var(--berry)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{background:var(--leaf);color:var(--on-leaf);border:0;border-radius:10px;padding:10px 16px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.del{background:transparent;color:var(--berry);border:1px solid var(--line)}
+.btn.sm{padding:6px 12px;font-size:14px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.msg{min-height:1.4em;margin:12px 0 0;font-weight:500;font-size:15px}
+.msg.good{color:var(--leaf)}.msg.bad{color:var(--berry)}
+.err{color:var(--berry);font-size:13px;font-weight:500}
+.err:empty{display:none}
+.note{color:var(--mute);font-size:14px}
+.pfp-row{display:flex;gap:18px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+.pfp{width:92px;height:92px;border-radius:50%;background:var(--leaf-t);color:var(--leaf);font:800 30px "Bricolage Grotesque",sans-serif;display:grid;place-items:center;overflow:hidden;border:2px solid var(--line)}
+.pfp img{width:100%;height:100%;object-fit:cover;display:block}
+.file{position:relative;cursor:pointer}
+.file input{position:absolute;opacity:0;width:1px;height:1px}
+.file:focus-within{outline:3px solid var(--leaf);outline-offset:2px}
+.st{display:inline-flex;font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;margin-left:8px;vertical-align:2px}
+.st.ok{background:var(--leaf-t);color:var(--leaf)}
+.st.out{background:var(--berry-t);color:var(--berry)}
+.sumr{border:1px solid var(--line);border-radius:12px;padding:4px 16px;margin-bottom:18px}
+.sumr .r{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid var(--line)}
+.sumr .r:last-child{border:0}
+.sumr .r span:first-child{color:var(--mute)}
+.sumr .r span:last-child{font-weight:700;text-align:right}
+.bill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:4px;margin:6px 0 16px}
+.bill label{padding:6px 14px;border-radius:999px;cursor:pointer;font-weight:500}
+.bill input,.pl input{position:absolute;opacity:0}
+.bill label:has(input:checked){background:var(--leaf);color:var(--on-leaf);font-weight:700}
+.bill label:has(input:focus-visible),.pl:has(input:focus-visible){outline:3px solid var(--leaf);outline-offset:2px}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.pl{display:flex;flex-direction:column;gap:4px;border:2px solid var(--line);border-radius:14px;padding:16px;cursor:pointer}
+.pl:has(input:checked){border-color:var(--leaf);background:var(--leaf-t)}
+.pl h3{font-size:19px}
+.pl .p{font:800 26px "Bricolage Grotesque",sans-serif}
+.pl .p small{font:500 13px Figtree,sans-serif;color:var(--mute)}
+.pl ul{margin:6px 0 0;padding-left:18px;color:var(--mute);font-size:14px}
+.cardrow,.inv{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.cardrow:first-child,.inv:first-child{border-top:0}
+.cardrow p,.inv p{margin:2px 0 0;color:var(--mute);font-size:14px}
+.empty{border:1px dashed var(--line);border-radius:12px;padding:18px;text-align:center;color:var(--mute)}
+.tg{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}
+.tg:first-of-type{border-top:0}
+.tg input{width:19px;height:19px;accent-color:var(--leaf);margin-top:3px}
+.tg span{display:block;color:var(--mute);font-size:14px}
+.sep{border:0;border-top:1px solid var(--line);margin:22px 0}
+@media (max-width:820px){
+ .layout{grid-template-columns:1fr}
+ .side{position:static;display:flex;overflow-x:auto;gap:6px;padding-bottom:6px}
+ .side a{white-space:nowrap;border:1px solid var(--line)}
+ .grid,.plans{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><a class="logo" href="index.html">Nourish</a><a class="back" href="dashboard.html">Back to dashboard</a></div></header>
+
+<main class="wrap">
+ <h1>Manage account</h1>
+ <div class="layout">
+  <nav class="side" aria-label="Account sections">
+   <a href="#profile">Profile</a><a href="#restaurant">Restaurant</a><a href="#plan">Plan and billing</a><a href="#cards">Payment methods</a>
+   <a href="#history">Billing history</a><a href="#notify">Notifications</a><a href="#security">Security</a><a href="#data">Your data</a>
+  </nav>
+
+  <div>
+   <!-- PROFILE -->
+   <section class="card" id="profile" aria-labelledby="t-profile">
+    <h2 id="t-profile">Profile</h2>
+    <p class="sub">Your photo and the details you log in with.</p>
+    <div class="pfp-row">
+     <div class="pfp" id="pfp" aria-hidden="true"></div>
+     <div>
+      <div class="row">
+       <label class="btn ghost sm file">Upload photo<input type="file" id="pfile" accept="image/*"></label>
+       <button class="btn del sm" type="button" id="pfRemove">Remove photo</button>
+      </div>
+      <p class="note" style="margin:8px 0 0">It will be cropped to a square.</p>
+      <p class="msg" id="pfMsg" role="status" style="margin:6px 0 0"></p>
+     </div>
+    </div>
+    <form id="pf" novalidate>
+     <div class="grid">
+      <label class="f">Full name<input type="text" id="pName" autocomplete="name"></label>
+      <label class="f">Phone number<input type="tel" id="pPhone" autocomplete="tel"></label>
+      <label class="f full">Email<small>This is what you log in with</small><input type="email" id="pEmail" autocomplete="username"></label>
+      <label class="f full" id="pwWrap" hidden>Current password<small>Needed to change your email</small><input type="password" id="pPw" autocomplete="current-password"></label>
+     </div>
+     <div class="row" style="margin-top:16px"><button class="btn" type="submit">Save profile</button></div>
+     <p class="msg" id="pfOk" role="status"></p>
+    </form>
+   </section>
+
+   <!-- RESTAURANT -->
+   <section class="card" id="restaurant" aria-labelledby="t-rest">
+    <h2 id="t-rest">Restaurant</h2>
+    <p class="sub">What diners see, and where you're located. Manage tables and QR codes in your dashboard.</p>
+    <form id="rf" novalidate>
+     <div class="grid">
+      <label class="f full">Restaurant name<input type="text" id="rName" autocomplete="organization"></label>
+      <label class="f">Type of food<select id="rCuisine"></select></label>
+      <label class="f">Number of tables<input type="number" id="rTables" min="1" max="500" inputmode="numeric"></label>
+      <label class="f full">Street address<input type="text" id="rStreet" autocomplete="street-address"></label>
+      <label class="f">City<input type="text" id="rCity" autocomplete="address-level2"></label>
+      <label class="f">Country<input type="text" id="rCountry" autocomplete="country-name"></label>
+      <label class="f">Currency<small>For example MAD</small><input type="text" id="rCur" maxlength="5" autocomplete="off"></label>
+      <label class="f full">Your menu website address<small>QR codes open this address. Use the real address of your menu page, for example https://nourish.ma</small><input type="text" id="rBase" inputmode="url" autocomplete="off" placeholder="https://yourdomain.com"></label>
+     </div>
+     <div class="row" style="margin-top:16px"><button class="btn" type="submit">Save restaurant</button></div>
+     <p class="msg" id="rfOk" role="status"></p>
+    </form>
+   </section>
+
+   <!-- PLAN -->
+   <section class="card" id="plan" aria-labelledby="t-plan">
+    <h2 id="t-plan">Plan and billing</h2>
+    <p class="sub">Your subscription and what you'll pay next.</p>
+    <div class="sumr" id="planBox"></div>
+    <form id="planForm">
+     <h3 style="font-size:18px">Change plan</h3>
+     <div class="bill" role="radiogroup" aria-label="Billing period">
+      <label><input type="radio" name="billing" value="monthly">Monthly</label>
+      <label><input type="radio" name="billing" value="yearly">Yearly (save 20%)</label>
+     </div>
+     <div class="plans" role="radiogroup" aria-label="Plans">
+      <label class="pl"><input type="radio" name="plan" value="Starter" data-price="199"><h3>Starter</h3><div class="p"><span class="amt"></span> <small>MAD / month</small></div><ul><li>Up to 10 tables</li><li>Up to 50 dishes</li><li>Live order screen</li></ul></label>
+      <label class="pl"><input type="radio" name="plan" value="Standard" data-price="399"><h3>Standard</h3><div class="p"><span class="amt"></span> <small>MAD / month</small></div><ul><li>Up to 30 tables</li><li>Unlimited dishes</li><li>Calories and diet tags</li></ul></label>
+      <label class="pl"><input type="radio" name="plan" value="Premium" data-price="699"><h3>Premium</h3><div class="p"><span class="amt"></span> <small>MAD / month</small></div><ul><li>Unlimited tables</li><li>Staff accounts and roles</li><li>Priority support</li></ul></label>
+     </div>
+     <div class="row" style="margin-top:16px">
+      <button class="btn" type="submit">Save plan</button>
+      <button class="btn del" type="button" id="cancelPlan">Cancel subscription</button>
+      <button class="btn ghost" type="button" id="reactivate" hidden>Reactivate subscription</button>
+     </div>
+     <p class="msg" id="planMsg" role="status"></p>
+    </form>
+   </section>
+
+   <!-- CARDS -->
+   <section class="card" id="cards" aria-labelledby="t-cards">
+    <h2 id="t-cards">Payment methods</h2>
+    <p class="sub">Only the brand, last 4 digits and expiry are kept. The full number and security code are never saved.</p>
+    <div id="cardList"></div>
+    <p class="msg" id="cardMsg" role="status"></p>
+    <div class="row" style="margin-top:6px"><button class="btn ghost" type="button" id="addCardBtn" aria-expanded="false" aria-controls="cardForm">Add a card</button></div>
+    <form id="cardForm" novalidate hidden style="margin-top:18px" autocomplete="on">
+     <p class="note" style="margin:0 0 12px">Demo only. Please don't enter a real card. Test card: 4242 4242 4242 4242.</p>
+     <div class="grid">
+      <label class="f full">Name on card<input type="text" id="cName" autocomplete="cc-name"><span class="err" id="e-cName" role="alert"></span></label>
+      <label class="f full">Card number<input type="text" id="cNum" inputmode="numeric" autocomplete="cc-number" placeholder="1234 5678 9012 3456" maxlength="19"><span class="err" id="e-cNum" role="alert"></span></label>
+      <label class="f">Expiry date<input type="text" id="cExp" inputmode="numeric" autocomplete="cc-exp" placeholder="MM / YY" maxlength="7"><span class="err" id="e-cExp" role="alert"></span></label>
+      <label class="f">Security code<input type="text" id="cCvc" inputmode="numeric" autocomplete="cc-csc" placeholder="CVC" maxlength="4"><span class="err" id="e-cCvc" role="alert"></span></label>
+     </div>
+     <div class="row" style="margin-top:14px"><button class="btn" type="submit">Save card</button><button class="btn ghost" type="button" id="cardCancel">Cancel</button></div>
+    </form>
+   </section>
+
+   <!-- HISTORY -->
+   <section class="card" id="history" aria-labelledby="t-hist">
+    <h2 id="t-hist">Billing history</h2>
+    <p class="sub">Your invoices and payments.</p>
+    <div id="invList"></div>
+   </section>
+
+   <!-- NOTIFICATIONS -->
+   <section class="card" id="notify" aria-labelledby="t-notify">
+    <h2 id="t-notify">Notifications</h2>
+    <p class="sub">Choose what you'd like to hear about. These are saved, but no emails are sent in this demo yet.</p>
+    <label class="tg"><input type="checkbox" id="nLow"><div><b>Low stock alerts</b><span>When an ingredient is running low or out of stock.</span></div></label>
+    <label class="tg"><input type="checkbox" id="nDaily"><div><b>Daily sales summary</b><span>A short recap of yesterday's income and expenses.</span></div></label>
+    <label class="tg"><input type="checkbox" id="nNews"><div><b>Product news</b><span>New features and tips for your restaurant.</span></div></label>
+    <p class="msg" id="nMsg" role="status"></p>
+   </section>
+
+   <!-- SECURITY -->
+   <section class="card" id="security" aria-labelledby="t-sec">
+    <h2 id="t-sec">Security</h2>
+    <p class="sub">Change your password or log out of this device.</p>
+    <form id="sf" novalidate>
+     <div class="grid">
+      <label class="f full">Current password<input type="password" id="sCur" autocomplete="current-password"></label>
+      <label class="f">New password<small>At least 8 characters</small><input type="password" id="sNew" autocomplete="new-password"></label>
+      <label class="f">Confirm new password<input type="password" id="sNew2" autocomplete="new-password"></label>
+     </div>
+     <div class="row" style="margin-top:16px"><button class="btn" type="submit">Change password</button><button class="btn ghost" type="button" id="logout">Log out of this device</button></div>
+     <p class="msg" id="sMsg" role="status"></p>
+    </form>
+   </section>
+
+   <!-- DATA -->
+   <section class="card danger" id="data" aria-labelledby="t-data">
+    <h2 id="t-data">Your data</h2>
+    <p class="sub">Download a copy of your information, or delete your account for good.</p>
+    <div class="row"><button class="btn ghost" type="button" id="export">Download my data</button></div>
+    <hr class="sep">
+    <h3 style="font-size:18px;color:var(--berry)">Delete account</h3>
+    <p class="note" style="margin:6px 0 12px">This removes your account, menu, ingredients and sales records from this browser. It can't be undone. Type DELETE to confirm.</p>
+    <div class="row"><input type="text" id="delConfirm" aria-label="Type DELETE to confirm" autocomplete="off" style="max-width:180px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg)"><button class="btn del" type="button" id="delBtn" disabled>Delete my account</button></div>
+   </section>
+  </div>
+ </div>
+</main>
+
+<script>
+Nourish.ready.then(function(){
+ var N=window.Nourish,A=N.account();
+ if(!A)return;
+ var $=function(id){return document.getElementById(id)};
+ var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
+ var PRICES={Starter:199,Standard:399,Premium:699};
+ var CUISINES=["Moroccan","Mediterranean","Italian","French","Asian","Middle Eastern","Burgers and fast food","Seafood","Café and bakery","Vegetarian and vegan","Other"];
+ var D=function(s){var p=s.split("-");return new Date(+p[0],+p[1]-1,+p[2])};
+ var fd=function(s){return s?D(s).toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"}):""};
+ var iso=function(x){return x.getFullYear()+"-"+("0"+(x.getMonth()+1)).slice(-2)+"-"+("0"+x.getDate()).slice(-2)};
+ var mon=function(p,b){return b==="yearly"?Math.round(p*0.8):p};
+ var fmt=function(n){return Math.round(n).toLocaleString("en-US")+" MAD"};
+ function say(id,msg,bad){var e=$(id);e.textContent=msg||"";e.className=e.className.replace(/\s*(good|bad)/g,"")+(msg?(bad?" bad":" good"):"")}
+ function persist(){N.saveAccount(A);N.mount()}
+ function secureErr(){alert("Your browser blocked secure password checks here. Open the site with Live Server (http://localhost) or over https.")}
+
+ /* ---------- profile ---------- */
+ function pfp(){
+  var b=$("pfp");b.textContent="";
+  if(A.owner.photo){var i=new Image();i.src=A.owner.photo;i.alt="";b.appendChild(i)}else b.textContent=N.initials(A.owner.name);
+  $("pfRemove").hidden=!A.owner.photo;
+ }
+ $("pfile").addEventListener("change",function(){
+  var f=this.files[0];this.value="";if(!f)return;say("pfMsg","");
+  if(!/^image\//.test(f.type)){say("pfMsg","Please choose an image file.",1);return}
+  if(f.size>8*1024*1024){say("pfMsg","That image is too large. Choose one under 8 MB.",1);return}
+  var r=new FileReader();
+  r.onload=function(){
+   var img=new Image();
+   img.onload=function(){
+    var s=Math.min(img.width,img.height),c=document.createElement("canvas");c.width=c.height=256;
+    c.getContext("2d").drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,256,256);
+    A.owner.photo=c.toDataURL("image/jpeg",0.85);persist();pfp();say("pfMsg","Photo updated.");
+   };
+   img.onerror=function(){say("pfMsg","We couldn't read that image.",1)};
+   img.src=r.result;
+  };
+  r.readAsDataURL(f);
+ });
+ $("pfRemove").addEventListener("click",function(){A.owner.photo="";persist();pfp();say("pfMsg","Photo removed.")});
+ $("pEmail").addEventListener("input",function(){$("pwWrap").hidden=$("pEmail").value.trim().toLowerCase()===A.email});
+ $("pf").addEventListener("submit",function(e){
+  e.preventDefault();
+  var name=$("pName").value.trim(),email=$("pEmail").value.trim().toLowerCase(),phone=$("pPhone").value.trim();
+  if(name.length<2)return say("pfOk","Enter your full name.",1);
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return say("pfOk","Enter a valid email address.",1);
+  if(!/^[0-9+\s\-()]{8,20}$/.test(phone))return say("pfOk","Enter a valid phone number.",1);
+  function apply(){
+   A.owner.name=name;A.owner.phone=phone;
+   if(email!==A.email){A.email=email;N.relogin(email)}
+   persist();pfp();$("pPw").value="";$("pwWrap").hidden=true;say("pfOk","Profile saved.");
+  }
+  if(email!==A.email){
+   var pw=$("pPw").value;
+   if(!pw){$("pwWrap").hidden=false;$("pPw").focus();return say("pfOk","Enter your current password to change your email.",1)}
+   N.reauth(pw).then(function(ok){if(!ok)return say("pfOk","That password is incorrect.",1);return nourishDB.auth.updateUser({email:email}).then(function(r){if(r.error)return say("pfOk",r.error.message,1);apply()})}).catch(function(){say("pfOk","We couldn't reach the server. Try again.",1)});
+  }else apply();
+ });
+
+ /* ---------- restaurant ---------- */
+ $("rCuisine").innerHTML=CUISINES.map(function(c){return "<option>"+c+"</option>"}).join("");
+ $("rf").addEventListener("submit",function(e){
+  e.preventDefault();
+  var r={name:$("rName").value.trim(),cuisine:$("rCuisine").value,street:$("rStreet").value.trim(),city:$("rCity").value.trim(),country:$("rCountry").value.trim(),tables:Math.floor(+$("rTables").value),currency:($("rCur").value.trim()||"MAD").toUpperCase(),baseUrl:$("rBase").value.trim().replace(/\/+$/,"")};
+  if(!r.name||!r.street||!r.city||!r.country)return say("rfOk","Please fill in the name and the full address.",1);
+  if(!(r.tables>=1&&r.tables<=500))return say("rfOk","Enter a number of tables between 1 and 500.",1);
+  if(r.baseUrl&&!/^https?:\/\/[^\s\/]+/i.test(r.baseUrl))return say("rfOk","The menu address must start with http:// or https://, for example https://nourish.ma",1);
+  A.restaurant=r;persist();
+  try{var dash=JSON.parse(localStorage.getItem(N.dashKey()));if(dash&&dash.restaurant){dash.restaurant.name=r.name;dash.restaurant.currency=r.currency;dash.restaurant.baseUrl=r.baseUrl||"https://yourdomain.com";localStorage.setItem(N.dashKey(),JSON.stringify(dash));N.saveDash(dash,true)}}catch(x){}
+  say("rfOk","Restaurant details saved.");
+ });
+
+ /* ---------- plan ---------- */
+ function prices(){
+  var y=document.querySelector('input[name=billing]:checked').value==="yearly";
+  [].forEach.call(document.querySelectorAll('input[name=plan]'),function(r){r.closest(".pl").querySelector(".amt").textContent=y?Math.round(+r.dataset.price*0.8):r.dataset.price});
+ }
+ function plan(){
+  var p=A.plan,m=mon(p.price,p.billing),amt=p.billing==="yearly"?m*12:m,st=p.status;
+  var badge=st==="trial"?'<span class="st ok">Free trial</span>':st==="active"?'<span class="st ok">Active</span>':'<span class="st out">Cancelled</span>';
+  var rows=[["Plan",esc(p.name)+badge],["Billing",p.billing==="yearly"?"Yearly (20% off)":"Monthly"],["Price",fmt(m)+" per month"+(p.billing==="yearly"?" ("+fmt(amt)+" billed yearly)":"")]];
+  if(st==="trial")rows.push(["Trial ends",fd(p.trialEnds)],["First payment",fmt(amt)+" on "+fd(p.nextBill)]);
+  else if(st==="active")rows.push(["Next payment",fmt(amt)+" on "+fd(p.nextBill)]);
+  else rows.push(["Access until",fd(p.nextBill)],["Future payments","None"]);
+  $("planBox").innerHTML=rows.map(function(r){return '<div class="r"><span>'+r[0]+'</span><span>'+r[1]+'</span></div>'}).join("");
+  [].forEach.call(document.querySelectorAll('input[name=plan]'),function(r){r.checked=r.value===p.name});
+  [].forEach.call(document.querySelectorAll('input[name=billing]'),function(r){r.checked=r.value===p.billing});
+  prices();$("cancelPlan").hidden=st==="cancelled";$("reactivate").hidden=st!=="cancelled";
+ }
+ $("planForm").addEventListener("change",function(e){if(e.target.name==="billing")prices()});
+ $("planForm").addEventListener("submit",function(e){
+  e.preventDefault();
+  var pn=document.querySelector('input[name=plan]:checked').value,b=document.querySelector('input[name=billing]:checked').value;
+  A.plan.name=pn;A.plan.price=PRICES[pn];A.plan.billing=b;persist();plan();
+  say("planMsg",A.plan.status==="cancelled"?"Plan updated. Reactivate your subscription to keep it after "+fd(A.plan.nextBill)+".":"Plan updated. The new price applies from your next payment on "+fd(A.plan.nextBill)+".");
+ });
+ $("cancelPlan").addEventListener("click",function(){
+  if(!confirm("Cancel your subscription? You keep access until "+fd(A.plan.nextBill)+"."))return;
+  A.plan.status="cancelled";persist();plan();say("planMsg","Subscription cancelled. You keep access until "+fd(A.plan.nextBill)+".");
+ });
+ $("reactivate").addEventListener("click",function(){
+  A.plan.status=(A.plan.trialEnds&&iso(new Date())<A.plan.trialEnds)?"trial":"active";persist();plan();say("planMsg","Subscription reactivated.");
+ });
+
+ /* ---------- cards ---------- */
+ function expired(x){var m=+x.slice(0,2),y=2000+(+x.slice(3,5)),n=new Date();return y<n.getFullYear()||(y===n.getFullYear()&&m<n.getMonth()+1)}
+ function cards(){
+  var L=A.cards;
+  $("cardList").innerHTML=L.length?L.map(function(c){
+   return '<div class="cardrow"><div><b>'+esc(c.brand)+' •••• '+esc(c.last4)+'</b>'+(c.def?'<span class="st ok">Default</span>':'')+(expired(c.exp)?'<span class="st out">Expired</span>':'')
+    +'<p>'+esc(c.name)+' · Expires '+esc(c.exp)+'</p></div><div class="row">'+(c.def?'':'<button class="btn ghost sm" type="button" data-c="def" data-id="'+c.id+'">Make default</button>')
+    +'<button class="btn del sm" type="button" data-c="rm" data-id="'+c.id+'">Remove</button></div></div>';
+  }).join(""):'<div class="empty">No cards saved yet.</div>';
+ }
+ $("cardList").addEventListener("click",function(e){
+  var b=e.target.closest("[data-c]");if(!b)return;var id=b.dataset.id;
+  if(b.dataset.c==="def"){A.cards.forEach(function(c){c.def=c.id===id});persist();cards();say("cardMsg","Default card updated.");return}
+  if(A.cards.length===1&&A.plan.status!=="cancelled"){say("cardMsg","Add another card before removing your only one, or cancel your subscription first.",1);return}
+  if(!confirm("Remove this card?"))return;
+  A.cards=A.cards.filter(function(c){return c.id!==id});
+  if(A.cards.length&&!A.cards.some(function(c){return c.def}))A.cards[0].def=true;
+  persist();cards();say("cardMsg","Card removed.");
+ });
+ $("addCardBtn").addEventListener("click",function(){
+  var open=$("cardForm").hidden;$("cardForm").hidden=!open;this.setAttribute("aria-expanded",String(open));if(open)$("cName").focus();
+ });
+ $("cardCancel").addEventListener("click",function(){$("cardForm").reset();$("cardForm").hidden=true;$("addCardBtn").setAttribute("aria-expanded","false")});
+ $("cNum").addEventListener("input",function(){
+  var v=this.value.replace(/\D/g,"").slice(0,16),am=/^3[47]/.test(v);if(am)v=v.slice(0,15);
+  this.value=am?[v.slice(0,4),v.slice(4,10),v.slice(10)].filter(Boolean).join(" "):v.replace(/(.{4})/g,"$1 ").trim();
+ });
+ $("cExp").addEventListener("input",function(){var v=this.value.replace(/\D/g,"").slice(0,4);this.value=v.length>2?v.slice(0,2)+" / "+v.slice(2):v});
+ $("cCvc").addEventListener("input",function(){this.value=this.value.replace(/\D/g,"").slice(0,4)});
+ function setErr(el,msg){$("e-"+el.id).textContent=msg;el.setAttribute("aria-invalid",msg?"true":"false");return !msg}
+ $("cardForm").addEventListener("submit",function(e){
+  e.preventDefault();
+  if(A.cards.length>=5){say("cardMsg","You can save up to 5 cards.",1);return}
+  var ok=true,first=null,n=$("cName"),num=$("cNum"),ex=$("cExp"),cv=$("cCvc");
+  function chk(el,m){if(!setErr(el,m)){ok=false;if(!first)first=el}}
+  var digits=num.value.replace(/\D/g,""),am=/^3[47]/.test(digits);
+  chk(n,n.value.trim().length<2?"Enter the name on the card.":"");
+  chk(num,(digits.length<(am?15:16)||!N.luhn(digits))?"Enter a valid card number.":"");
+  var m=ex.value.replace(/\D/g,""),mm=+m.slice(0,2),yy=2000+(+m.slice(2,4)),now=new Date();
+  chk(ex,(m.length<4||mm<1||mm>12||yy<now.getFullYear()||(yy===now.getFullYear()&&mm<now.getMonth()+1))?"Enter a valid expiry date as MM / YY.":"");
+  chk(cv,cv.value.length!==(am?4:3)?"Enter the "+(am?4:3)+"-digit security code.":"");
+  if(!ok){first.focus();return}
+  A.cards.push({id:Math.random().toString(36).slice(2,9),brand:N.brand(digits),last4:digits.slice(-4),exp:m.slice(0,2)+"/"+m.slice(2,4),name:n.value.trim(),def:!A.cards.length});
+  persist();cards();this.reset();this.hidden=true;$("addCardBtn").setAttribute("aria-expanded","false");say("cardMsg","Card saved.");
+ });
+
+ /* ---------- history ---------- */
+ function hist(){
+  var L=A.invoices.slice().reverse();
+  $("invList").innerHTML=L.length?L.map(function(i){
+   return '<div class="inv"><div><b>'+esc(i.desc)+'</b><p>'+fd(i.date)+'</p></div><div><b>'+fmt(i.amount)+'</b><span class="st ok">'+esc(i.status)+'</span></div></div>';
+  }).join(""):'<div class="empty">No invoices yet.</div>';
+ }
+
+ /* ---------- notifications ---------- */
+ function notify(){$("nLow").checked=!!A.prefs.lowStock;$("nDaily").checked=!!A.prefs.dailySummary;$("nNews").checked=!!A.prefs.productNews}
+ [["nLow","lowStock"],["nDaily","dailySummary"],["nNews","productNews"]].forEach(function(x){
+  $(x[0]).addEventListener("change",function(){A.prefs[x[1]]=this.checked;persist();say("nMsg","Preference saved.")});
+ });
+
+ /* ---------- security ---------- */
+ $("sf").addEventListener("submit",function(e){
+  e.preventDefault();
+  var cur=$("sCur").value,n1=$("sNew").value,n2=$("sNew2").value;
+  if(!cur)return say("sMsg","Enter your current password.",1);
+  if(n1.length<8)return say("sMsg","Your new password must be at least 8 characters.",1);
+  if(n1!==n2)return say("sMsg","The two new passwords don't match.",1);
+  if(n1===cur)return say("sMsg","Choose a password different from your current one.",1);
+  N.reauth(cur).then(function(ok){
+   if(!ok)return say("sMsg","Your current password is incorrect.",1);
+   return nourishDB.auth.updateUser({password:n1}).then(function(r){
+    if(r.error)return say("sMsg",r.error.message,1);
+    $("sf").reset();say("sMsg","Password changed.")});
+  }).catch(function(){say("sMsg","We couldn't reach the server. Try again.",1)});
+ });
+ $("logout").addEventListener("click",function(){N.logout();location.href="index.html"});
+
+ /* ---------- data ---------- */
+ $("export").addEventListener("click",function(){
+  var copy=JSON.parse(JSON.stringify(A));delete copy.pw;
+  var dash=null;try{dash=JSON.parse(localStorage.getItem(N.dashKey()))}catch(x){}
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([JSON.stringify({account:copy,dashboard:dash},null,2)],{type:"application/json"}));
+  a.download="nourish-my-data.json";a.click();URL.revokeObjectURL(a.href);
+ });
+ $("delConfirm").addEventListener("input",function(){$("delBtn").disabled=this.value.trim()!=="DELETE"});
+ $("delBtn").addEventListener("click",function(){
+  if(!confirm("Delete your account and all your data? This can't be undone."))return;
+  N.deleteAccount().then(function(){location.href="index.html"}).catch(function(){});
+ });
+
+ /* ---------- init ---------- */
+ $("pName").value=A.owner.name;$("pEmail").value=A.email;$("pPhone").value=A.owner.phone||"";
+ var r=A.restaurant;$("rName").value=r.name;$("rCuisine").value=CUISINES.indexOf(r.cuisine)>-1?r.cuisine:"Other";
+ $("rStreet").value=r.street;$("rCity").value=r.city;$("rCountry").value=r.country;$("rTables").value=r.tables;
+ var dsh=null;try{dsh=JSON.parse(localStorage.getItem(N.dashKey()))}catch(x){}
+ var dr=(dsh&&dsh.restaurant)||{},bu=dr.baseUrl||r.baseUrl||"";
+ $("rCur").value=dr.currency||r.currency||"MAD";$("rBase").value=bu.indexOf("yourdomain.com")>-1?"":bu;
+ pfp();plan();cards();hist();notify();
+});
+</script>
+</body>
+</html>

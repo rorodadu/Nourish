@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Payment – Nourish</title>
+<link rel="icon" type="image/x-icon" href="icon.ico?v=2"><link rel="shortcut icon" href="icon.ico?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="auth.js"></script>
+<style>
+:root{--bg:#f4f8f4;--card:#fff;--ink:#14261c;--mute:#566a5d;--line:#d6e1d7;--leaf:#1f7a4d;--leaf-t:#dff1e6;--citrus:#a86a00;--citrus-t:#fdecc8;--berry:#b8304f;--on-leaf:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a14;--card:#16251c;--ink:#e8f1ea;--mute:#9db1a3;--line:#294034;--leaf:#4fc088;--leaf-t:#1b3a2a;--citrus:#f0b44a;--citrus-t:#3a2d12;--berry:#ff7a96;--on-leaf:#0b1a12}}
+:root[data-theme="dark"]{--bg:#0f1a14;--card:#16251c;--ink:#e8f1ea;--mute:#9db1a3;--line:#294034;--leaf:#4fc088;--leaf-t:#1b3a2a;--citrus:#f0b44a;--citrus-t:#3a2d12;--berry:#ff7a96;--on-leaf:#0b1a12}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 Figtree,system-ui,-apple-system,Segoe UI,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque",Figtree,system-ui,sans-serif;margin:0;line-height:1.1;letter-spacing:-.015em}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--leaf);outline-offset:3px}
+.wrap{max-width:960px;margin:0 auto;padding:0 20px}
+header{border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;height:64px;max-width:1120px}
+.logo{font:800 23px "Bricolage Grotesque",sans-serif;color:var(--leaf);text-decoration:none;margin-right:auto}
+header a.back{color:var(--mute);text-decoration:none;font-weight:500}
+main{padding:40px 0 80px}
+h1{font-size:clamp(32px,5vw,48px);font-weight:800;margin-bottom:24px}
+.progress{display:flex;list-style:none;padding:0;margin:0 0 28px;counter-reset:s}
+.progress li{flex:1;padding:10px 0 0;border-top:4px solid var(--leaf);color:var(--ink);font-weight:700;font-size:15px;counter-increment:s}
+.progress li::before{content:counter(s) ". "}
+.progress li+li{margin-left:8px}
+.layout{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px}
+.demo{background:var(--citrus-t);color:var(--citrus);border-radius:12px;padding:12px 14px;font-size:15px;font-weight:500;margin-bottom:20px}
+.card h2{font-size:24px;margin-bottom:16px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.full{grid-column:1/-1}
+label.f{display:grid;gap:6px;font-weight:500;font-size:15px}
+input[type=text]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+input[aria-invalid=true]{border-color:var(--berry)}
+.err{color:var(--berry);font-size:14px;min-height:0;font-weight:500}
+.err:empty{display:none}
+.terms{display:flex;gap:10px;align-items:flex-start;font-size:15px;color:var(--mute);margin-top:6px}
+.terms input{margin-top:5px;accent-color:var(--leaf);width:18px;height:18px}
+.btn{width:100%;background:var(--leaf);color:var(--on-leaf);border:0;border-radius:10px;padding:14px 22px;font-weight:700;cursor:pointer;margin-top:18px;text-decoration:none;display:block;text-align:center}
+.btn:disabled{opacity:.6;cursor:wait}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.secure{color:var(--mute);font-size:14px;margin:12px 0 0;text-align:center}
+.sum h2{font-size:22px}
+.sum div.r{display:flex;justify-content:space-between;gap:16px;padding:11px 0;border-bottom:1px solid var(--line)}
+.sum .r span:first-child{color:var(--mute)}
+.sum .r span:last-child{font-weight:700;text-align:right}
+.sum .r.t{border:0;font-size:19px}
+.sum .r.t span:first-child{color:var(--ink);font-weight:700}
+.change{display:inline-block;margin-top:12px;color:var(--mute);font-size:15px}
+.ok h2{font-size:32px;margin-bottom:8px}
+.ok p{color:var(--mute)}
+.empty{text-align:center;padding:60px 0}
+.empty p{color:var(--mute)}
+[hidden]{display:none!important}
+@media (max-width:820px){.layout{grid-template-columns:1fr}.fields{grid-template-columns:1fr 1fr}.progress li{font-size:13px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><a class="logo" href="index.html">Nourish</a><a class="back" href="signup.html">Back to plans</a></div></header>
+
+<div class="wrap" id="empty" hidden>
+ <div class="empty"><h1 style="margin-bottom:12px">We don't have your sign-up yet</h1><p>Start with your restaurant details and choose a plan first.</p><a class="btn" style="max-width:260px;margin:20px auto 0" href="signup.html">Go to sign-up</a></div>
+</div>
+
+<main id="main"><div class="wrap">
+ <h1>Payment</h1>
+ <ol class="progress" aria-label="Sign-up progress"><li>Your restaurant</li><li>Choose a plan</li><li aria-current="step">Payment</li></ol>
+
+ <div class="layout" id="checkout">
+  <form class="card" id="pay" novalidate autocomplete="on">
+   <div class="demo" role="note">Demo checkout. No card is charged and nothing is saved, so please don't enter real card details. To test, use 4242 4242 4242 4242 with any future date and any 3-digit code.</div>
+   <h2>Card details</h2>
+   <div class="fields">
+    <label class="f full">Name on card<input type="text" id="cname" autocomplete="cc-name" aria-describedby="e-cname"><span class="err" id="e-cname" role="alert"></span></label>
+    <label class="f full">Card number<input type="text" id="cnum" inputmode="numeric" autocomplete="cc-number" placeholder="1234 5678 9012 3456" maxlength="19" aria-describedby="e-cnum"><span class="err" id="e-cnum" role="alert"></span></label>
+    <label class="f">Expiry date<input type="text" id="cexp" inputmode="numeric" autocomplete="cc-exp" placeholder="MM / YY" maxlength="7" aria-describedby="e-cexp"><span class="err" id="e-cexp" role="alert"></span></label>
+    <label class="f">Security code<input type="text" id="ccvc" inputmode="numeric" autocomplete="cc-csc" placeholder="CVC" maxlength="4" aria-describedby="e-ccvc"><span class="err" id="e-ccvc" role="alert"></span></label>
+   </div>
+   <label class="terms"><input type="checkbox" id="terms" aria-describedby="e-terms"><span>I agree to the terms of service and understand my plan renews until I cancel.</span></label>
+   <span class="err" id="e-terms" role="alert"></span>
+   <button class="btn" type="submit" id="go">Start free trial</button>
+   <p class="secure">Your card details are never stored on this page.</p>
+  </form>
+
+  <aside class="card sum" aria-label="Order summary">
+   <h2>Your plan</h2>
+   <div class="r"><span>Restaurant</span><span id="s-r"></span></div>
+   <div class="r"><span>Plan</span><span id="s-pl"></span></div>
+   <div class="r"><span>Billing</span><span id="s-b"></span></div>
+   <div class="r" id="row-then"><span>Then</span><span id="s-then"></span></div>
+   <div class="r t"><span>Due today</span><span id="s-due"></span></div>
+   <a class="change" href="signup.html">Change plan</a>
+  </aside>
+ </div>
+
+ <div class="card ok" id="ok" hidden tabindex="-1">
+  <h2>You're all set, <span id="o-name"></span></h2>
+  <p id="o-msg"></p>
+  <p style="font-size:14px">This was a demo checkout. No card was charged and nothing was saved.</p>
+  <a class="btn" style="max-width:280px" href="dashboard.html">Go to my dashboard</a>
+ </div>
+</div></main>
+
+<script>
+(function(){
+ var TRIAL_DAYS=14; // set to 0 to charge immediately instead of starting a free trial
+ var d=null;try{d=JSON.parse(sessionStorage.getItem("nourish-signup"))}catch(e){}
+ if(!d||!d.plan){document.getElementById("main").hidden=true;document.getElementById("empty").hidden=false;return}
+
+ window.Nourish.ready.then(function(){if(window.nourishDB&&!window.Nourish.uid)location.replace("signup.html")});
+ var yearly=d.billing==="yearly",monthly=yearly?Math.round(d.price*0.8):d.price,
+     charge=yearly?monthly*12:monthly,per=yearly?"year":"month";
+ var t=function(id,s){document.getElementById(id).textContent=s};
+ var date=new Date(Date.now()+TRIAL_DAYS*864e5).toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});
+ t("s-r",d.rname);t("s-pl",d.plan);t("s-b",yearly?"Yearly (20% off)":"Monthly");
+ if(TRIAL_DAYS>0){
+  t("s-then",charge+" MAD per "+per+" from "+date);t("s-due","0 MAD");
+  t("go","Start "+TRIAL_DAYS+"-day free trial");
+ }else{
+  document.getElementById("row-then").hidden=true;t("s-due",charge+" MAD");t("go","Pay "+charge+" MAD");
+ }
+
+ var $=function(id){return document.getElementById(id)};
+ var name=$("cname"),num=$("cnum"),exp=$("cexp"),cvc=$("ccvc"),terms=$("terms");
+
+ num.addEventListener("input",function(){
+  var v=num.value.replace(/\D/g,"").slice(0,16),amex=/^3[47]/.test(v);if(amex)v=v.slice(0,15);
+  num.value=amex?[v.slice(0,4),v.slice(4,10),v.slice(10)].filter(Boolean).join(" "):v.replace(/(.{4})/g,"$1 ").trim();
+ });
+ exp.addEventListener("input",function(){
+  var v=exp.value.replace(/\D/g,"").slice(0,4);exp.value=v.length>2?v.slice(0,2)+" / "+v.slice(2):v;
+ });
+ cvc.addEventListener("input",function(){cvc.value=cvc.value.replace(/\D/g,"").slice(0,4)});
+
+ function luhn(s){var sum=0,alt=false;for(var i=s.length-1;i>=0;i--){var n=+s[i];if(alt){n*=2;if(n>9)n-=9}sum+=n;alt=!alt}return sum%10===0}
+ function setErr(el,msg){$("e-"+el.id).textContent=msg;el.setAttribute("aria-invalid",msg?"true":"false");return !msg}
+
+ $("pay").addEventListener("submit",function(e){
+  e.preventDefault();
+  var ok=true,first=null;
+  function chk(el,msg){if(!setErr(el,msg)){ok=false;if(!first)first=el}}
+  var digits=num.value.replace(/\D/g,""),amex=/^3[47]/.test(digits);
+  chk(name,name.value.trim().length<2?"Enter the name on the card.":"");
+  chk(num,(digits.length<(amex?15:16)||!luhn(digits))?"Enter a valid card number.":"");
+  var m=exp.value.replace(/\D/g,""),mm=+m.slice(0,2),yy=2000+(+m.slice(2,4)),now=new Date();
+  var bad=m.length<4||mm<1||mm>12||yy<now.getFullYear()||(yy===now.getFullYear()&&mm<now.getMonth()+1);
+  chk(exp,bad?"Enter a valid expiry date as MM / YY.":"");
+  var need=amex?4:3;
+  chk(cvc,cvc.value.length!==need?"Enter the "+need+"-digit security code.":"");
+  chk(terms,terms.checked?"":"Please accept the terms to continue.");
+  if(!ok){first.focus();return}
+
+  var btn=$("go");btn.disabled=true;btn.textContent="Processing…";
+  var N=window.Nourish,
+      card={id:Math.random().toString(36).slice(2,9),brand:N.brand(digits),last4:digits.slice(-4),exp:m.slice(0,2)+"/"+m.slice(2,4),name:name.value.trim(),def:true};
+  setTimeout(function(){
+   name.value=num.value=exp.value=cvc.value="";
+   t("o-name",(d.owner||"").split(" ")[0]);
+   t("o-msg",TRIAL_DAYS>0?"Your "+TRIAL_DAYS+"-day free trial of "+d.plan+" has started. Your first payment of "+charge+" MAD is due on "+date+".":"Your "+d.plan+" plan is active. You paid "+charge+" MAD.");
+   $("checkout").hidden=true;$("ok").hidden=false;$("ok").focus();window.scrollTo({top:0});
+   var iso=function(x){return x.getFullYear()+"-"+("0"+(x.getMonth()+1)).slice(-2)+"-"+("0"+x.getDate()).slice(-2)};
+   var today=new Date(),due=new Date(Date.now()+TRIAL_DAYS*864e5),
+       next=new Date(today.getFullYear()+(yearly?1:0),today.getMonth()+(yearly?0:1),today.getDate());
+   var saved=N.saveAccount({
+    email:d.email,
+    owner:{name:d.owner,phone:d.phone,photo:""},
+    restaurant:{name:d.rname,cuisine:d.cuisine,tables:+d.tables,street:d.street,city:d.city,country:d.country},
+    plan:{name:d.plan,price:d.price,billing:d.billing,
+          status:TRIAL_DAYS>0?"trial":"active",
+          trialEnds:TRIAL_DAYS>0?iso(due):"",
+          nextBill:TRIAL_DAYS>0?iso(due):iso(next)},
+    cards:[card],
+    invoices:[{desc:d.plan+" plan – "+(yearly?"yearly":"monthly")+(TRIAL_DAYS>0?" (free trial started)":""),date:iso(today),amount:TRIAL_DAYS>0?0:charge,status:TRIAL_DAYS>0?"Free trial":"Paid"}],
+    prefs:{lowStock:true,dailySummary:false,productNews:false}
+   });
+   if(!saved){alert("We couldn't save your account in this browser. Check that storage isn't blocked, then try again.")}
+   N.login(d.email,false);
+   try{sessionStorage.removeItem("nourish-signup")}catch(x){}
+  },1200);
+ });
+})();
+</script>
+</body>
+</html>

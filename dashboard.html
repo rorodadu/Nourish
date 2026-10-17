@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="auth.js" data-protect data-menu></script>
+<title>Dashboard – Nourish</title>
+<link rel="icon" type="image/x-icon" href="icon.ico?v=2"><link rel="shortcut icon" href="icon.ico?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<style>
+:root{--bg:#f4f8f4;--card:#fff;--ink:#14261c;--mute:#566a5d;--line:#d6e1d7;--leaf:#1f7a4d;--leaf-t:#dff1e6;--citrus:#a86a00;--citrus-t:#fdecc8;--berry:#b8304f;--berry-t:#fbe4ea;--on-leaf:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a14;--card:#16251c;--ink:#e8f1ea;--mute:#9db1a3;--line:#294034;--leaf:#4fc088;--leaf-t:#1b3a2a;--citrus:#f0b44a;--citrus-t:#3a2d12;--berry:#ff7a96;--berry-t:#3f1a25;--on-leaf:#0b1a12}}
+:root[data-theme="dark"]{--bg:#0f1a14;--card:#16251c;--ink:#e8f1ea;--mute:#9db1a3;--line:#294034;--leaf:#4fc088;--leaf-t:#1b3a2a;--citrus:#f0b44a;--citrus-t:#3a2d12;--berry:#ff7a96;--berry-t:#3f1a25;--on-leaf:#0b1a12}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:16px}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 Figtree,system-ui,-apple-system,Segoe UI,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque",Figtree,system-ui,sans-serif;margin:0;line-height:1.15;letter-spacing:-.01em}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--leaf);outline-offset:2px}
+.skip{position:absolute;left:12px;top:-60px;z-index:100;background:var(--leaf);color:var(--on-leaf);padding:12px 18px;border-radius:10px;font-weight:700;text-decoration:none}
+.skip:focus{top:8px}
+.vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+main:focus,.panel:focus{outline:none}
+.panel>h2:focus{outline:none}
+[hidden]{display:none!important}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+header{background:var(--bg);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;gap:14px;height:64px}
+.logo{font:800 23px "Bricolage Grotesque",sans-serif;color:var(--leaf);text-decoration:none}
+.storebox{margin-left:auto;display:grid;text-align:right;line-height:1.2}.storebox small{color:var(--mute);font-size:12px}#rname{font-weight:800;font-size:18px}
+.plan{background:var(--leaf-t);color:var(--leaf);font-size:13px;font-weight:700;padding:3px 10px;border-radius:999px}
+main{padding:28px 0 80px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--line);margin-bottom:24px}
+.tab{background:none;border:0;border-bottom:4px solid transparent;padding:12px 16px;min-height:48px;font-weight:500;font-size:17px;color:var(--mute);cursor:pointer}
+.tab:hover{color:var(--ink);background:var(--leaf-t);border-radius:10px 10px 0 0}
+.tab[aria-selected=true]{color:var(--ink);border-color:var(--leaf);font-weight:700}
+.guide{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:22px}
+.guide h2{font-size:22px;margin-bottom:4px}
+.guide ol{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.guide li{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.guide .tick{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-weight:700;font-size:15px;color:var(--mute)}
+.guide li.done .tick{background:var(--leaf);border-color:var(--leaf);color:var(--on-leaf)}
+.guide li.done .gt{color:var(--mute);text-decoration:line-through}
+.guide .gl2{margin-left:auto;background:none;border:0;color:var(--leaf);font-weight:700;text-decoration:underline;cursor:pointer;padding:8px;min-height:44px}
+.help{background:var(--leaf-t);border-radius:12px;padding:12px 14px;margin:0 0 18px;font-size:15px}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+.tabn{background:var(--berry);color:var(--bg);border-radius:999px;font-size:12px;font-weight:700;padding:1px 7px;margin-left:6px}
+.panel{display:none}.panel.on{display:block}
+h2{font-size:28px;margin-bottom:6px}
+.sub{color:var(--mute);margin:0 0 20px;max-width:62ch;font-size:17px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:20px}
+.card h3{font-size:20px;margin-bottom:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.two>.card{margin-bottom:0}
+.full{grid-column:1/-1}
+label.f{display:grid;gap:5px;font-weight:600;font-size:16px}
+label.f small{color:var(--mute);font-weight:400;font-size:14px}
+input[type=text],input[type=number],input[type=url],input[type=date],select,textarea{width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--mute);border-radius:10px;background:var(--bg)}
+textarea{min-height:80px;resize:vertical}
+.btn{background:var(--leaf);color:var(--on-leaf);border:2px solid var(--leaf);border-radius:10px;padding:10px 18px;min-height:46px;font-weight:700;cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--line)}
+.btn.sm{padding:8px 14px;font-size:15px;min-height:44px}
+.btn.del{background:transparent;color:var(--berry);border:2px solid var(--line)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:5px 6px 5px 12px;background:var(--bg)}
+.chip small{color:var(--mute)}
+.chip button{border:0;background:none;cursor:pointer;color:var(--berry);font-size:20px;line-height:1;min-width:36px;min-height:36px;border-radius:50%}
+.checks{display:flex;flex-wrap:wrap;gap:6px 18px}
+.checks label{display:flex;align-items:center;gap:8px;font-size:16px;cursor:pointer;min-height:44px}
+.checks input,.tg input{accent-color:var(--leaf);width:22px;height:22px}
+.orow{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-bottom:8px}
+.rrow{display:grid;grid-template-columns:2fr 1fr auto;gap:8px;margin-bottom:8px}
+.qrs{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.qrc{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;text-align:center}
+.qrc b{font:800 20px "Bricolage Grotesque",sans-serif;display:block;margin-bottom:6px}
+.qrc svg{width:100%;height:auto;max-width:170px;background:#fff;border-radius:6px}
+.qrc small{display:block;color:var(--mute);word-break:break-all;font-size:13px;margin:6px 0 10px}
+.qrc .row{justify-content:center}
+.dish{display:flex;justify-content:space-between;gap:14px;padding:12px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.dish:first-of-type{border-top:0}
+.dish p{margin:2px 0 0;color:var(--mute);font-size:15px}
+.badge{font-size:13px;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--leaf-t);color:var(--leaf);margin-left:6px}
+.badge.b{background:var(--citrus-t);color:var(--citrus)}
+.off>div:first-child{opacity:.75}
+.empty{border:1px dashed var(--line);border-radius:14px;padding:22px;text-align:center;color:var(--mute)}
+.tg{display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}
+.tg:first-of-type{border-top:0}
+.tg span{display:block;color:var(--mute);font-size:15px}
+.note{color:var(--mute);font-size:15px}
+.warnr{color:var(--berry)!important;font-weight:500}
+/* kpis, verdicts, charts */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:16px 0}
+.kpi{border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:4px;background:var(--bg);align-content:start}
+.kpi span{color:var(--mute);font-size:14px}
+.kpi b{font:800 26px "Bricolage Grotesque",sans-serif}
+.kpi b.neg{color:var(--berry)}
+.kpi em{font-style:normal;font-size:13px;font-weight:700}
+em.good{color:var(--leaf)}em.bad{color:var(--berry)}em.flat{color:var(--mute)}
+.verdict{border-radius:14px;padding:14px 16px;margin-top:14px}
+.verdict b{font-size:19px;display:block;margin-bottom:2px}
+.verdict.good{background:var(--leaf-t)}
+.verdict.bad{background:var(--citrus-t)}
+.verdict.flat{background:var(--bg);border:1px solid var(--line)}
+.legend{display:flex;gap:16px;font-size:14px;color:var(--mute);margin:8px 0 4px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.chartbox svg{width:100%;height:auto;display:block}
+.ax{fill:var(--mute);font-size:12px}
+.gl{stroke:var(--line);stroke-width:1}
+.bi{fill:var(--leaf)}.be{fill:var(--berry)}
+.bk{margin-bottom:12px}
+.bk small{color:var(--mute);font-weight:500}
+.bar{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%}
+.bar i.g{background:var(--leaf)}.bar i.r{background:var(--berry)}
+.led{display:grid;grid-template-columns:100px 1fr auto auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:15px}
+.led small{color:var(--mute);display:block}
+.led b.in{color:var(--leaf)}.led b.out{color:var(--berry)}
+/* inventory */
+.st{display:inline-flex;align-items:center;font-size:13px;font-weight:700;padding:2px 10px;border-radius:999px;margin-left:6px;vertical-align:2px}
+.st.ok{background:var(--leaf-t);color:var(--leaf)}
+.st.low{background:var(--citrus-t);color:var(--citrus)}
+.st.out{background:var(--berry-t);color:var(--berry)}
+.ing{display:grid;grid-template-columns:1.4fr 1fr auto;gap:10px 18px;align-items:center;padding:14px 0;border-top:1px solid var(--line)}
+.ing p{color:var(--mute);font-size:14px;margin:2px 0 0}
+.ing .q b{font:800 20px "Bricolage Grotesque",sans-serif}
+.mv{display:grid;grid-template-columns:100px 1fr auto;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:15px}
+.mv b.in{color:var(--leaf)}.mv b.out{color:var(--berry)}
+.filters{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:6px}
+#sheet{display:none}
+.tsec{display:flex;align-items:center;gap:10px;font-size:20px;margin:22px 0 8px!important}
+.tcount{background:var(--leaf-t);color:var(--leaf);font:700 14px Figtree,sans-serif;padding:2px 10px;border-radius:999px}
+.tsec.taken{color:var(--berry)}
+.tsec.taken .tcount{background:var(--berry-t);color:var(--berry)}
+#qrs .qrs{margin-bottom:6px}
+details.zone{margin:10px 0;border-top:1px solid var(--line);padding-top:10px}
+details.zone>summary{font-size:19px}
+details.fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:46px;font:800 20px "Bricolage Grotesque",Figtree,sans-serif;border-radius:10px}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::before{content:"+";flex:none;width:32px;height:32px;border-radius:50%;background:var(--leaf);color:var(--on-leaf);display:grid;place-items:center;font:700 22px/1 Figtree,sans-serif}
+details.fold[open]>summary::before{content:"−"}
+details.fold[open]>summary{margin-bottom:14px}
+details.fold>summary:hover{color:var(--leaf)}
+details.fold>summary:focus-visible{outline:3px solid var(--leaf);outline-offset:3px}
+.stack{display:grid;gap:12px;margin-bottom:20px}.stack>.card{margin-bottom:0}
+.dph{flex:none;width:72px;height:72px;border-radius:12px;object-fit:cover;background:var(--leaf-t);border:1px solid var(--line)}
+.dph.none{display:grid;place-items:center;font-size:30px}
+.dwrap{display:flex;gap:14px;align-items:flex-start;min-width:0}
+.phbox{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.phprev{width:110px;height:110px;border-radius:14px;border:2px dashed var(--line);background:var(--leaf-t);display:grid;place-items:center;font-size:40px;overflow:hidden;flex:none}
+.phprev img{width:100%;height:100%;object-fit:cover;display:block}
+.phbox .fl{position:relative;cursor:pointer;display:inline-block}
+.phbox .fl input{position:absolute;opacity:0;width:1px;height:1px}
+.phbox .fl:focus-within{outline:3px solid var(--leaf);outline-offset:2px}
+@media (max-width:760px){.two,.filters{grid-template-columns:1fr}.orow{grid-template-columns:1fr 1fr}.led{grid-template-columns:1fr auto}.ing{grid-template-columns:1fr}.mv{grid-template-columns:1fr auto}}
+@media print{body>*:not(#sheet){display:none!important}#sheet{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:20px}.qrc{break-inside:avoid;border:1px solid #000}}
+/* orders + table availability */
+.ocard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:12px}
+.ocard.new{border-color:var(--leaf);box-shadow:0 0 0 2px var(--leaf-t)}
+.ocard h3{font-size:20px;margin:0}
+.ocard ul{list-style:none;margin:10px 0;padding:0}
+.ocard li{padding:6px 0;border-top:1px solid var(--line)}
+.ocard li small{display:block;color:var(--mute)}
+.ocard .meta{color:var(--mute);font-size:14px;margin:4px 0}
+.ohead{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.osec{margin:22px 0 10px;font-size:20px}
+.trow{display:grid;grid-template-columns:76px 1.1fr 72px .7fr auto auto;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+@media (max-width:760px){.trow{grid-template-columns:1fr 1fr}}
+/* import */
+.imp .fl{position:relative;cursor:pointer}
+.imp .fl input{position:absolute;opacity:0;width:1px;height:1px}
+.imp .fl:focus-within{outline:3px solid var(--leaf);outline-offset:2px}
+.pvw{overflow-x:auto}
+.pv{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0}
+.pv th,.pv td{padding:6px 8px;border-top:1px solid var(--line);text-align:left;white-space:nowrap}
+.imp .msg{margin:10px 0 0}.imp .msg.good{color:var(--leaf)}.imp .msg.bad{color:var(--berry)}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<header><div class="wrap"><a class="logo" href="index.html" aria-label="Nourish home">Nourish</a><span class="storebox"><small>Logged in as</small><b id="rname"></b></span><span class="plan" id="plan"></span></div></header>
+
+<main class="wrap" id="main" tabindex="-1">
+ <h1 class="vh">Restaurant dashboard</h1>
+ <div class="vh" id="announce" role="status" aria-live="polite"></div>
+
+ <section class="guide" id="guide" aria-labelledby="guideT" hidden>
+  <div class="row" style="justify-content:space-between;align-items:center">
+   <div><h2 id="guideT">Getting started</h2><p class="note" style="margin:0">Three quick steps and you are ready for your first customers.</p></div>
+   <button type="button" class="btn ghost sm" id="guideHide">Hide this</button>
+  </div>
+  <ol id="guideList"></ol>
+ </section>
+
+ <div class="tabs" role="tablist" aria-label="Dashboard sections">
+  <button class="tab" role="tab" id="tb-orders" aria-controls="tab-orders" data-tab="orders" aria-selected="true" tabindex="0">Orders<span class="tabn" id="ordBadge" hidden></span></button>
+  <button class="tab" role="tab" id="tb-tables" aria-controls="tab-tables" data-tab="tables" aria-selected="false" tabindex="-1">Tables and QR codes</button>
+  <button class="tab" role="tab" id="tb-menu" aria-controls="tab-menu" data-tab="menu" aria-selected="false" tabindex="-1">Menu</button>
+  <button class="tab" role="tab" id="tb-inventory" aria-controls="tab-inventory" data-tab="inventory" aria-selected="false" tabindex="-1">Stock<span class="tabn" id="invBadge" hidden></span></button>
+  <button class="tab" role="tab" id="tb-sales" aria-controls="tab-sales" data-tab="sales" aria-selected="false" tabindex="-1">Sales and profit</button>
+ </div>
+
+ <!-- ORDERS -->
+ <section class="panel on" id="tab-orders" role="tabpanel" aria-labelledby="tb-orders" tabindex="-1">
+  <h2>Orders</h2>
+  <p class="sub">New orders from your customers appear here by themselves. Press <b>Start cooking</b> when you begin, then <b>Done</b> when the food is ready. The customer sees each step on their phone.</p>
+  <div class="checks" style="margin-bottom:6px"><label><input type="checkbox" id="oSound"> Play a sound when a new order arrives</label></div>
+  <p class="note" id="ordSay" role="status" style="margin:6px 0"></p>
+  <div id="rateBox"></div>
+  <div id="ordBox"></div>
+ </section>
+
+ <!-- TABLES -->
+ <section class="panel" id="tab-tables" role="tabpanel" aria-labelledby="tb-tables" tabindex="-1">
+  <h2>Tables and QR codes</h2>
+  <p class="sub">Each table gets its own QR code. Diners scan it and your menu opens with their table number already attached.</p>
+  <div class="card">
+   <div class="row">
+    <label class="f">How many tables to add<input type="number" id="addN" min="1" max="50" value="1" style="width:120px"></label>
+    <button class="btn" data-act="addTables">Add tables</button>
+    <button class="btn ghost" data-act="printQR">Print all QR codes</button>
+   </div>
+   <p class="note" id="qrWarn" style="margin:12px 0 0"></p>
+  </div>
+  <div class="card">
+   <h3>Table availability</h3>
+   <p class="note" style="margin:0 0 6px">Diners who didn't scan a table's QR code pick from the tables marked Available. A table also becomes Taken when a diner sends an order, so press Free up when they leave. <b id="tblSum"></b></p>
+   <div class="filters" style="margin-top:10px">
+    <label class="f">Position<select id="fTblZone"></select></label>
+    <label class="f">Seats<select id="fTblSeats"><option value="0">Any number</option><option value="2">2 or more</option><option value="4">4 or more</option><option value="6">6 or more</option><option value="8">8 or more</option></select></label>
+    <label class="f">Search<input type="text" id="fTblSearch" placeholder="Table number or note"></label>
+   </div>
+   <div id="tblRows"></div>
+  </div>
+ </section>
+
+ <!-- MENU -->
+ <section class="panel" id="tab-menu" role="tabpanel" aria-labelledby="tb-menu" tabindex="-1">
+  <h2>Menu</h2>
+  <p class="sub">Add your food and drinks here. Start with a category (like Starters), then add dishes. Only the name, category and price are required. Everything else is optional.</p>
+
+  <div class="card">
+   <h3>Categories</h3>
+   <div class="chips" id="cats" style="margin-bottom:14px"></div>
+   <form class="row" id="catForm">
+    <label class="f">New category<input type="text" id="catName" required maxlength="40" placeholder="e.g. Desserts"></label>
+    <label class="f">Type<select id="catType"><option value="food">Food</option><option value="beverage">Beverage</option></select></label>
+    <button class="btn" type="submit">Add category</button>
+   </form>
+  </div>
+
+  <details class="card fold" id="dishFold">
+   <summary id="dishTitle">Add a dish or drink</summary>
+   <form id="dishForm">
+    <div class="two">
+     <label class="f">Name<input type="text" id="dName" required maxlength="80"></label>
+     <label class="f">Category<select id="dCat" required></select></label>
+     <label class="f">Price<input type="number" id="dPrice" required min="0" step="0.01" inputmode="decimal"></label>
+     <label class="f">Serves how many people<small>1 for a single portion, more for sharing plates</small><input type="number" id="dServes" min="1" max="20" value="1"></label>
+     <label class="f">Cooking time (minutes)<small>Shown to diners as the estimate</small><input type="number" id="dPrep" min="0" max="180" inputmode="numeric"></label>
+     <label class="f full">Description<textarea id="dDesc" maxlength="300"></textarea></label>
+     <div class="f full" style="display:grid;gap:5px;font-weight:600;font-size:16px">Photo of the dish<small style="color:var(--mute);font-weight:400;font-size:14px">Optional. Choose a picture from your phone or computer. It shows on your menu and here in the dashboard.</small>
+      <div class="phbox"><div class="phprev" id="dPhPrev" aria-hidden="true">🍽️</div>
+       <div class="row"><label class="btn ghost sm fl" id="dPhLbl"><span id="dPhTxt">Choose photo</span><input type="file" id="dPhoto" accept="image/*"></label><button type="button" class="btn del sm" id="dPhRm" hidden>Remove photo</button></div>
+      </div><span class="note" id="dPhMsg" role="status"></span></div>
+    </div>
+    <h3 style="margin-top:18px">Nutrition</h3>
+    <div class="grid">
+     <label class="f">Calories (kcal)<input type="number" id="dKcal" min="0" inputmode="numeric"></label>
+     <label class="f">Protein (g)<input type="number" id="dP" min="0" step="0.1"></label>
+     <label class="f">Carbs (g)<input type="number" id="dC" min="0" step="0.1"></label>
+     <label class="f">Fat (g)<input type="number" id="dF" min="0" step="0.1"></label>
+    </div>
+    <h3 style="margin-top:18px">Allergens this dish contains</h3>
+    <div class="checks" id="alg"></div>
+    <h3 style="margin-top:18px">Diet tags</h3>
+    <div class="checks" id="diet"></div>
+    <h3 style="margin-top:18px">Ingredients this dish uses</h3>
+    <p class="note" style="margin:0 0 10px">Link ingredients from your Inventory with the amount used per portion. If one runs out, the dish is flagged as unavailable.</p>
+    <div id="recipe"></div>
+    <button class="btn ghost sm" type="button" data-act="addRecipe">Add an ingredient</button>
+    <h3 style="margin-top:18px">Customization options</h3>
+    <p class="note" style="margin:0 0 10px">Extras diners can pick, like a size, a topping or no sugar. Use a negative calorie number to subtract.</p>
+    <div id="opts"></div>
+    <button class="btn ghost sm" type="button" data-act="addOpt">Add an option</button>
+    <div class="row" style="margin-top:20px">
+     <button class="btn" type="submit" id="dSave">Add to menu</button>
+     <button class="btn ghost" type="button" data-act="cancelEdit" id="dCancel" hidden>Cancel edit</button>
+    </div>
+   </form>
+  </details>
+
+  <details class="card imp fold" data-kind="dish"></details>
+
+  <div class="card"><h3>Your menu</h3>
+   <div class="filters">
+    <label class="f">Show<select id="fMenuStatus"><option value="all">All dishes</option><option value="on">Available</option><option value="off">Sold out or switched off</option></select></label>
+    <label class="f">Category<select id="fMenuCat"></select></label>
+    <label class="f">Search<input type="text" id="fMenuSearch" placeholder="Type a name"></label>
+   </div>
+   <div id="dishes"></div></div>
+ </section>
+
+ <!-- INVENTORY -->
+ <section class="panel" id="tab-inventory" role="tabpanel" aria-labelledby="tb-inventory" tabindex="-1">
+  <h2>Stock</h2>
+  <p class="sub">Keep track of your ingredients. See what is in stock, what is running low and what has run out (en rupture) before service starts.</p>
+  <div class="verdict flat" id="invAlert" aria-live="polite" style="margin:0 0 4px"></div>
+  <div class="kpis" id="invKpis"></div>
+
+  <div class="stack">
+   <details class="card fold" id="ingFold">
+    <summary id="ingTitle">Add an ingredient</summary>
+    <form id="ingForm">
+     <div class="two">
+      <label class="f full">Name<input type="text" id="iName" required maxlength="60" placeholder="e.g. Tomatoes"></label>
+      <label class="f">Category<select id="iCat"></select></label>
+      <label class="f">Unit<select id="iUnit"></select></label>
+      <label class="f">Current stock<input type="number" id="iQty" required min="0" step="0.01" inputmode="decimal"></label>
+      <label class="f">Alert level<small>Below this it shows as running low</small><input type="number" id="iMin" required min="0" step="0.01" inputmode="decimal"></label>
+      <label class="f">Cost per unit<small>Optional</small><input type="number" id="iCost" min="0" step="0.01" inputmode="decimal"></label>
+      <label class="f">Supplier<small>Optional</small><input type="text" id="iSup" maxlength="60"></label>
+      <label class="f full">Expiry date<small>Optional, for fresh items</small><input type="date" id="iExp"></label>
+     </div>
+     <div class="row" style="margin-top:14px">
+      <button class="btn" type="submit" id="iSave">Add ingredient</button>
+      <button class="btn ghost" type="button" data-act="cancelIng" id="iCancel" hidden>Cancel edit</button>
+     </div>
+    </form>
+   </details>
+   <details class="card fold" id="mvFold">
+    <summary>Record a stock movement</summary>
+    <form id="mvForm">
+     <div class="two">
+      <label class="f full">Ingredient<select id="mvIng"></select></label>
+      <label class="f full">What happened<select id="mvType"><option value="restock">Restock (stock received)</option><option value="used">Used (cooking and sales)</option><option value="waste">Wasted (spoiled or dropped)</option></select></label>
+      <label class="f"><span id="mvQtyLbl">Quantity</span><input type="number" id="mvQty" required min="0.01" step="0.01" inputmode="decimal"></label>
+      <label class="f" id="mvCostWrap">Total cost paid<small>Optional</small><input type="number" id="mvCost" min="0" step="0.01" inputmode="decimal"></label>
+     </div>
+     <div class="checks" id="mvExpWrap" style="margin-top:12px"><label><input type="checkbox" id="mvExp" checked> Add to expenses in Sales and profit</label></div>
+     <div class="row" style="margin-top:14px"><button class="btn" type="submit">Save movement</button></div>
+    </form>
+   </details>
+  </div>
+
+  <details class="card imp fold" data-kind="ing"></details>
+
+  <div class="card">
+   <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px">
+    <h3 style="margin:0">Your ingredients</h3>
+    <div class="row">
+     <button class="btn ghost sm" data-act="sampleIng">Load sample ingredients</button>
+     <button class="btn del sm" data-act="clearSampleIng" id="clrIng" hidden>Remove sample ingredients</button>
+    </div>
+   </div>
+   <div class="filters">
+    <label class="f">Show<select id="fStatus"><option value="all">All ingredients</option><option value="out">Out of stock (en rupture)</option><option value="low">Running low (near rupture)</option><option value="ok">In stock (en stock)</option><option value="exp">Expiring or expired</option></select></label>
+    <label class="f">Category<select id="fCat"></select></label>
+    <label class="f">Search<input type="text" id="fSearch" placeholder="Type a name"></label>
+   </div>
+   <div id="ingList"></div>
+  </div>
+
+  <div class="card"><h3>Recent stock movements</h3><div id="mvLog"></div></div>
+ </section>
+
+ <!-- SALES AND PROFIT -->
+ <section class="panel" id="tab-sales" role="tabpanel" aria-labelledby="tb-sales" tabindex="-1">
+  <h2>Sales and profit</h2>
+  <p class="sub">Record what you earn and what you spend, then compare any period with the one before it to see whether your business is getting better.</p>
+
+  <div class="card">
+   <div class="row" style="justify-content:space-between;align-items:center">
+    <h3 style="margin:0">Results</h3>
+    <label class="f" style="display:flex;align-items:center;gap:8px">Period
+     <select id="range" style="width:auto"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last 12 months</option><option value="0">All time</option></select></label>
+   </div>
+   <div class="verdict flat" id="verdict" aria-live="polite"></div>
+   <div class="kpis" id="kpis"></div>
+   <div id="chart" class="chartbox"></div>
+  </div>
+
+  <details class="card fold" id="lFold">
+   <summary>Add income or an expense</summary>
+   <form id="lForm">
+    <div class="grid">
+     <label class="f">Type<select id="lType"><option value="income">Income (sales)</option><option value="expense">Expense (cost or loss)</option></select></label>
+     <label class="f">Date<input type="date" id="lDate" required></label>
+     <label class="f">Category<select id="lCat"></select></label>
+     <label class="f">Amount<input type="number" id="lAmt" required min="0.01" step="0.01" inputmode="decimal"></label>
+     <label class="f" id="lOrdWrap">Orders<small>Optional</small><input type="number" id="lOrd" min="0" step="1" inputmode="numeric"></label>
+     <label class="f">Note<small>Optional</small><input type="text" id="lNote" maxlength="80"></label>
+    </div>
+    <div class="row" style="margin-top:14px"><button class="btn" type="submit">Add record</button></div>
+   </form>
+  </details>
+
+  <details class="card fold">
+   <summary>Where the money goes and where income comes from</summary>
+   <div class="two">
+    <div class="card"><h3>Where the money goes</h3><div id="expBreak"></div></div>
+    <div class="card"><h3>Where income comes from</h3><div id="incBreak"></div></div>
+   </div>
+  </details>
+
+  <details class="card imp fold" data-kind="led"></details>
+
+  <div class="card">
+   <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px">
+    <h3 style="margin:0">History</h3>
+    <div class="row">
+     <button class="btn ghost sm" data-act="csv">Export CSV</button>
+     <button class="btn ghost sm" data-act="sample">Load sample data</button>
+     <button class="btn del sm" data-act="clearSample" id="clrSample" hidden>Remove sample data</button>
+    </div>
+   </div>
+   <div id="ledger"></div>
+  </div>
+ </section>
+</main>
+
+<div id="sheet"></div>
+
+<script>
+Nourish.ready.then(function(){
+ var KEY=window.Nourish.dashKey();
+ var ALLERGENS=["Gluten","Dairy","Nuts","Peanuts","Egg","Fish","Shellfish","Soy","Sesame","Celery"];
+ var DIETS=["Vegan","Vegetarian","Gluten-free","Dairy-free","Halal","High protein","Low carb","Low sodium"];
+ var INC=["Dine-in sales","Takeaway","Delivery","Other income"];
+ var EXP=["Ingredients","Staff wages","Rent","Utilities","Marketing","Equipment and repairs","Waste and spoilage","Subscription and fees","Other"];
+ var UNITS=["kg","g","L","ml","pieces","boxes","bottles","bags"];
+ var ICATS=["Produce","Meat and fish","Dairy and eggs","Dry goods","Drinks","Spices and sauces","Frozen","Packaging and cleaning","Other"];
+ var $=function(id){return document.getElementById(id)};
+ var uid=function(){return Math.random().toString(36).slice(2,9)};
+ var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
+ var editId=null,editIng=null,photoData="",S=load();
+
+ function load(){
+  var s=null;try{s=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+  if(s){s.ledger=s.ledger||[];s.ingredients=s.ingredients||[];s.moves=s.moves||[];return s}
+  s={restaurant:{name:"My restaurant",baseUrl:"https://yourdomain.com",currency:"MAD"},tables:[],
+   categories:[{id:uid(),name:"Starters",type:"food"},{id:uid(),name:"Mains",type:"food"},{id:uid(),name:"Drinks",type:"beverage"}],
+   dishes:[],ledger:[],ingredients:[],moves:[],settings:{}};
+  try{var A0=Nourish.account(),r=A0?{rname:A0.restaurant.name,tables:A0.restaurant.tables}:null;
+   if(r){s.restaurant.name=r.rname||s.restaurant.name;if(A0.restaurant.currency)s.restaurant.currency=A0.restaurant.currency;if(A0.restaurant.baseUrl)s.restaurant.baseUrl=A0.restaurant.baseUrl;for(var i=1;i<=Math.min(r.tables||0,60);i++)s.tables.push({id:uid(),n:i})}}catch(e){}
+  return s;
+ }
+ function save(){try{localStorage.setItem(KEY,JSON.stringify(S));Nourish.saveDash(S);return true}catch(e){return false}}
+ save();
+ /* ---------- dish photos: cropped square and shrunk in the browser, stored with the dish ---------- */
+ function showPhoto(){
+  $("dPhPrev").innerHTML=photoData?'<img src="'+photoData+'" alt="Preview of the dish photo">':"🍽️";
+  $("dPhRm").hidden=!photoData;$("dPhTxt").textContent=photoData?"Change photo":"Choose photo";
+ }
+ function shrink(file,cb){
+  if(!/^image\//.test(file.type))return cb("Please choose an image file (JPG, PNG or WebP).");
+  if(file.size>15*1024*1024)return cb("That picture is larger than 15 MB. Please choose a smaller one.");
+  var url=URL.createObjectURL(file),im=new Image();
+  im.onload=function(){
+   var w=im.naturalWidth,h=im.naturalHeight,side=Math.min(w,h),sx=(w-side)/2,sy=(h-side)/2,c=document.createElement("canvas");
+   c.width=c.height=Math.min(480,side);var x=c.getContext("2d");
+   x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(im,sx,sy,side,side,0,0,c.width,c.height);
+   URL.revokeObjectURL(url);cb(null,c.toDataURL("image/jpeg",0.8));
+  };
+  im.onerror=function(){URL.revokeObjectURL(url);cb("We couldn't read that picture. Try a JPG or PNG.")};
+  im.src=url;
+ }
+ var cur=function(){return esc(S.restaurant.currency)};
+ var money=function(n){return Number(n).toFixed(2)+" "+cur()};
+ var fmt=function(n){return Math.round(n).toLocaleString("en-US")+" "+cur()};
+ var fmtx=function(n){return Number(n).toLocaleString("en-US",{minimumFractionDigits:0,maximumFractionDigits:2})+" "+cur()};
+ var slug=function(){return Nourish.mySlug()||Nourish.slug(S.restaurant.name)};
+ var menuUrl=function(n){return S.restaurant.baseUrl.replace(/\/+$/,"")+"/menu.html?r="+slug()+"&t="+n};
+ var optHtml=function(arr,sel){return arr.map(function(o){return '<option'+(o===sel?' selected':'')+'>'+o+'</option>'}).join("")};
+
+ /* header */
+ function head(){
+  $("rname").textContent=S.restaurant.name;document.title=S.restaurant.name+" – Dashboard – Nourish";
+  var A1=Nourish.account();$("plan").textContent=A1&&A1.plan?A1.plan.name+" plan":"";
+  $("plan").hidden=!$("plan").textContent;
+ }
+
+ /* tabs */
+ var TABNAMES={orders:"Orders",tables:"Tables and QR codes",menu:"Menu",inventory:"Stock",sales:"Sales and profit"};
+ function showTab(name,focusPanel){
+  var b=document.getElementById("tb-"+name);if(!b)return;
+  [].forEach.call(document.querySelectorAll(".tab"),function(t){var on=t===b;t.setAttribute("aria-selected",on);t.tabIndex=on?0:-1});
+  [].forEach.call(document.querySelectorAll(".panel"),function(p){p.classList.toggle("on",p.id==="tab-"+name)});
+  if(name==="sales")sales();
+  if(name==="inventory")inventory();
+  if(name==="orders")ordersTab();
+  if(name==="tables")tables();
+  $("announce").textContent=TABNAMES[name]+" section";
+  if(focusPanel){var h=document.querySelector("#tab-"+name+" > h2");if(h){h.tabIndex=-1;h.focus()}}
+  try{sessionStorage.setItem("nourish-dash-tab",name)}catch(e){}
+ }
+ var tabBar=document.querySelector(".tabs");
+ tabBar.addEventListener("click",function(e){var b=e.target.closest("[data-tab]");if(b)showTab(b.dataset.tab)});
+ tabBar.addEventListener("keydown",function(e){
+  var tabs=[].slice.call(document.querySelectorAll(".tab")),i=tabs.indexOf(document.activeElement),n=-1;
+  if(i<0)return;
+  if(e.key==="ArrowRight"||e.key==="ArrowDown")n=(i+1)%tabs.length;
+  else if(e.key==="ArrowLeft"||e.key==="ArrowUp")n=(i-1+tabs.length)%tabs.length;
+  else if(e.key==="Home")n=0;else if(e.key==="End")n=tabs.length-1;
+  if(n<0)return;
+  e.preventDefault();tabs[n].focus();showTab(tabs[n].dataset.tab);
+ });
+
+ /* getting started checklist */
+ function guide(){
+  var box=$("guide");
+  if(S.settings.guideHide){box.hidden=true;return}
+  var steps=[
+   {t:"Add your first dish to the menu",done:S.dishes.length>0,go:"menu",l:"Go to Menu"},
+   {t:"Enter your menu website address",done:S.restaurant.baseUrl.indexOf("yourdomain.com")<0,href:"account.html#restaurant",l:"Go to Manage account"},
+   {t:"Print the QR codes for your tables",done:!!S.settings.printed,go:"tables",l:"Go to QR codes"}
+  ];
+  var left=steps.filter(function(s){return !s.done}).length;
+  box.hidden=left===0;
+  $("guideList").innerHTML=steps.map(function(s,i){
+   return '<li class="'+(s.done?"done":"")+'"><span class="tick" aria-hidden="true">'+(s.done?"✓":(i+1))+'</span><span class="gt">'+s.t+'</span>'
+    +(s.done?'<span class="vh"> (done)</span>':(s.href?'<a class="gl2" href="'+s.href+'">'+s.l+'</a>':'<button type="button" class="gl2" data-goto="'+s.go+'">'+s.l+'</button>'))+'</li>';
+  }).join("");
+ }
+ $("guideList").addEventListener("click",function(e){var b=e.target.closest("[data-goto]");if(b)showTab(b.dataset.goto,true)});
+ $("guideHide").addEventListener("click",function(){S.settings.guideHide=true;save();guide();$("announce").textContent="Getting started hidden";document.getElementById("tb-orders").focus()});
+
+ /* QR */
+ function qrSvg(text){
+  if(typeof qrcode==="undefined")return null;
+  var q=qrcode(0,"M");q.addData(text);q.make();return q.createSvgTag(4,2);
+ }
+ function qrCard(t){
+  var url=menuUrl(t.n),svg=qrSvg(url);
+  return '<div class="qrc"><b>Table '+t.n+'</b>'+(svg||'<p class="note">QR library did not load. Check your internet connection.</p>')+'<small>'+esc(url)+'</small>';
+ }
+ function tables(){
+  S.tables.sort(function(a,b){return a.n-b.n});tblRows();
+  $("qrWarn").innerHTML=S.restaurant.baseUrl.indexOf("yourdomain.com")>-1?'These QR codes point to a placeholder address. Set your real menu address in <a href="account.html#restaurant">Manage account</a> before using them.':"";
+ }
+
+ var openZ={},tFilt=false;
+ document.addEventListener("toggle",function(e){var d=e.target;if(d&&d.dataset&&d.dataset.k)openZ[d.dataset.k]=d.open},true);
+ function zsec(z,list,pfx,body){
+  var k=pfx+z[0];
+  return list.length?'<details class="fold zone" data-k="'+k+'"'+(openZ[k]||tFilt?" open":"")+'><summary>'+z[1]+' <span class="tcount">'+list.length+'</span></summary>'+body(list)+'</details>':"";
+ }
+ /* categories + dishes */
+ function cats(){
+  $("cats").innerHTML=S.categories.map(function(c){
+   return '<span class="chip">'+esc(c.name)+' <small>'+(c.type==="beverage"?"Beverage":"Food")+'</small><button data-act="delCat" data-id="'+c.id+'" aria-label="Delete '+esc(c.name)+'">×</button></span>';
+  }).join("")||'<span class="note">No categories yet. Add one below.</span>';
+  $("dCat").innerHTML=S.categories.map(function(c){return '<option value="'+c.id+'">'+esc(c.name)+'</option>'}).join("");
+  var fm=$("fMenuCat"),fv=fm.value;
+  fm.innerHTML='<option value="all">All categories</option>'+S.categories.map(function(c){return '<option value="'+c.id+'">'+esc(c.name)+'</option>'}).join("");
+  fm.value=S.categories.some(function(c){return c.id===fv})?fv:"all";
+ }
+ function checks(){
+  $("alg").innerHTML=ALLERGENS.map(function(a){return '<label><input type="checkbox" name="alg" value="'+a+'">'+a+'</label>'}).join("");
+  $("diet").innerHTML=DIETS.map(function(a){return '<label><input type="checkbox" name="diet" value="'+a+'">'+a+'</label>'}).join("");
+ }
+ function optRow(o){
+  o=o||{};var d=document.createElement("div");d.className="orow";
+  d.innerHTML='<input type="text" placeholder="Option, e.g. Large" aria-label="Option name" value="'+esc(o.name||"")+'"><input type="number" step="0.01" placeholder="Extra price" aria-label="Extra price" value="'+(o.price||"")+'"><input type="number" placeholder="Extra kcal" aria-label="Extra calories" value="'+(o.kcal||"")+'"><button type="button" class="btn del sm" data-act="rmOpt" aria-label="Remove option">×</button>';
+  $("opts").appendChild(d);
+ }
+ function recipeRow(r){
+  r=r||{};
+  if(!S.ingredients.length){alert("Add ingredients in the Inventory tab first.");return}
+  var d=document.createElement("div");d.className="rrow";
+  var o=S.ingredients.slice().sort(function(a,b){return a.name.localeCompare(b.name)}).map(function(i){return '<option value="'+i.id+'"'+(i.id===r.id?" selected":"")+'>'+esc(i.name)+' ('+esc(i.unit)+')</option>'}).join("");
+  d.innerHTML='<select aria-label="Ingredient">'+o+'</select><input type="number" min="0.001" step="0.001" placeholder="Per portion" aria-label="Amount per portion" value="'+(r.qty||"")+'"><button type="button" class="btn del sm" data-act="rmRecipe" aria-label="Remove ingredient">×</button>';
+  $("recipe").appendChild(d);
+ }
+ function dishes(){
+  var out="";
+  var fcat=$("fMenuCat").value||"all",fst=$("fMenuStatus").value,fq=$("fMenuSearch").value.trim().toLowerCase();
+  S.categories.forEach(function(c){
+   if(fcat!=="all"&&c.id!==fcat)return;
+   var list=S.dishes.filter(function(d){
+    var off=d.available===false||blocked(d).length>0;
+    return d.cat===c.id&&(fst==="all"||(fst==="off")===off)&&(!fq||d.name.toLowerCase().indexOf(fq)>-1);
+   });if(!list.length)return;
+   out+='<h3 style="margin:18px 0 4px">'+esc(c.name)+'</h3>'+list.map(function(d){
+    var bl=blocked(d),pl=portionsLeft(d),hasR=(d.ing||[]).length>0;
+    return '<div class="dish'+((d.available===false||bl.length)?" off":"")+'"><div class="dwrap">'+(d.photo?'<img class="dph" src="'+d.photo+'" alt="Photo of '+esc(d.name)+'">':'<span class="dph none" aria-hidden="true">'+(c.type==="beverage"?"🥤":"🍽️")+'</span>')+'<div><b>'+esc(d.name)+'</b>'
+     +(d.kcal!=null?'<span class="badge">'+d.kcal+' kcal</span>':"")+(c.type==="beverage"?'<span class="badge b">Beverage</span>':"")
+     +'<p>'+money(d.price)+' · serves '+(d.serves||1)+(d.prep?' · '+d.prep+' min':'')+(d.allergens.length?' · Contains '+esc(d.allergens.join(", ")):"")+'</p>'
+     +(d.diet.length?'<p>'+esc(d.diet.join(", "))+'</p>':"")
+     +(d.opts.length?'<p>Options: '+esc(d.opts.map(function(o){return o.name}).join(", "))+'</p>':"")
+     +(hasR?'<p class="'+(bl.length?"warnr":"")+'">'+(bl.length?"Can't be made right now. Not enough: "+esc(bl.join(", ")):"About "+pl+" portion"+(pl===1?"":"s")+" left in stock")+'</p>':"")
+     +'</div></div><div class="row"><label class="checks"><input type="checkbox" data-act="avail" data-id="'+d.id+'"'+(d.available!==false?" checked":"")+'> Available</label>'
+     +'<button class="btn ghost sm" data-act="editDish" data-id="'+d.id+'">Edit</button><button class="btn del sm" data-act="delDish" data-id="'+d.id+'">Delete</button></div></div>';
+   }).join("");
+  });
+  $("dishes").innerHTML=out||(S.dishes.length?'<div class="empty">Nothing matches these filters.</div>':'<div class="empty"><b>No dishes yet.</b><br>Press “Add a dish or drink” above to add your first one.</div>');
+ }
+ function resetForm(){
+  $("dishForm").reset();$("opts").innerHTML="";$("recipe").innerHTML="";editId=null;photoData="";showPhoto();$("dPhMsg").textContent="";$("dishTitle").textContent="Add a dish or drink";
+  $("dSave").textContent="Add to menu";$("dCancel").hidden=true;$("dServes").value=1;$("dishFold").open=false;
+ }
+
+ /* ---------- INVENTORY ---------- */
+ var SL={out:"✕ Out of stock",low:"▲ Running low",ok:"● In stock"};
+ var qf=function(n){return String(+Number(n).toFixed(2))};
+ var ingById=function(id){return S.ingredients.filter(function(i){return i.id===id})[0]};
+ function istatus(i){return i.qty<=0?"out":(i.qty<=i.min?"low":"ok")}
+ function daysTo(s){var t=new Date();t.setHours(0,0,0,0);return Math.round((parse(s)-t)/864e5)}
+ function expInfo(i){
+  if(!i.expiry)return null;var d=daysTo(i.expiry);
+  if(d<0)return{t:"Expired "+Math.abs(d)+" day"+(d===-1?"":"s")+" ago",bad:true};
+  if(d<=3)return{t:d===0?"Expires today":"Expires in "+d+" day"+(d===1?"":"s"),bad:true};
+  return{t:"Expires "+fd(i.expiry),bad:false};
+ }
+ function blocked(d){
+  return (d.ing||[]).map(function(r){var i=ingById(r.id);return(i&&(i.qty<=0||i.qty<r.qty))?i.name:null}).filter(Boolean);
+ }
+ function portionsLeft(d){
+  var m=null;(d.ing||[]).forEach(function(r){var i=ingById(r.id);if(!i||!(r.qty>0))return;var n=Math.floor(i.qty/r.qty);m=m===null?n:Math.min(m,n)});
+  return m===null?0:m;
+ }
+ function names(a){return a.slice(0,6).map(function(i){return esc(i.name)}).join(", ")+(a.length>6?" and "+(a.length-6)+" more":"")}
+ function usedIn(id){return S.dishes.filter(function(d){return (d.ing||[]).some(function(r){return r.id===id})}).map(function(d){return d.name})}
+
+ function inventory(){
+  var L=S.ingredients,out=L.filter(function(i){return istatus(i)==="out"}),low=L.filter(function(i){return istatus(i)==="low"}),
+      okc=L.length-out.length-low.length,exps=L.filter(function(i){var e=expInfo(i);return e&&e.bad}),
+      value=L.reduce(function(s,i){return s+i.qty*(i.cost||0)},0),need=out.length+low.length,al=$("invAlert");
+  var b=$("invBadge");b.hidden=!need;b.textContent=need;b.setAttribute("aria-label",need+" ingredients need attention");
+  if(!L.length){al.className="verdict flat";al.innerHTML='<b>No ingredients yet</b>Add your first ingredient below, or load sample ingredients to see how tracking works.'}
+  else if(need){al.className="verdict bad";al.innerHTML='<b>'+need+' ingredient'+(need===1?"":"s")+' need'+(need===1?"s":"")+' attention</b>'+(out.length?'Out of stock: '+names(out)+'. ':'')+(low.length?'Running low: '+names(low)+'.':'')}
+  else{al.className="verdict good";al.innerHTML='<b>Everything is stocked</b>No ingredient is out of stock or running low.'}
+  $("invKpis").innerHTML=L.length?kpi("Out of stock",out.length,{t:"En rupture",c:out.length?"bad":"flat"},out.length>0)
+   +kpi("Running low",low.length,{t:"Near rupture",c:low.length?"bad":"flat"},low.length>0)
+   +kpi("In stock",okc,{t:"En stock",c:"good"})
+   +kpi("Expiring or expired",exps.length,{t:"Within 3 days",c:exps.length?"bad":"flat"},exps.length>0)
+   +kpi("Stock value",fmt(value),{t:"At cost price",c:"flat"}):"";
+
+  var f=$("fStatus").value,q=$("fSearch").value.trim().toLowerCase(),fc=$("fCat").value,rank={out:0,low:1,ok:2};
+  var list=L.filter(function(i){
+   var s=istatus(i),e=expInfo(i);
+   return(f==="all"||(f==="exp"?(e&&e.bad):s===f))&&(fc==="All categories"||i.cat===fc)&&(!q||i.name.toLowerCase().indexOf(q)>-1);
+  }).sort(function(a,b){return(rank[istatus(a)]-rank[istatus(b)])||a.name.localeCompare(b.name)});
+  $("ingList").innerHTML=!L.length?'<div class="empty"><b>No ingredients yet.</b><br>Press “Add an ingredient” above to start tracking stock.</div>'
+   :!list.length?'<div class="empty">Nothing matches these filters.</div>'
+   :list.map(function(i){
+    var s=istatus(i),e=expInfo(i),u=usedIn(i.id);
+    return '<div class="ing"><div><b>'+esc(i.name)+'</b><span class="st '+s+'">'+SL[s]+'</span><p>'+esc(i.cat)+(i.supplier?' · '+esc(i.supplier):'')+'</p>'
+     +(u.length?'<p class="'+(s==="out"?"warnr":"")+'">'+(s==="out"?"Can\'t make: ":"Used in: ")+esc(u.join(", "))+'</p>':'')+'</div>'
+     +'<div class="q"><b>'+qf(i.qty)+' '+esc(i.unit)+'</b><p>Alert at '+qf(i.min)+' '+esc(i.unit)+(i.cost?' · '+fmtx(i.cost)+' per '+esc(i.unit):'')+'</p>'
+     +(e?'<p class="'+(e.bad?"warnr":"")+'">'+e.t+'</p>':'')+'</div>'
+     +'<div class="row"><button class="btn sm" data-act="mv" data-id="'+i.id+'">Restock</button><button class="btn ghost sm" data-act="editIng" data-id="'+i.id+'">Edit</button><button class="btn del sm" data-act="delIng" data-id="'+i.id+'">Delete</button></div></div>';
+   }).join("");
+  $("clrIng").hidden=!L.some(function(i){return i.sample});
+  $("mvLog").innerHTML=S.moves.length?S.moves.slice(0,30).map(function(m){
+   var neg=m.type!=="restock",lab=m.type==="restock"?"Restock":m.type==="used"?"Used":"Wasted";
+   return '<div class="mv"><div>'+fd(m.date)+'</div><div>'+esc(m.name)+'<small style="display:block;color:var(--mute)">'+lab+'</small></div><b class="'+(neg?"out":"in")+'">'+(neg?"−":"+")+qf(m.qty)+' '+esc(m.unit)+'</b></div>';
+  }).join(""):'<div class="empty">No movements yet. Restocks, usage and waste will be listed here.</div>';
+ }
+ function mvSel(keep){
+  var c=keep||$("mvIng").value;
+  $("mvIng").innerHTML=S.ingredients.slice().sort(function(a,b){return a.name.localeCompare(b.name)}).map(function(i){return '<option value="'+i.id+'">'+esc(i.name)+' ('+qf(i.qty)+' '+esc(i.unit)+')</option>'}).join("")||'<option value="">Add an ingredient first</option>';
+  if(c&&ingById(c))$("mvIng").value=c;
+  mvUi();
+ }
+ function mvUi(){
+  var t=$("mvType").value,i=ingById($("mvIng").value);
+  $("mvCostWrap").hidden=t!=="restock";$("mvExpWrap").hidden=t==="used";
+  $("mvQtyLbl").textContent="Quantity"+(i?" ("+i.unit+")":"");
+ }
+ function refreshInv(){inventory();mvSel();dishes()}
+ function resetIng(){$("ingForm").reset();editIng=null;$("ingTitle").textContent="Add an ingredient";$("iSave").textContent="Add ingredient";$("iCancel").hidden=true;$("ingFold").open=false}
+ function sampleIng(){
+  var t=new Date(),ex=function(n){return ds(addDays(t,n))};
+  var rows=[["Tomatoes","Produce","kg",0,5,8,"Local market",ex(3)],["Olive oil","Spices and sauces","L",2,4,60,"Wholesaler",""],["Chicken","Meat and fish","kg",12,6,45,"Butcher",ex(4)],
+   ["Lamb","Meat and fish","kg",4.5,5,130,"Butcher",ex(2)],["Couscous","Dry goods","kg",20,8,14,"Wholesaler",""],["Eggs","Dairy and eggs","pieces",90,40,1.5,"Farm supplier",ex(10)],
+   ["Milk","Dairy and eggs","L",6,4,9,"Dairy supplier",ex(1)],["Fresh mint","Produce","bags",0,3,5,"Local market",ex(2)],["Oranges","Produce","kg",3,8,7,"Local market",ex(6)],["Flour","Dry goods","kg",25,10,8,"Wholesaler",""]];
+  return rows.map(function(r){return{id:uid(),name:r[0],cat:r[1],unit:r[2],qty:r[3],min:r[4],cost:r[5],supplier:r[6],expiry:r[7],sample:true}});
+ }
+
+ /* ---------- SALES AND PROFIT ---------- */
+ var pad=function(n){return n<10?"0"+n:""+n};
+ var ds=function(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
+ var parse=function(s){var p=s.split("-");return new Date(+p[0],+p[1]-1,+p[2])};
+ var addDays=function(d,n){var x=new Date(d);x.setDate(x.getDate()+n);return x};
+ var fd=function(s){return parse(s).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})};
+
+ function lcats(){
+  var t=$("lType").value;
+  $("lCat").innerHTML=(t==="income"?INC:EXP).map(function(c){return '<option>'+c+'</option>'}).join("");
+  $("lOrdWrap").hidden=t!=="income";
+ }
+ function period(){
+  var days=+$("range").value,today=new Date(),to=ds(today),from,pf=null,pt=null;
+  if(days===0){from=S.ledger.reduce(function(m,e){return e.date<m?e.date:m},to)}
+  else{from=ds(addDays(today,-(days-1)));pt=ds(addDays(today,-days));pf=ds(addDays(today,-(2*days-1)))}
+  return{from:from,to:to,pf:pf,pt:pt,days:days};
+ }
+ function sums(from,to){
+  var r={inc:0,exp:0,orders:0,ordInc:0,incCat:{},expCat:{},n:0};
+  S.ledger.forEach(function(e){
+   if(e.date<from||e.date>to)return;r.n++;
+   if(e.type==="income"){r.inc+=e.amount;r.incCat[e.cat]=(r.incCat[e.cat]||0)+e.amount;if(e.orders>0){r.orders+=e.orders;r.ordInc+=e.amount}}
+   else{r.exp+=e.amount;r.expCat[e.cat]=(r.expCat[e.cat]||0)+e.amount}
+  });
+  r.profit=r.inc-r.exp;return r;
+ }
+ function delta(c,p,goodUp,pts){
+  var diff=c-p;if(Math.abs(diff)<0.005)return{t:"No change vs previous",c:"flat"};
+  var up=diff>0,amt=pts?Math.abs(Math.round(diff))+" points":fmt(Math.abs(diff)),
+      pct=(!pts&&p>0)?" ("+Math.round(Math.abs(diff)/p*100)+"%)":"";
+  return{t:(up?"▲ Up ":"▼ Down ")+amt+pct+" vs previous",c:(up===goodUp)?"good":"bad"};
+ }
+ function kpi(label,val,d,neg){
+  return '<div class="kpi"><span>'+label+'</span><b class="'+(neg?"neg":"")+'">'+val+'</b>'+(d?'<em class="'+d.c+'">'+d.t+'</em>':"")+'</div>';
+ }
+ function mode(p){var span=Math.round((parse(p.to)-parse(p.from))/864e5)+1;return span<=31?"day":span<=120?"week":"month"}
+ function bkey(s,m){
+  if(m==="day")return s;
+  var d=parse(s);if(m==="week")return ds(addDays(d,-((d.getDay()+6)%7)));
+  return s.slice(0,7);
+ }
+ function blabel(k,m){
+  if(m==="month")return parse(k+"-01").toLocaleDateString("en-GB",{month:"short",year:"2-digit"});
+  return parse(k).toLocaleDateString("en-GB",{day:"numeric",month:"short"});
+ }
+ var short=function(v){return v>=1000?(Math.round(v/100)/10)+"k":String(Math.round(v))};
+
+ function chart(p,c){
+  var m=mode(p),keys=[],seen={},agg={};
+  for(var d=parse(p.from),end=parse(p.to);d<=end;d=addDays(d,1)){
+   var k=bkey(ds(d),m);if(!seen[k]){seen[k]=1;keys.push(k);agg[k]={i:0,e:0}}
+  }
+  S.ledger.forEach(function(e){
+   if(e.date<p.from||e.date>p.to)return;var k=bkey(e.date,m);
+   if(agg[k]){if(e.type==="income")agg[k].i+=e.amount;else agg[k].e+=e.amount}
+  });
+  var mx=0;keys.forEach(function(k){mx=Math.max(mx,agg[k].i,agg[k].e)});
+  if(!mx)return '<div class="empty" style="margin-top:14px">There is nothing to chart in this period yet.</div>';
+  var pow=Math.pow(10,Math.floor(Math.log10(mx))),n=mx/pow,nice=(n<=1?1:n<=2?2:n<=5?5:10)*pow;
+  var W=720,H=260,L=46,R=8,T=10,B=34,pw=W-L-R,ph=H-T-B,gw=pw/keys.length,bw=Math.max(2,Math.min(18,gw*0.38)),step=Math.ceil(keys.length/8);
+  var g="",i,y;
+  for(i=0;i<=4;i++){y=T+ph-ph*i/4;g+='<line class="gl" x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'"/><text class="ax" x="'+(L-6)+'" y="'+(y+4)+'" text-anchor="end">'+short(nice*i/4)+'</text>'}
+  keys.forEach(function(k,idx){
+   var x0=L+idx*gw+gw/2,a=agg[k],hi=a.i/nice*ph,he=a.e/nice*ph,lab=blabel(k,m);
+   g+='<rect class="bi" x="'+(x0-bw-1)+'" y="'+(T+ph-hi)+'" width="'+bw+'" height="'+hi+'"><title>'+lab+': income '+fmt(a.i)+'</title></rect>';
+   g+='<rect class="be" x="'+(x0+1)+'" y="'+(T+ph-he)+'" width="'+bw+'" height="'+he+'"><title>'+lab+': expenses '+fmt(a.e)+'</title></rect>';
+   if(idx%step===0)g+='<text class="ax" x="'+x0+'" y="'+(H-12)+'" text-anchor="middle">'+lab+'</text>';
+  });
+  var unit=m==="day"?"day":m==="week"?"week":"month";
+  return '<div class="legend"><span><i style="background:var(--leaf)"></i>Income</span><span><i style="background:var(--berry)"></i>Expenses</span><span>Grouped by '+unit+'</span></div>'
+   +'<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Bar chart of income and expenses by '+unit+'. Total income '+fmt(c.inc)+', total expenses '+fmt(c.exp)+'.">'+g+'</svg>';
+ }
+ function brk(map,total,cls){
+  var k=Object.keys(map).sort(function(a,b){return map[b]-map[a]});
+  if(!k.length)return '<p class="note">Nothing recorded in this period.</p>';
+  return k.map(function(c){
+   var pc=total?map[c]/total*100:0;
+   return '<div class="bk"><div class="row" style="justify-content:space-between"><span>'+esc(c)+'</span><b>'+fmt(map[c])+' <small>'+Math.round(pc)+'%</small></b></div><div class="bar"><i class="'+cls+'" style="width:'+pc+'%"></i></div></div>';
+  }).join("");
+ }
+ function ledger(){
+  var list=S.ledger.slice().sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:0}),show=list.slice(0,60);
+  $("ledger").innerHTML=show.length?show.map(function(e){
+   var inc=e.type==="income",extra=(e.note?esc(e.note):"")+(e.orders?(e.note?" · ":"")+e.orders+" orders":"");
+   return '<div class="led"><div>'+fd(e.date)+'</div><div>'+esc(e.cat)+'<small>'+(inc?"Income":"Expense")+(extra?" · "+extra:"")+'</small></div><b class="'+(inc?"in":"out")+'">'+(inc?"+":"−")+fmtx(e.amount)+'</b><button class="btn del sm" data-act="delRec" data-id="'+e.id+'" aria-label="Delete this record">Delete</button></div>';
+  }).join("")+(list.length>60?'<p class="note" style="margin-top:10px">Showing the latest 60 of '+list.length+' records. Export CSV to see all of them.</p>':""):'<div class="empty"><b>No records yet.</b><br>Add your first income or expense above, or load sample data to see how it works.</div>';
+  $("clrSample").hidden=!S.ledger.some(function(e){return e.sample});
+ }
+ function sales(){
+  var p=period(),c=sums(p.from,p.to),pv=p.pf?sums(p.pf,p.pt):null,has=!!(pv&&pv.n>0),v=$("verdict");
+  if(!c.n){
+   v.className="verdict flat";v.innerHTML='<b>No records in this period yet</b>Add your income and expenses above, or load sample data to see how the analysis works.';
+  }else if(!has){
+   v.className="verdict flat";
+   v.innerHTML='<b>'+(c.profit>=0?"You made a profit":"You made a loss")+' of '+fmt(Math.abs(c.profit))+'</b>You earned '+fmt(c.inc)+' and spent '+fmt(c.exp)+'.'+(p.pf?" There are no earlier records to compare with yet.":"");
+  }else{
+   var diff=c.profit-pv.profit,tol=Math.max(1,0.02*Math.max(Math.abs(pv.profit),Math.abs(c.profit))),
+       cls=Math.abs(diff)<=tol?"flat":diff>0?"good":"bad",di=c.inc-pv.inc,de=c.exp-pv.exp,
+       head=cls==="flat"?"About the same as before":cls==="good"?"Better than the previous "+p.days+" days":"Worse than the previous "+p.days+" days";
+   v.className="verdict "+cls;
+   v.innerHTML='<b>'+head+'</b>Profit is '+fmt(c.profit)+' compared with '+fmt(pv.profit)+'. Income '+(di>=0?"rose":"fell")+' by '+fmt(Math.abs(di))+' and expenses '+(de>=0?"rose":"fell")+' by '+fmt(Math.abs(de))+'.';
+  }
+  var k="",mg=c.inc>0?Math.round(c.profit/c.inc*100):null;
+  k+=kpi("Income",fmt(c.inc),has?delta(c.inc,pv.inc,true):null);
+  k+=kpi("Expenses",fmt(c.exp),has?delta(c.exp,pv.exp,false):null);
+  k+=kpi(c.profit<0?"Net loss":"Net profit",fmt(c.profit),has?delta(c.profit,pv.profit,true):null,c.profit<0);
+  k+=kpi("Profit margin",mg===null?"n/a":mg+"%",(has&&pv.inc>0&&mg!==null)?delta(mg,Math.round(pv.profit/pv.inc*100),true,true):null,mg!==null&&mg<0);
+  if(c.orders>0){
+   var aov=c.ordInc/c.orders,paov=(has&&pv.orders>0)?pv.ordInc/pv.orders:null;
+   k+=kpi("Average order",fmt(aov),paov!==null?delta(aov,paov,true):null);
+   k+=kpi("Orders",c.orders.toLocaleString("en-US"),(has&&pv.orders>0)?(c.orders===pv.orders?{t:"No change vs previous",c:"flat"}:{t:(c.orders>pv.orders?"▲ Up ":"▼ Down ")+Math.abs(c.orders-pv.orders)+" vs previous",c:c.orders>pv.orders?"good":"bad"}):null);
+  }
+  $("kpis").innerHTML=k;
+  $("chart").innerHTML=chart(p,c);
+  $("expBreak").innerHTML=brk(c.expCat,c.exp,"r");
+  $("incBreak").innerHTML=brk(c.incCat,c.inc,"g");
+  ledger();
+ }
+ function rec(type,date,cat,amount,orders){return{id:uid(),type:type,date:date,cat:cat,amount:amount,orders:orders||0,note:"Sample",sample:true}}
+ function sampleData(){
+  var seed=7,out=[],today=new Date();
+  function r(){seed=(seed*16807)%2147483647;return seed/2147483647}
+  for(var i=89;i>=0;i--){
+   var d=addDays(today,-i),s=ds(d),dow=d.getDay(),trend=1+(89-i)/89*0.18,
+       base=((dow===5||dow===6||dow===0)?4200:2600)*trend*(0.85+r()*0.3);
+   out.push(rec("income",s,"Dine-in sales",Math.round(base*0.78),Math.round(base*0.78/62)));
+   out.push(rec("income",s,"Takeaway",Math.round(base*0.22),0));
+   out.push(rec("expense",s,"Ingredients",Math.round(base*(0.30+r()*0.08))));
+   if(r()<0.12)out.push(rec("expense",s,"Waste and spoilage",Math.round(80+r()*220)));
+   if(dow===1)out.push(rec("expense",s,"Staff wages",9000));
+   if(d.getDate()===1)out.push(rec("expense",s,"Rent",8000));
+   if(d.getDate()===5)out.push(rec("expense",s,"Utilities",1400+Math.round(r()*300)));
+   if(d.getDate()===15)out.push(rec("expense",s,"Marketing",600));
+  }
+  return out;
+ }
+ function cell(v){v=String(v==null?"":v);if(/^[=+\-@\t\r]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"'}
+ function csv(){
+  var rows=['Date,Type,Category,Amount,Orders,Note'].concat(S.ledger.slice().sort(function(a,b){return a.date<b.date?-1:1}).map(function(e){
+   return [e.date,e.type,cell(e.cat),e.amount,e.orders||0,cell(e.note)].join(",");
+  }));
+  var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([rows.join("\n")],{type:"text/csv"}));
+  a.download="nourish-"+slug()+"-records.csv";a.click();URL.revokeObjectURL(a.href);
+ }
+
+ /* events */
+ document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-act]");if(!b||b.type==="checkbox")return;var a=b.dataset.act,id=b.dataset.id;
+  if(a==="addTables"){
+   var n=Math.max(1,Math.min(50,+$("addN").value||1)),next=S.tables.reduce(function(m,t){return Math.max(m,t.n)},0);
+   for(var i=1;i<=n;i++)S.tables.push({id:uid(),n:next+i});save();tables();
+  }else if(a==="delTable"){if(confirm("Remove this table? Its printed QR code will stop matching.")){S.tables=S.tables.filter(function(t){return t.id!==id});save();tables()}}
+  else if(a==="dlQR"){
+   var t=S.tables.filter(function(x){return x.id===id})[0],svg=t&&qrSvg(menuUrl(t.n));if(!svg)return;
+   var l=document.createElement("a");l.href=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));l.download="table-"+t.n+"-qr.svg";l.click();URL.revokeObjectURL(l.href);
+  }else if(a==="printQR"){
+   if(!S.tables.length)return;$("sheet").innerHTML=S.tables.map(function(t){return qrCard(t)+'</div>'}).join("");window.print();
+  }else if(a==="delCat"){
+   var cnt=S.dishes.filter(function(d){return d.cat===id}).length;
+   if(confirm(cnt?"Delete this category and its "+cnt+" dish(es)?":"Delete this category?")){S.categories=S.categories.filter(function(c){return c.id!==id});S.dishes=S.dishes.filter(function(d){return d.cat!==id});save();cats();dishes()}
+  }else if(a==="addOpt")optRow();
+  else if(a==="rmOpt")b.closest(".orow").remove();
+  else if(a==="addRecipe")recipeRow();
+  else if(a==="rmRecipe")b.closest(".rrow").remove();
+  else if(a==="delDish"){if(confirm("Delete this dish?")){S.dishes=S.dishes.filter(function(d){return d.id!==id});save();dishes();inventory()}}
+  else if(a==="editDish"){
+   var d=S.dishes.filter(function(x){return x.id===id})[0];if(!d)return;editId=id;
+   $("dName").value=d.name;$("dCat").value=d.cat;$("dPrice").value=d.price;$("dServes").value=d.serves||1;$("dPrep").value=d.prep==null?"":d.prep;$("dDesc").value=d.desc||"";
+   $("dKcal").value=d.kcal==null?"":d.kcal;$("dP").value=d.p==null?"":d.p;$("dC").value=d.c==null?"":d.c;$("dF").value=d.f==null?"":d.f;
+   [].forEach.call(document.querySelectorAll('input[name=alg]'),function(x){x.checked=d.allergens.indexOf(x.value)>-1});
+   [].forEach.call(document.querySelectorAll('input[name=diet]'),function(x){x.checked=d.diet.indexOf(x.value)>-1});
+   $("opts").innerHTML="";d.opts.forEach(optRow);
+   $("recipe").innerHTML="";(d.ing||[]).filter(function(r){return ingById(r.id)}).forEach(recipeRow);
+   photoData=d.photo||"";showPhoto();$("dishTitle").textContent="Edit dish";$("dSave").textContent="Save changes";$("dCancel").hidden=false;
+   $("dishFold").open=true;$("dishForm").scrollIntoView({behavior:"smooth"});
+  }else if(a==="cancelEdit")resetForm();
+  else if(a==="delRec"){S.ledger=S.ledger.filter(function(x){return x.id!==id});save();sales()}
+  else if(a==="sample"){if(!S.ledger.some(function(x){return x.sample})){S.ledger=S.ledger.concat(sampleData());save();sales()}}
+  else if(a==="clearSample"){S.ledger=S.ledger.filter(function(x){return !x.sample});save();sales()}
+  else if(a==="csv"){if(S.ledger.length)csv()}
+  else if(a==="mv"){mvSel(id);$("mvIng").value=id;$("mvType").value="restock";mvUi();$("mvFold").open=true;$("mvForm").scrollIntoView({behavior:"smooth"});$("mvQty").focus()}
+  else if(a==="editIng"){
+   var i=ingById(id);if(!i)return;editIng=id;
+   $("iName").value=i.name;$("iCat").value=i.cat;$("iUnit").value=i.unit;$("iQty").value=i.qty;$("iMin").value=i.min;$("iCost").value=i.cost||"";$("iSup").value=i.supplier||"";$("iExp").value=i.expiry||"";
+   $("ingTitle").textContent="Edit ingredient";$("iSave").textContent="Save changes";$("iCancel").hidden=false;$("ingFold").open=true;$("ingForm").scrollIntoView({behavior:"smooth"});
+  }else if(a==="cancelIng")resetIng();
+  else if(a==="delIng"){
+   var n2=usedIn(id).length;
+   if(confirm(n2?"Delete this ingredient? It will also be removed from "+n2+" dish(es).":"Delete this ingredient?")){
+    S.ingredients=S.ingredients.filter(function(x){return x.id!==id});
+    S.dishes.forEach(function(d){d.ing=(d.ing||[]).filter(function(r){return r.id!==id})});
+    save();refreshInv();
+   }
+  }else if(a==="sampleIng"){if(!S.ingredients.some(function(x){return x.sample})){S.ingredients=S.ingredients.concat(sampleIng());save();refreshInv()}}
+  else if(a==="clearSampleIng"){
+   var ids=S.ingredients.filter(function(x){return x.sample}).map(function(x){return x.id});
+   S.ingredients=S.ingredients.filter(function(x){return !x.sample});
+   S.dishes.forEach(function(d){d.ing=(d.ing||[]).filter(function(r){return ids.indexOf(r.id)<0})});
+   save();refreshInv();
+  }
+ });
+ document.addEventListener("change",function(e){
+  if(e.target.dataset.act==="avail"){var d=S.dishes.filter(function(x){return x.id===e.target.dataset.id})[0];if(d){d.available=e.target.checked;save();dishes()}}
+ });
+ $("dPhoto").addEventListener("change",function(){
+  var f=this.files&&this.files[0];this.value="";if(!f)return;
+  $("dPhMsg").textContent="Preparing your photo…";
+  shrink(f,function(err,data){
+   if(err){$("dPhMsg").textContent=err;return}
+   photoData=data;showPhoto();$("dPhMsg").textContent="Photo ready. Press the save button below to keep it.";
+  });
+ });
+ $("dPhRm").addEventListener("click",function(){photoData="";showPhoto();$("dPhMsg").textContent="Photo removed. Press the save button below to confirm."});
+ $("fMenuCat").addEventListener("change",dishes);$("fMenuStatus").addEventListener("change",dishes);$("fMenuSearch").addEventListener("input",dishes);
+ $("catForm").addEventListener("submit",function(e){
+  e.preventDefault();S.categories.push({id:uid(),name:$("catName").value.trim(),type:$("catType").value});
+  save();$("catName").value="";cats();
+ });
+ $("dishForm").addEventListener("submit",function(e){
+  e.preventDefault();
+  if(!S.categories.length){alert("Add a category first.");return}
+  var num=function(id){var v=$(id).value;return v===""?null:+v};
+  var d={id:editId||uid(),name:$("dName").value.trim(),cat:$("dCat").value,price:+$("dPrice").value,serves:Math.max(1,+$("dServes").value||1),prep:num("dPrep"),desc:$("dDesc").value.trim(),photo:photoData||"",
+   kcal:num("dKcal"),p:num("dP"),c:num("dC"),f:num("dF"),
+   allergens:[].map.call(document.querySelectorAll('input[name=alg]:checked'),function(x){return x.value}),
+   diet:[].map.call(document.querySelectorAll('input[name=diet]:checked'),function(x){return x.value}),
+   opts:[].map.call(document.querySelectorAll("#opts .orow"),function(r){var i=r.querySelectorAll("input");return{name:i[0].value.trim(),price:+i[1].value||0,kcal:+i[2].value||0}}).filter(function(o){return o.name}),
+   ing:[].map.call(document.querySelectorAll("#recipe .rrow"),function(r){return{id:r.querySelector("select").value,qty:+r.querySelector("input").value||0}}).filter(function(r){return r.qty>0&&ingById(r.id)}),
+   available:true};
+  if(editId){var old=S.dishes.filter(function(x){return x.id===editId})[0];d.available=old?old.available!==false:true;S.dishes=S.dishes.map(function(x){return x.id===editId?d:x})}
+  else S.dishes.push(d);
+  if(!save()&&d.photo){d.photo="";save();alert("Your browser storage is full, so the dish was saved without its photo. Remove some photos from other dishes and try again.")}
+  resetForm();dishes();inventory();
+ });
+ $("ingForm").addEventListener("submit",function(e){
+  e.preventDefault();
+  var o={id:editIng||uid(),name:$("iName").value.trim(),cat:$("iCat").value,unit:$("iUnit").value,qty:Math.max(0,+$("iQty").value||0),min:Math.max(0,+$("iMin").value||0),
+   cost:Math.max(0,+$("iCost").value||0),supplier:$("iSup").value.trim(),expiry:$("iExp").value||""};
+  if(editIng){var old=ingById(editIng);if(old&&old.sample)o.sample=true;S.ingredients=S.ingredients.map(function(x){return x.id===editIng?o:x})}
+  else S.ingredients.push(o);
+  save();resetIng();refreshInv();
+ });
+ $("mvType").addEventListener("change",mvUi);
+ $("mvIng").addEventListener("change",mvUi);
+ $("mvForm").addEventListener("submit",function(e){
+  e.preventDefault();
+  var i=ingById($("mvIng").value),q=+$("mvQty").value;if(!i||!(q>0))return;
+  var t=$("mvType").value,total=+$("mvCost").value||0,addExp=$("mvExp").checked,real=q,ledgerChanged=false;
+  if(t==="restock"){
+   i.qty=Math.round((i.qty+q)*1000)/1000;
+   if(total>0){i.cost=Math.round(total/q*10000)/10000;
+    if(addExp){S.ledger.push({id:uid(),type:"expense",date:ds(new Date()),cat:"Ingredients",amount:Math.round(total*100)/100,orders:0,note:"Restock: "+i.name});ledgerChanged=true}}
+  }else{
+   real=Math.min(q,i.qty);
+   if(real<=0){alert("There is nothing in stock to remove for "+i.name+".");return}
+   i.qty=Math.round((i.qty-real)*1000)/1000;
+   if(t==="waste"&&addExp&&i.cost>0){S.ledger.push({id:uid(),type:"expense",date:ds(new Date()),cat:"Waste and spoilage",amount:Math.round(real*i.cost*100)/100,orders:0,note:"Wasted: "+i.name});ledgerChanged=true}
+  }
+  S.moves.unshift({id:uid(),name:i.name,unit:i.unit,type:t,qty:real,date:ds(new Date())});S.moves=S.moves.slice(0,200);
+  save();$("mvQty").value="";$("mvCost").value="";$("mvFold").open=false;refreshInv();if(ledgerChanged)sales();
+ });
+ ["fStatus","fCat"].forEach(function(id){$(id).addEventListener("change",inventory)});
+ $("fSearch").addEventListener("input",inventory);
+ $("lType").addEventListener("change",lcats);
+ $("range").addEventListener("change",sales);
+ $("lForm").addEventListener("submit",function(e){
+  e.preventDefault();var amt=+$("lAmt").value;if(!(amt>0))return;
+  var inc=$("lType").value==="income";
+  S.ledger.push({id:uid(),type:$("lType").value,date:$("lDate").value,cat:$("lCat").value,amount:Math.round(amt*100)/100,
+   orders:inc?Math.max(0,Math.floor(+$("lOrd").value||0)):0,note:$("lNote").value.trim()});
+  save();$("lAmt").value="";$("lOrd").value="";$("lNote").value="";sales();$("lAmt").focus();
+ });
+
+ $("lDate").value=ds(new Date());$("lDate").max=ds(new Date());
+ $("iCat").innerHTML=optHtml(ICATS);$("iUnit").innerHTML=optHtml(UNITS);$("fCat").innerHTML=optHtml(["All categories"].concat(ICATS));
+ /* ---------- ORDERS: diners send them from the menu page (same browser in this demo) ---------- */
+ var OKEY="nourish-orders",OCCK=function(){return"nourish-occ:"+Nourish.account().id},seen=null;
+ var jr=function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
+ var ZONES=[["std","Standard table"],["window","Near the window"],["middle","In the middle"],["corner","In a corner"],["alone","Quiet, on its own"],["terrace","On the terrace"],["bar","At the bar"],["entrance","Near the entrance"],["other","Other"]];
+ var zl=function(z){var m=ZONES.filter(function(x){return x[0]===(z||"std")})[0];return m?m[1]:"Other"};
+ var ago=function(t){return Math.max(0,Math.round((Date.now()-t)/60000))};
+ function myOrders(){var a=Nourish.account(),sl=Nourish.mySlug();return(jr(OKEY)||[]).filter(function(o){return o.rid?o.rid===a.id:o.r===sl})}
+ function setOrder(id,st){
+  if(!myOrders().some(function(o){return o.id===id}))return;
+  var all=jr(OKEY)||[],o=all.filter(function(x){return x.id===id})[0];if(!o)return;
+  o.status=st;if(st==="preparing")o.startedAt=Date.now();if(st==="ready")o.readyAt=Date.now();
+  try{localStorage.setItem(OKEY,JSON.stringify(all))}catch(e){}
+  ordersTab();
+ }
+ function beep(){try{var c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=880;g.gain.value=.15;o.connect(g);g.connect(c.destination);o.start();setTimeout(function(){o.stop();c.close()},350)}catch(e){}}
+ function ocard(o){
+  var t=S.tables.filter(function(x){return String(x.n)===String(o.table)})[0],eta=+o.eta||0,line;
+  if(o.status==="pending")line="Received "+ago(o.at)+" min ago";
+  else if(o.status==="preparing"){var el=ago(o.startedAt||o.at);line="Cooking for "+el+" min"+(eta?(el>eta?'. <span class="warnr">Running late by '+(el-eta)+' min</span>':", about "+(eta-el)+" min left"):"")}
+  else line="Done "+ago(o.readyAt||o.at)+" min ago";
+  var occ=jr(OCCK())||{},btn=o.status==="pending"?'<button class="btn" data-act="oStart" data-id="'+o.id+'">Start cooking</button>'
+   :o.status==="preparing"?'<button class="btn" data-act="oDone" data-id="'+o.id+'">Done</button>'
+   :(occ[o.table]?'<button class="btn ghost sm" data-act="tFree" data-n="'+esc(o.table)+'">Free table '+esc(o.table)+'</button>':"");
+  return '<div class="ocard'+(o.status==="pending"?" new":"")+'"><div class="ohead"><h3>Order #'+o.id+' · Table '+esc(o.table)+'</h3><span class="meta">'+line+'</span></div>'
+   +'<p class="meta">'+(t&&t.zone&&t.zone!=="std"?esc(zl(t.zone))+' · ':'')+o.party+(o.party==="1"?" guest":" guests")+(o.server?' · server '+esc(o.server):'')+'</p>'
+   +'<ul>'+o.items.map(function(i){var x=[i.opts,i.note].filter(Boolean).join("; ");
+     return '<li><b>'+i.qty+' ×</b> '+esc(i.name)+(i.who?' for '+esc(i.who):'')+(x?'<small>'+esc(x)+'</small>':'')+(i.prep?'<small>Cooking time '+i.prep+' min</small>':'')+'</li>'}).join("")+'</ul>'
+   +'<p class="meta">'+(eta?'Estimated cooking time: '+eta+' min (longest dish). ':'')+'Total '+fmtx(o.total)+', pays '+(o.pay==="card"?"by card":"in cash")+'.</p>'
+   +(o.done?'<p class="meta"><b>The guest has finished'+(o.rating?' and rated '+o.rating+' out of 5':'')+'.</b>'+(o.comment?' "'+esc(o.comment)+'"':'')+'</p>':'')+(btn?'<div class="row" style="margin-top:10px">'+btn+'</div>':"")+'</div>';
+ }
+ function ordersTab(){
+  var L=myOrders().sort(function(a,b){return a.at-b.at}),pend=L.filter(function(o){return o.status==="pending"}),
+      cook=L.filter(function(o){return o.status==="preparing"}),done=L.filter(function(o){return o.status==="ready"&&Date.now()-(o.readyAt||o.at)<15*60000}).reverse();
+  var b=$("ordBadge");b.hidden=!pend.length;b.textContent=pend.length;b.setAttribute("aria-label",pend.length+" new orders");
+  var ids=pend.map(function(o){return o.id}),fresh=[];
+  if(seen===null)seen=ids.slice();else{fresh=ids.filter(function(i){return seen.indexOf(i)<0});seen=seen.concat(fresh)}
+  if(fresh.length){$("ordSay").textContent="New order received: table "+pend.filter(function(o){return o.id===fresh[0]})[0].table+".";if(S.settings.sound)beep()}
+  $("oSound").checked=!!S.settings.sound;ratingsBox();
+  var sec=function(t,a){return a.length?'<h3 class="osec">'+t+' ('+a.length+')</h3>'+a.map(ocard).join(""):""};
+  var doneBox=done.length?'<details class="fold zone" data-k="o:done"'+(openZ["o:done"]?" open":"")+'><summary>Done orders <span class="tcount">'+done.length+'</span></summary><p class="note" style="margin:0 0 10px">Finished orders stay here for 15 minutes, then they leave this screen.</p>'+done.map(ocard).join("")+'</details>':"";
+  $("ordBox").innerHTML=(pend.length||cook.length||done.length)?sec("New orders",pend)+sec("Cooking",cook)+doneBox
+   :'<div class="empty"><b>No orders yet.</b><br>When a diner sends an order from your menu page, it appears here.</div>';
+ }
+ function tblRows(){
+  var fzs=$("fTblZone");
+  if(!fzs.options.length)fzs.innerHTML='<option value="all">All positions</option>'+ZONES.map(function(z){return '<option value="'+z[0]+'">'+z[1]+'</option>'}).join("");
+  var occ=jr(OCCK())||{},taken=[],avail=[];
+  S.tables.forEach(function(t){(occ[t.n]||t.free===false?taken:avail).push(t)});
+  var row=function(t){
+   var o=occ[t.n],free=t.free!==false;
+   return '<div class="trow" data-id="'+t.id+'"><b>Table '+t.n+'</b>'
+    +'<select class="tz" aria-label="Position of table '+t.n+'">'+ZONES.map(function(z){return '<option value="'+z[0]+'"'+((t.zone||"std")===z[0]?" selected":"")+'>'+z[1]+'</option>'}).join("")+'</select>'
+    +'<input class="ts" type="number" min="1" max="30" placeholder="Seats" aria-label="Seats at table '+t.n+'" value="'+(t.seats||"")+'">'
+    +'<input class="tn" type="text" maxlength="40" placeholder="Note (optional)" aria-label="Note for table '+t.n+'" value="'+esc(t.note||"")+'">'
+    +'<div class="checks"><label><input type="checkbox" class="tf"'+(free?" checked":"")+'> Available</label>'+(o?'<span class="st out">Taken</span><button type="button" class="btn ghost sm" data-act="tFree" data-n="'+t.n+'">Free up</button>':(!free?'<span class="st low">Switched off</span>':""))+'</div><div class="row"><button type="button" class="btn ghost sm" data-act="dlQR" data-id="'+t.id+'">Download QR</button><button type="button" class="btn del sm" data-act="delTable" data-id="'+t.id+'" aria-label="Remove table '+t.n+'">Remove</button></div></div>';
+  };
+  var sec=function(title,list,cls){return list.length?'<h3 class="tsec '+cls+'">'+title+' <span class="tcount">'+list.length+'</span></h3>'+list.map(row).join(""):""};
+  var fz=fzs.value||"all",fsn=+$("fTblSeats").value||0,fq=$("fTblSearch").value.trim().toLowerCase().replace(/^table\s*/,"");
+  var shown=avail.filter(function(t){return(fz==="all"||(t.zone||"std")===fz)&&(!fsn||(t.seats||0)>=fsn)&&(!fq||String(t.n).indexOf(fq)>-1||(t.note||"").toLowerCase().indexOf(fq)>-1)});
+  tFilt=fz!=="all"||!!fsn||!!fq;
+  var html=sec("Taken tables",taken,"taken");
+  ZONES.forEach(function(z){html+=zsec(z,shown.filter(function(t){return (t.zone||"std")===z[0]}),"t:",function(l){return l.map(row).join("")})});
+  if(avail.length&&!shown.length)html+='<div class="empty" style="margin-top:12px">No available table matches these filters.</div>';
+  $("tblRows").innerHTML=S.tables.length?html:'<div class="empty">No tables yet. Add some below.</div>';
+  $("tblSum").textContent=S.tables.length?avail.length+" of "+S.tables.length+" available to diners right now.":"";
+ }
+ ["fTblZone","fTblSeats"].forEach(function(id){$(id).addEventListener("change",tblRows)});
+ $("fTblSearch").addEventListener("input",tblRows);
+ $("tblRows").addEventListener("change",function(e){
+  var r=e.target.closest(".trow");if(!r)return;
+  var t=S.tables.filter(function(x){return x.id===r.dataset.id})[0];if(!t)return;
+  var c=e.target.classList;
+  if(c.contains("tz")){t.zone=e.target.value;openZ["t:"+t.zone]=true}
+  else if(c.contains("ts"))t.seats=Math.max(0,Math.min(30,Math.floor(+e.target.value||0)))||undefined;
+  else if(c.contains("tn"))t.note=e.target.value.trim()||undefined;
+  else if(c.contains("tf"))t.free=e.target.checked;
+  save();tblRows();
+ });
+ document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-act]");if(!b)return;var a=b.dataset.act;
+  if(a==="oStart")setOrder(b.dataset.id&&+b.dataset.id,"preparing");
+  else if(a==="oDone")setOrder(+b.dataset.id,"ready");
+  else if(a==="tFree"){var o=jr(OCCK())||{};delete o[b.dataset.n];try{localStorage.setItem(OCCK(),JSON.stringify(o))}catch(x){}tblRows();ordersTab()}
+ });
+ $("oSound").addEventListener("change",function(){S.settings.sound=this.checked;save();if(this.checked)beep()});
+ window.addEventListener("storage",function(e){if(e.key===OKEY||e.key===OCCK()){ordersTab();tblRows()}});
+ setInterval(ordersTab,15000);
+
+ function agoTxt(t){var m=Math.max(0,Math.round((Date.now()-t)/60000));return m<60?m+" min ago":m<2880?Math.round(m/60)+" h ago":Math.round(m/1440)+" days ago"}
+ function ratingsBox(){
+  var a=Nourish.account(),sl=Nourish.mySlug(),b=$("rateBox"),R=(jr("nourish-ratings")||[]).filter(function(x){return x.rid?x.rid===a.id:x.r===sl}).sort(function(x,y){return y.at-x.at});
+  if(!R.length){b.innerHTML="";return}
+  var avg=R.reduce(function(t,x){return t+x.stars},0)/R.length;
+  b.innerHTML='<div class="card"><h3>Guest ratings</h3><p style="margin:0 0 8px"><b style="font:800 28px Bricolage Grotesque,sans-serif">'+avg.toFixed(1)+'</b> out of 5 from '+R.length+' rating'+(R.length===1?"":"s")+'</p>'+
+   R.slice(0,5).map(function(x){return '<div style="padding:8px 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px"><div><b>'+"★".repeat(x.stars)+"☆".repeat(5-x.stars)+'</b> Table '+esc(x.table)+(x.comment?'<p class="note" style="margin:2px 0 0">'+esc(x.comment)+'</p>':'')+'</div><span class="note">'+agoTxt(x.at)+'</span></div>'}).join("")+'</div>';
+ }
+
+ /* ---------- IMPORT FROM EXCEL OR CSV (this browser only, nothing is uploaded) ---------- */
+ var snaps={},pending={},BUILD={},COMMIT={},UNDO={};
+ var nk=function(h){return String(h==null?"":h).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim()};
+ var txt=function(v){return String(v==null?"":v).trim()};
+ function toNum(v){
+  if(typeof v==="number")return isFinite(v)?v:null;
+  var t=txt(v).replace(/[^\d,.\-]/g,"");if(!t)return null;
+  t=(t.indexOf(",")>-1&&t.indexOf(".")<0)?t.replace(",","."):t.replace(/,/g,"");
+  var n=parseFloat(t);return isFinite(n)?n:null;
+ }
+ function toISO(v){
+  var y,m,d,t,x;
+  if(typeof v==="number"&&v>20000&&v<80000){x=new Date(Math.round((v-25569)*864e5));return x.getUTCFullYear()+"-"+pad(x.getUTCMonth()+1)+"-"+pad(x.getUTCDate())}
+  t=txt(v);
+  if(x=t.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/)){y=+x[1];m=+x[2];d=+x[3]}
+  else if(x=t.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/)){d=+x[1];m=+x[2];y=+x[3];if(y<100)y+=2000;if(m>12&&d<=12){var z=d;d=m;m=z}}
+  else return "";
+  var c=new Date(y,m-1,d);return(c.getFullYear()===y&&c.getMonth()===m-1&&c.getDate()===d)?y+"-"+pad(m)+"-"+pad(d):"";
+ }
+ function csvRows(text){
+  text=text.replace(/^\ufeff/,"");
+  var first=text.split(/\r?\n/)[0]||"",dl=(first.split(";").length>first.split(",").length)?";":",",rows=[],row=[],cur="",q=false,i,ch;
+  for(i=0;i<text.length;i++){ch=text[i];
+   if(q){if(ch==='"'){if(text[i+1]==='"'){cur+='"';i++}else q=false}else cur+=ch}
+   else if(ch==='"')q=true;else if(ch===dl){row.push(cur);cur=""}
+   else if(ch==="\n"||ch==="\r"){if(ch==="\r"&&text[i+1]==="\n")i++;row.push(cur);cur="";rows.push(row);row=[]}
+   else cur+=ch}
+  if(cur!==""||row.length){row.push(cur);rows.push(row)}
+  var head=(rows.shift()||[]).map(function(h){return h.trim()});
+  return rows.map(function(r){var o={};head.forEach(function(h,k){if(h)o[h]=r[k]==null?"":r[k]});return o});
+ }
+ function readRows(file,cb){
+  var ext=(file.name.split(".").pop()||"").toLowerCase(),r=new FileReader();
+  if(file.size>5*1024*1024)return cb("That file is larger than 5 MB.");
+  r.onerror=function(){cb("We couldn't read that file.")};
+  if(ext==="csv"||ext==="txt"){r.onload=function(){cb(null,csvRows(String(r.result)))};r.readAsText(file);return}
+  if(!window.XLSX)return cb("The Excel reader couldn't load. Check your internet connection, or save the sheet as CSV and import that.");
+  r.onload=function(){try{var wb=XLSX.read(new Uint8Array(r.result),{type:"array"});cb(null,XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:"",raw:true}))}catch(e){cb("That file doesn't look like a valid Excel sheet.")}};
+  r.readAsArrayBuffer(file);
+ }
+ var ALIAS={
+  ing:{name:["name","ingredient","ingredients","nom","produit","article","designation","item"],cat:["category","categorie","type","famille"],unit:["unit","unite","unites"],qty:["quantity","qty","stock","current stock","quantite","qte","en stock"],min:["min","minimum","alert","alert level","seuil","seuil d alerte","stock minimum","min stock"],cost:["cost","cost per unit","unit cost","price","prix","prix unitaire","cout"],sup:["supplier","fournisseur"],exp:["expiry","expiry date","expiration","expiration date","date d expiration","dlc","peremption","date de peremption"]},
+  dish:{name:["name","dish","plat","nom","item","produit","article"],cat:["category","categorie","section","menu section","rubrique"],price:["price","prix","tarif"],desc:["description","desc","details"],kcal:["calories","kcal","calorie"],p:["protein","proteins","proteines","proteine"],c:["carbs","carbohydrates","glucides"],f:["fat","fats","lipides","matieres grasses"],allergens:["allergens","allergies","allergenes","allergene"],diet:["diet","diet tags","regime","tags","dietary"],prep:["cooking time","prep","prep time","preparation time","temps de cuisson","temps de preparation","minutes","temps","time"],serves:["serves","portions","personnes","servings","pour"]},
+  led:{date:["date","jour","day"],type:["type","sens","nature"],cat:["category","categorie","poste"],amount:["amount","montant","value","valeur"],income:["income","revenue","revenues","sales","ventes","vente","recette","recettes","revenu","revenus","chiffre d affaires","ca","entree","entrees"],expense:["expense","expenses","depense","depenses","cost","costs","charges","charge","sortie","sorties","achats"],note:["note","notes","description","comment","commentaire","libelle","details"],orders:["orders","commandes","covers","couverts","nb commandes"]}
+ };
+ function mapCols(kind,row){
+  var heads=Object.keys(row),m={};
+  Object.keys(ALIAS[kind]).forEach(function(f){for(var i=0;i<heads.length;i++){if(ALIAS[kind][f].indexOf(nk(heads[i]))>-1){m[f]=heads[i];return}}});
+  return m;
+ }
+ function pickList(arr,raw,rules,dflt){
+  var t=nk(raw),i;if(!t)return dflt;
+  for(i=0;i<arr.length;i++)if(nk(arr[i])===t)return arr[i];
+  for(i=0;i<rules.length;i++)if(rules[i][0].test(t))return rules[i][1];
+  return dflt;
+ }
+ var ICAT_R=[[/legum|fruit|produce|vegetable/,"Produce"],[/viande|poisson|meat|fish|chicken|poulet|boeuf|agneau/,"Meat and fish"],[/lait|dairy|oeuf|egg|fromage|cheese|beurre/,"Dairy and eggs"],[/epice |epices|spice|sauce|huile|oil/,"Spices and sauces"],[/epicerie|^sec|dry|grain|flour|farine|riz|pate/,"Dry goods"],[/boisson|drink|beverage|jus|soda/,"Drinks"],[/surgel|frozen/,"Frozen"],[/emball|packag|nettoy|clean/,"Packaging and cleaning"]];
+ var XCAT_R=[[/ingredient|matiere|achat|food|nourriture/,"Ingredients"],[/staff|salaire|personnel|wage|paie/,"Staff wages"],[/rent|loyer/,"Rent"],[/electric|water|eau|gaz|gas|utilit|internet|telephone/,"Utilities"],[/market|pub|publicite|promo/,"Marketing"],[/repair|equipment|materiel|reparation|entretien/,"Equipment and repairs"],[/waste|perte|gaspill|casse/,"Waste and spoilage"],[/subscription|abonnement|frais|bank|banque|taxe|tax/,"Subscription and fees"]];
+ var ICOME_R=[[/delivery|livraison/,"Delivery"],[/takeaway|emporter|take away/,"Takeaway"],[/dine|sur place|salle|restaurant/,"Dine-in sales"]];
+ var UNITM={kg:"kg",kgs:"kg",kilo:"kg",kilos:"kg",kilogramme:"kg",g:"g",gr:"g",gramme:"g",grammes:"g",l:"L",litre:"L",litres:"L",liter:"L",ml:"ml",pcs:"pieces",pc:"pieces",piece:"pieces",pieces:"pieces",unite:"pieces",unites:"pieces",box:"boxes",boxes:"boxes",boite:"boxes",boites:"boxes",bottle:"bottles",bottles:"bottles",bouteille:"bottles",bouteilles:"bottles",bag:"bags",bags:"bags",sac:"bags",sacs:"bags"};
+ var split=function(v){return txt(v).split(/[,;|\/]+/).map(function(x){return x.trim()}).filter(Boolean)};
+
+ BUILD.ing=function(rows,m){
+  var ok=[],skip=[];
+  rows.forEach(function(r,i){
+   var name=txt(r[m.name]),q=m.qty?toNum(r[m.qty]):0,line="Row "+(i+2);
+   if(!name){skip.push(line+": no name");return}
+   if(m.qty&&q===null&&txt(r[m.qty])!==""){skip.push(line+" ("+name+"): stock is not a number");return}
+   ok.push({id:uid(),name:name.slice(0,60),cat:pickList(ICATS,m.cat?r[m.cat]:"",ICAT_R,"Other"),unit:UNITM[nk(m.unit?r[m.unit]:"")]||"pieces",qty:Math.max(0,q||0),min:Math.max(0,toNum(m.min?r[m.min]:"")||0),cost:Math.max(0,toNum(m.cost?r[m.cost]:"")||0),supplier:txt(m.sup?r[m.sup]:"").slice(0,60),expiry:toISO(m.exp?r[m.exp]:"")});
+  });
+  return{ok:ok,skip:skip};
+ };
+ BUILD.dish=function(rows,m){
+  var ok=[],skip=[];
+  rows.forEach(function(r,i){
+   var name=txt(r[m.name]),price=toNum(r[m.price]),line="Row "+(i+2),n=function(f,lo,hi){var v=m[f]?toNum(r[m[f]]):null;return v===null?null:Math.max(lo,Math.min(hi,v))};
+   if(!name){skip.push(line+": no name");return}
+   if(price===null||price<0){skip.push(line+" ("+name+"): no valid price");return}
+   ok.push({id:uid(),name:name.slice(0,80),catName:txt(m.cat?r[m.cat]:"")||"Imported",price:Math.round(price*100)/100,desc:txt(m.desc?r[m.desc]:"").slice(0,300),
+    kcal:n("kcal",0,9999),p:n("p",0,999),c:n("c",0,999),f:n("f",0,999),prep:n("prep",0,180),serves:Math.round(n("serves",1,20)||1),
+    allergens:split(m.allergens?r[m.allergens]:"").map(function(a){return pickList(ALLERGENS,a,[],a.charAt(0).toUpperCase()+a.slice(1))}),
+    diet:split(m.diet?r[m.diet]:"").map(function(a){return pickList(DIETS,a,[],"")}).filter(Boolean),opts:[],ing:[],available:true});
+  });
+  return{ok:ok,skip:skip};
+ };
+ BUILD.led=function(rows,m){
+  var ok=[],skip=[];
+  rows.forEach(function(r,i){
+   var line="Row "+(i+2),date=toISO(r[m.date]);
+   if(!date){skip.push(line+": date not recognised");return}
+   var note=txt(m.note?r[m.note]:"").slice(0,80),orders=Math.max(0,Math.floor(toNum(m.orders?r[m.orders]:"")||0)),raw=m.cat?r[m.cat]:"",n0=ok.length;
+   function add(type,amt){if(!(amt>0))return;ok.push({id:uid(),type:type,date:date,cat:type==="income"?pickList(INC,raw,ICOME_R,"Dine-in sales"):pickList(EXP,raw,XCAT_R,"Other"),amount:Math.round(amt*100)/100,orders:type==="income"?orders:0,note:note,imp:true})}
+   if(m.income||m.expense){add("income",toNum(r[m.income]));add("expense",toNum(r[m.expense]))}
+   else{var a=toNum(r[m.amount]);if(a!==null)add(m.type?(/exp|depens|cost|charge|achat|sortie|debit/.test(nk(r[m.type]))?"expense":"income"):(a<0?"expense":"income"),Math.abs(a))}
+   if(ok.length===n0)skip.push(line+": no amount");
+  });
+  return{ok:ok,skip:skip};
+ };
+ COMMIT.ing=function(L){
+  snaps.ing=JSON.stringify(S.ingredients);var add=0,upd=0;
+  L.forEach(function(r){
+   var ex=S.ingredients.filter(function(x){return nk(x.name)===nk(r.name)})[0];
+   if(ex){ex.qty=r.qty;ex.unit=r.unit;if(r.min)ex.min=r.min;if(r.cost)ex.cost=r.cost;if(r.supplier)ex.supplier=r.supplier;if(r.expiry)ex.expiry=r.expiry;if(r.cat!=="Other")ex.cat=r.cat;upd++}
+   else{S.ingredients.push(r);add++}
+  });
+  save();refreshInv();return add+" ingredient"+(add===1?"":"s")+" added, "+upd+" updated.";
+ };
+ UNDO.ing=function(){S.ingredients=JSON.parse(snaps.ing);save();refreshInv()};
+ COMMIT.dish=function(L){
+  snaps.dish=JSON.stringify({d:S.dishes,c:S.categories});var add=0,skip=0;
+  L.forEach(function(r){
+   var cat=S.categories.filter(function(c){return nk(c.name)===nk(r.catName)})[0];
+   if(!cat){cat={id:uid(),name:r.catName.slice(0,40),type:/drink|boisson|beverage|jus|cafe/.test(nk(r.catName))?"beverage":"food"};S.categories.push(cat)}
+   if(S.dishes.some(function(d){return d.cat===cat.id&&nk(d.name)===nk(r.name)})){skip++;return}
+   delete r.catName;r.cat=cat.id;S.dishes.push(r);add++;
+  });
+  save();cats();dishes();inventory();
+  return add+" dish"+(add===1?"":"es")+" added"+(skip?", "+skip+" skipped because they already exist":"")+".";
+ };
+ UNDO.dish=function(){var x=JSON.parse(snaps.dish);S.dishes=x.d;S.categories=x.c;save();cats();dishes();inventory()};
+ COMMIT.led=function(L){
+  snaps.led=JSON.stringify(S.ledger);var add=0,dup=0,have={},key=function(x){return[x.date,x.type,x.cat,x.amount,x.note].join("|")};
+  S.ledger.forEach(function(x){have[key(x)]=1});
+  L.forEach(function(r){if(have[key(r)]){dup++;return}S.ledger.push(r);add++});
+  save();sales();return add+" record"+(add===1?"":"s")+" added"+(dup?", "+dup+" skipped because they were already there":"")+".";
+ };
+ UNDO.led=function(){S.ledger=JSON.parse(snaps.led);save();sales()};
+
+ var IMPCFG={
+  ing:{t:"Import ingredients from Excel",cols:"Name, Quantity, Unit, Alert level, Cost per unit, Supplier, Expiry date, Category",head:["Name","Stock","Alert","Cost"],file:"ingredients-template.csv",tpl:'Name,Category,Unit,Quantity,Min,Cost,Supplier,Expiry\nTomatoes,Produce,kg,12,5,8,Local market,2026-12-31\nOlive oil,Spices and sauces,L,6,3,60,Wholesaler,\n',row:function(r){return[r.name,qf(r.qty)+" "+r.unit,qf(r.min),r.cost?qf(r.cost):""]}},
+  dish:{t:"Import dishes from Excel",cols:"Name, Price, Category, Description, Calories, Protein, Carbs, Fat, Allergens, Diet, Cooking time (minutes), Serves",head:["Name","Category","Price","Time"],file:"dishes-template.csv",tpl:'Name,Category,Price,Description,Calories,Protein,Carbs,Fat,Allergens,Diet,Cooking time,Serves\nHarira,Starters,25,Tomato and lentil soup,180,9,28,4,"gluten, celery",Halal,8,1\nMint tea,Drinks,15,Moroccan green tea,40,0,10,0,,Vegan,3,1\n',row:function(r){return[r.name,r.catName,r.price,r.prep?r.prep+" min":""]}},
+  led:{t:"Import past income and expenses from Excel",cols:"Date, then either Income and Expenses columns, or Type and Amount. Optional: Category, Note, Orders",head:["Date","Type","Category","Amount"],file:"sales-template.csv",tpl:'Date,Type,Category,Amount,Note,Orders\n2026-01-05,Income,Dine-in sales,4200,,62\n2026-01-05,Expense,Ingredients,1300,Weekly market,\n',row:function(r){return[r.date,r.type,r.cat,qf(r.amount)]}}
+ };
+ [].forEach.call(document.querySelectorAll(".imp"),function(c){
+  var k=c.dataset.kind,cf=IMPCFG[k];
+  c.innerHTML='<summary>'+cf.t+'</summary><p class="note" style="margin:0 0 12px">Use the first sheet of an .xlsx, .xls or .csv file. Columns are matched by their names, in English or French: '+cf.cols+'. The file stays in your browser.</p>'+
+   '<div class="row"><label class="btn ghost sm fl">Choose file<input type="file" accept=".xlsx,.xls,.csv" data-imp-file></label><button type="button" class="btn ghost sm" data-imp="tpl">Download a template</button></div><div class="imp-out" aria-live="polite"></div>';
+ });
+ document.addEventListener("change",function(e){
+  var f=e.target;if(!f.matches||!f.matches("input[data-imp-file]"))return;
+  var card=f.closest(".imp"),k=card.dataset.kind,out=card.querySelector(".imp-out"),file=f.files&&f.files[0];
+  if(!file)return;f.value="";
+  out.innerHTML='<p class="note">Reading '+esc(file.name)+'…</p>';
+  readRows(file,function(err,rows){
+   if(err){out.innerHTML='<p class="msg bad">'+esc(err)+'</p>';return}
+   rows=rows.filter(function(r){return Object.keys(r).some(function(h){return txt(r[h])!==""})}).slice(0,5000);
+   if(!rows.length){out.innerHTML='<p class="msg bad">That file has no rows.</p>';return}
+   var m=mapCols(k,rows[0]),miss=({ing:["name"],dish:["name","price"],led:["date"]})[k].filter(function(x){return !m[x]});
+   if(!miss.length&&k==="led"&&!(m.amount||m.income||m.expense))miss=["amount (or Income / Expenses)"];
+   if(miss.length){out.innerHTML='<p class="msg bad">We couldn\'t find a column for: '+esc(miss.join(", "))+'. Check the names in the first row, or download the template.</p>';return}
+   var res=BUILD[k](rows,m),cf=IMPCFG[k];pending[k]=res.ok;
+   out.innerHTML='<p style="margin:12px 0 4px"><b>'+rows.length+' rows found.</b> '+res.ok.length+' ready to import'+(res.skip.length?', '+res.skip.length+' skipped':'')+'.</p>'+
+    (res.ok.length?'<div class="pvw"><table class="pv"><thead><tr>'+cf.head.map(function(h){return '<th>'+h+'</th>'}).join("")+'</tr></thead><tbody>'+res.ok.slice(0,5).map(function(r){return '<tr>'+cf.row(r).map(function(x){return '<td>'+esc(x==null?"":x)+'</td>'}).join("")+'</tr>'}).join("")+'</tbody></table></div>':'')+
+    (res.skip.length?'<p class="note" style="margin:4px 0">Skipped: '+res.skip.slice(0,4).map(esc).join("; ")+(res.skip.length>4?"; and "+(res.skip.length-4)+" more":"")+'</p>':'')+
+    '<div class="row" style="margin-top:8px">'+(res.ok.length?'<button type="button" class="btn" data-imp="go">Import '+res.ok.length+' row'+(res.ok.length===1?"":"s")+'</button>':'')+'<button type="button" class="btn ghost" data-imp="cancel">Cancel</button></div>';
+  });
+ });
+ document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-imp]");if(!b)return;
+  var card=b.closest(".imp"),k=card.dataset.kind,out=card.querySelector(".imp-out"),a=b.dataset.imp;
+  if(a==="tpl"){var l=document.createElement("a");l.href=URL.createObjectURL(new Blob(["\ufeff"+IMPCFG[k].tpl],{type:"text/csv"}));l.download=IMPCFG[k].file;l.click();URL.revokeObjectURL(l.href)}
+  else if(a==="cancel"){pending[k]=null;out.innerHTML=""}
+  else if(a==="go"&&pending[k]){var msg=COMMIT[k](pending[k]);pending[k]=null;out.innerHTML='<p class="msg good" role="status">Done. '+esc(msg)+'</p><div class="row"><button type="button" class="btn ghost sm" data-imp="undo">Undo this import</button></div>'}
+  else if(a==="undo"&&snaps[k]){UNDO[k]();snaps[k]=null;out.innerHTML='<p class="msg good" role="status">Import undone.</p>'}
+ });
+
+ head();checks();cats();tables();dishes();lcats();sales();mvSel();inventory();ordersTab();save();
+});
+</script>
+</body>
+</html>
