@@ -479,8 +479,8 @@ function payText(o){
  var p=o.payments||[];
  if(!p.length)return o.pay==="card"?"Card":"Cash";
  var m={};p.forEach(function(x){m[x.method]=1});
- if(Object.keys(m).length===1)return p[0].method==="card"?"Card":"Cash";
- return p.map(function(x){return x.by+": "+(x.method==="card"?"card":"cash")}).join(", ");
+ if(Object.keys(m).length===1&&!m.split)return p[0].method==="card"?"Card":"Cash";
+ return p.map(function(x){return x.by+": "+(x.method==="split"?"card "+x.card+" + cash "+x.cash:x.method==="card"?"card":"cash")}).join(", ");
 }
 function qrText(o){return RNAME+"\nTable "+o.table+"\nOrder #"+o.id+"\nPayment: "+payText(o)}
 function tableQR(o){
@@ -837,13 +837,38 @@ function covered(){var s={};payments.forEach(function(p){p.for.forEach(function(
 function remaining(){var c=covered();return diners.map(function(d,i){return i}).filter(function(i){return !c[i]&&cartTotalOf(carts[i]).p>0})}
 function amt(list){return list.reduce(function(a,i){return a+cartTotalOf(carts[i]).p},0)}
 function luhn(s){var sum=0,alt=false,n;for(var i=s.length-1;i>=0;i--){n=+s[i];if(alt){n*=2;if(n>9)n-=9}sum+=n;alt=!alt}return sum%10===0}
+function payCalc(){
+ var rem=remaining(),others=rem.filter(function(i){return i!==pf.payer});
+ var grp=[pf.payer].concat((pf.more||[]).filter(function(i){return others.indexOf(i)>-1}));
+ var base=pf.payer<0?0:amt(grp),tip=Math.max(0,+pf.tip||0),due=Math.round((base+tip)*100)/100,card,cash;
+ if(pf.method==="cash"){card=0;cash=due}
+ else if(pf.method==="split"){card=Math.min(due,Math.max(0,+pf.cardAmt||0));cash=Math.round((due-card)*100)/100}
+ else{card=due;cash=0}
+ return{grp:grp,base:base,tip:tip,due:due,card:card,cash:cash};
+}
+function payDesc(p){
+ var c=p.card!=null?p.card:(p.method==="card"?p.amount:0),h=p.cash!=null?p.cash:(p.method==="card"?0:p.amount);
+ var t=c>0&&h>0?mad(c)+" by card, "+mad(h)+" in cash at the counter":c>0?"by card on phone":"in cash";
+ return t+(p.tip>0?" (includes "+mad(p.tip)+" tip)":"");
+}
+function splitInfoText(k){
+ if(pf.method!=="split")return "";
+ if(k.card<=0)return "Type how much you want to pay by card.";
+ if(k.cash<=0)return "That covers the whole amount, so no cash is needed.";
+ return "Left to pay: "+mad(k.cash)+". Please go to the counter to pay it in cash.";
+}
+function updPay(){
+ var k=payCalc(),a=$("payDue"),b=$("splitInfo");
+ if(a)a.textContent=mad(k.due);
+ if(b)b.textContent=splitInfoText(k);
+}
 function payView(){
  var rem=remaining();
  if(rem.length===1&&pf.payer<0)pf.payer=rem[0];
  var g=grand();
  var tl=diners.map(function(d,i){var p=cartTotalOf(carts[i]).p;return p?'<li>'+esc(d.name)+': <b>'+mad(p)+'</b></li>':''}).join("");
  var paid=payments.map(function(p){
-  return '<li><b>'+esc(gname(p.by))+'</b> pays '+mad(p.amount)+' for '+p.for.map(function(i){return esc(gname(i))}).join(", ")+', '+(p.method==="card"?"by card on phone":"in cash")+'</li>';
+  return '<li><b>'+esc(gname(p.by))+'</b> pays '+mad(p.amount)+' for '+p.for.map(function(i){return esc(gname(i))}).join(", ")+', '+payDesc(p)+'</li>';
  }).join("");
  var head='<div class="sh"><h2 id="sheetTitle">Who pays for what?</h2>'+closeBtn+'</div>';
  var body='<p class="sub">Table '+esc(tableNo)+'. Total '+mad(g.p)+(budget?' of your '+mad(budget)+' budget':'')+'.</p><ul class="summ">'+tl+'</ul>'+
@@ -861,23 +886,31 @@ function payView(){
  }).join("")+'</div></fieldset>';
  f+='<fieldset class="fld"><legend>How will you pay?</legend><div class="pills">'+
   '<label class="pill"><input type="radio" name="pm" value="card"'+(pf.method==="card"?" checked":"")+'>Card on my phone</label>'+
-  '<label class="pill"><input type="radio" name="pm" value="cash"'+(pf.method==="cash"?" checked":"")+'>Cash to the server</label></div></fieldset>';
- if(pf.method==="card"){var c=pf.card;f+='<div class="cardf"><p class="sub">Demo checkout: no card is charged or saved. Try 4242 4242 4242 4242.</p>'+
+  '<label class="pill"><input type="radio" name="pm" value="cash"'+(pf.method==="cash"?" checked":"")+'>Cash to the server</label>'+
+  '<label class="pill"><input type="radio" name="pm" value="split"'+(pf.method==="split"?" checked":"")+'>Part card, part cash</label></div></fieldset>';
+ var K=payCalc();
+ f+='<fieldset class="fld"><legend>Tip for the team (optional)</legend><div class="pills">'+[["0","No tip"],["5","5%"],["10","10%"]].map(function(x){
+  return '<label class="pill"><input type="radio" name="tipq" value="'+x[0]+'"'+((pf.tipPct||"")===x[0]?" checked":"")+'>'+x[1]+'</label>';
+ }).join("")+'</div><div style="margin-top:10px"><label class="t" for="ptip" style="font-weight:500">Or type an amount</label> <input class="num" id="ptip" type="text" inputmode="numeric" maxlength="4" placeholder="0" value="'+esc(pf.tip||"")+'" style="padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);width:110px"> '+esc(CUR)+'</div></fieldset>';
+ if(pf.method==="split")f+='<div class="fld"><label class="t" for="psplit">How much will you pay by card?</label><input class="num" id="psplit" type="text" inputmode="numeric" maxlength="6" placeholder="e.g. 300" value="'+esc(pf.cardAmt||"")+'" style="padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);width:130px"> '+esc(CUR)+'<p class="sub" id="splitInfo" role="status" aria-live="polite" style="margin-top:8px">'+esc(splitInfoText(K))+'</p></div>';
+ if(pf.method==="card"||pf.method==="split"){var c=pf.card;f+='<div class="cardf"><p class="sub">Demo checkout: no card is charged or saved. Try 4242 4242 4242 4242.</p>'+
   '<label>Name on card<input class="txt" id="pcname" type="text" autocomplete="cc-name" value="'+esc(c.name||"")+'"></label>'+
   '<label>Card number<input class="txt" id="pcnum" type="text" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="1234 5678 9012 3456" value="'+esc(c.num||"")+'"></label>'+
   '<div class="two"><label>Expiry<input class="txt" id="pcexp" type="text" inputmode="numeric" autocomplete="cc-exp" maxlength="7" placeholder="MM / YY" value="'+esc(c.exp||"")+'"></label>'+
   '<label>Security code<input class="txt" id="pccvc" type="text" inputmode="numeric" autocomplete="cc-csc" maxlength="4" value="'+esc(c.cvc||"")+'"></label></div></div>';
  }else f+='<p class="sub" style="margin-top:14px">Hand the cash to your server when your order arrives.</p>';
+ f+=(K.tip>0?'<p class="sub" style="margin-top:10px">Dishes '+mad(K.base)+' + tip '+mad(K.tip)+'</p>':'');
  var grp=[pay].concat(pf.more.filter(function(i){return others.indexOf(i)>-1}));
- return head+body+f+'<div class="tot"><span>'+esc(gname(pay))+' pays</span><span>'+mad(amt(grp))+'</span></div>'+
+ return head+body+f+'<div class="tot"><span>'+esc(gname(pay))+' pays</span><span id="payDue">'+mad(K.due)+'</span></div>'+
   '<div class="err" id="err" role="alert"></div><button type="button" class="send" data-act="paygo">Confirm</button>';
 }
 function payGo(){
  var err=$("err");err.textContent="";
  var rem=remaining();
  if(rem.indexOf(pf.payer)<0){err.textContent="Pick your name first.";return}
- var last4="";
- if(pf.method==="card"){
+ var last4="",K=payCalc();
+ if(pf.method==="split"&&(K.card<=0||K.cash<=0)){err.textContent=K.cash<=0&&K.card>0?"That card amount covers everything. Choose Card on my phone instead.":"Type the amount you want to pay by card.";return}
+ if(pf.method==="card"||pf.method==="split"){
   var c=pf.card,dg=(c.num||"").replace(/\D/g,""),ex=(c.exp||"").replace(/\D/g,""),mm=+ex.slice(0,2),yy=2000+(+ex.slice(2,4)),now=new Date();
   if((c.name||"").trim().length<2){err.textContent="Enter the name on the card.";return}
   if(dg.length<13||!luhn(dg)){err.textContent="Enter a valid card number.";return}
@@ -886,7 +919,7 @@ function payGo(){
   last4=dg.slice(-4);
  }
  var grp=[pf.payer].concat(pf.more.filter(function(i){return i!==pf.payer&&rem.indexOf(i)>-1}));
- payments.push({by:pf.payer,for:grp,method:pf.method,amount:amt(grp),last4:last4});
+ payments.push({by:pf.payer,for:grp,method:pf.method,amount:K.due,tip:K.tip,card:K.card,cash:K.cash,last4:last4});
  pf={payer:-1,more:[],method:pf.method,card:{}};
  drawSheet('input[name="payer"]');
 }
@@ -916,7 +949,8 @@ function sendOrder(){
  var all=orders(),next=all.reduce(function(m,o){return Math.max(m,o.id)},0)+1;
  var order={id:next,r:RID,rid:REST?REST.id:"",table:tableNo,party:String(diners.length),items:items,eta:etaOf(items),total:t.p,kcal:t.k,
   pay:payments.every(function(p){return p.method==="card"})?"card":"cash",
-  payments:payments.map(function(p){return{by:gname(p.by),for:p.for.map(gname),method:p.method,amount:p.amount}}),
+  payments:payments.map(function(p){return{by:gname(p.by),for:p.for.map(gname),method:p.method,amount:p.amount,tip:p.tip||0,card:p.card,cash:p.cash}}),
+  tip:payments.reduce(function(a,p){return a+(p.tip||0)},0),
   server:SERVERS[Math.floor(Math.random()*SERVERS.length)],assignAt:Date.now()+3500,status:"pending",at:Date.now()};
  function go(id){
   order.id=id;var l=orders();l.push(order);
@@ -955,7 +989,7 @@ function trackView(){
    var extra=[i.opts,i.note].filter(Boolean).join("; ");
    return '<li>'+i.qty+' × '+esc(i.name)+(i.who?' for '+esc(i.who):'')+(extra?' ('+esc(extra)+')':'')+'</li>';
   }).join("")+'<li><b>'+mad(o.total)+'</b>, '+o.kcal+' kcal</li>'+
-  (o.payments||[]).map(function(p){return '<li>'+esc(p.by)+' pays '+mad(p.amount)+(p.for.length>1?' for '+p.for.map(esc).join(", "):'')+', '+(p.method==="card"?"by card":"in cash")+'</li>'}).join("")+'</ul>'+tableQR(o)+
+  (o.payments||[]).map(function(p){return '<li>'+esc(p.by)+' pays '+mad(p.amount)+(p.for.length>1?' for '+p.for.map(esc).join(", "):'')+', '+payDesc(p)+'</li>'}).join("")+(o.tip>0?'<li>Tip: '+mad(o.tip)+'</li>':'')+'</ul>'+tableQR(o)+
   (o.status==="ready"?rateBlock(o):'')+
   (o.status==="ready"&&!o.done?'<button type="button" class="send" data-act="imdone">I\'m done</button>':'')+
   '<button type="button" class="send ghost" data-act="newround">Order more dishes</button>';
@@ -1042,6 +1076,8 @@ document.addEventListener("input",function(e){
  if(t.id==="cnote"&&cust){cust.note=t.value;return}
  if(t.id==="wtbl"){wTable=t.value.replace(/\D/g,"").slice(0,3);if(t.value!==wTable)t.value=wTable;return}
  if(t.id==="wbud"){wBudget=t.value.replace(/\D/g,"").slice(0,6);if(t.value!==wBudget)t.value=wBudget;return}
+ if(t.id==="ptip"){pf.tip=t.value.replace(/\D/g,"").slice(0,4);if(t.value!==pf.tip)t.value=pf.tip;pf.tipPct="";var tr=document.querySelectorAll('input[name="tipq"]');for(var q=0;q<tr.length;q++)tr[q].checked=false;updPay();return}
+ if(t.id==="psplit"){pf.cardAmt=t.value.replace(/\D/g,"").slice(0,6);if(t.value!==pf.cardAmt)t.value=pf.cardAmt;updPay();return}
  if(t.id==="pname"){P().name=t.value;return}
  if(t.id==="pgoal"){var v=Math.floor(+t.value);P().goal=v>0&&v<=5000?v:0;return}
  if(/^pc/.test(t.id)){
@@ -1083,6 +1119,7 @@ document.addEventListener("change",function(e){
   drawSheet('input[name="more"][value="'+n+'"]');return;
  }
  if(t.name==="pm"){pf.method=t.value;drawSheet('input[name="pm"]:checked')}
+ if(t.name==="tipq"){pf.tipPct=t.value;pf.tip=String(Math.round(payCalc().base*(+t.value)/100));drawSheet('input[name="tipq"]:checked');return}
 });
 
 /* ---------- full-screen steps: table and guests, personal profile, pass the phone ---------- */
