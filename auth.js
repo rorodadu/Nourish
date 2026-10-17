@@ -210,7 +210,8 @@
       return c;
     });
     var pub = { restaurant: { name: (d.restaurant && d.restaurant.name) || a.restaurant.name, currency: (d.restaurant && d.restaurant.currency) || "MAD" },
-      categories: d.categories || [], dishes: dishes, tables: d.tables || [] };
+      categories: d.categories || [], dishes: dishes, tables: d.tables || [],
+      servers: (d.staff || []).filter(function (m) { return m.active !== false && m.position === "Server" && m.name; }).map(function (m) { return String(m.name).slice(0, 40); }) };
     var stored = null; try { stored = localStorage.getItem("nourish-slug:" + a.id); } catch (e) {}
     var base = N.slug(pub.restaurant.name); if (base === "demo") base = "demo-restaurant";
     function put(slug, retry) {

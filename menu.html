@@ -523,7 +523,16 @@ else if(TABLE)tableNo=TABLE;
 /* Photos: put one file per dish in an "images" folder next to menu.html, named after the dish id
    (images/harira.jpg, images/seabass.jpg ...). Until a photo exists, the emoji shows instead. */
 var EMOJI={harira:"🍲",zaalouk:"🥗",briouat:"🥟",seabass:"🐟",couscous:"🍛",lamb:"🍖",vegtagine:"🥘",salad:"🥗",burger:"🍔",orange:"🍊",chebakia:"🍯",tea:"🍵",oj:"🧃"};
-var SERVERS=["Yassine","Salma","Omar","Hajar","Mehdi"];
+var SERVERS=["Yassine","Salma","Omar","Hajar","Mehdi"]; /* only used by the demo menu */
+/* the servers a restaurant added in its dashboard (on shift only); a restaurant without any shows "a member of staff" */
+function serverNames(){
+ var a=[];
+ if(!REST)a=SERVERS;
+ else if(DASH&&Array.isArray(DASH.servers))a=DASH.servers;
+ else if(DASH&&Array.isArray(DASH.staff))a=DASH.staff.filter(function(m){return m.active!==false&&m.position==="Server"}).map(function(m){return m.name});
+ return a.filter(Boolean);
+}
+function pickServer(){var l=serverNames();return l.length?l[Math.floor(Math.random()*l.length)]:""}
 
 var diners=[],carts=[],cur=0,payments=[],stage="setup",cart={};
 var pf={payer:-1,more:[],method:"card",card:{}};
@@ -978,12 +987,12 @@ function sendOrder(){
   }
   oc[tableNo]=tk;wr(localStorage,"nourish-occ:"+REST.id,oc);
  }
- var all=orders(),next=all.reduce(function(m,o){return Math.max(m,o.id)},0)+1;
+ var all=orders(),next=all.reduce(function(m,o){return Math.max(m,o.id)},0)+1,srv=pickServer();
  var order={id:next,r:RID,rid:REST?REST.id:"",table:tableNo,party:String(diners.length),items:items,eta:etaOf(items),total:t.p,kcal:t.k,
   pay:payments.every(function(p){return p.method==="card"})?"card":"cash",
   payments:payments.map(function(p){return{by:gname(p.by),for:p.for.map(gname),method:p.method,amount:p.amount,tip:p.tip||0,card:p.card,cash:p.cash}}),
   tip:payments.reduce(function(a,p){return a+(p.tip||0)},0),
-  server:SERVERS[Math.floor(Math.random()*SERVERS.length)],assignAt:Date.now()+3500,status:"pending",at:Date.now()};
+  server:srv,assignAt:Date.now()+(srv?3500:0),status:"pending",at:Date.now()};
  function go(id){
   order.id=id;var l=orders();l.push(order);
   if(!wr(localStorage,"nourish-orders",l)){err.textContent="We couldn't send your order. Check that your browser allows storage and try again.";return}
@@ -1004,15 +1013,15 @@ function sendOrder(){
 function trackView(){
  var o=activeOrder();
  if(!o)return '<div class="sh"><h2 id="sheetTitle">No active order</h2>'+closeBtn+'</div>';
- var assigning=Date.now()<(o.assignAt||0),at=assigning?0:1+STATUS.indexOf(o.status),sv=esc(o.server||"Your server");
+ var assigning=Date.now()<(o.assignAt||0),at=assigning?0:1+STATUS.indexOf(o.status),sv=esc(o.server||"");
  var steps=["Assigning","Received","Preparing","Ready"].map(function(s,i){
   return '<li class="'+(i===at?"on":i<at?"done":"")+'"'+(i===at?' aria-current="step"':'')+'>'+s+'</li>';
  }).join("");
  var title=assigning?"Assigning your order to a server":o.status==="ready"?"Your order is ready":o.status==="preparing"?"Your order is being prepared":"Order received by the kitchen";
  var msg=assigning?"Please wait a moment.":
-  o.status==="ready"?'<b>'+sv+'</b> is picking up your order and bringing it to table '+esc(o.table)+'.':
-  o.status==="preparing"?'The kitchen is preparing your order. <b>'+sv+'</b> will pick it up when it is ready.':
-  '<b>'+sv+'</b> is your server. The kitchen has your order and will start soon.';
+  o.status==="ready"?(sv?'<b>'+sv+'</b> is picking up your order and bringing it to table '+esc(o.table)+'.':'A member of staff is bringing your order to table '+esc(o.table)+'.'):
+  o.status==="preparing"?'The kitchen is preparing your order. '+(sv?'<b>'+sv+'</b> will pick it up when it is ready.':'A member of staff will bring it when it is ready.'):
+  (sv?'<b>'+sv+'</b> is your server. The kitchen has your order and will start soon.':'The kitchen has your order and will start soon. A member of staff will serve you.');
  return '<div class="sh"><h2 id="sheetTitle">Order #'+o.id+'</h2>'+closeBtn+'</div>'+
   '<h3 class="sm" style="margin-top:10px">'+title+'</h3>'+scene(o,assigning)+
   '<p class="big" role="status">'+msg+'</p>'+etaLine(o,assigning)+

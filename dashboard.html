@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js?v=3"></script>
-<script src="auth.js?v=3" data-protect data-menu></script>
+<script src="auth.js?v=4" data-protect data-menu></script>
 <title>Dashboard – Nourish</title>
 <link rel="icon" type="image/x-icon" href="icon.ico?v=2"><link rel="shortcut icon" href="icon.ico?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -264,6 +264,13 @@ main.wrap.nonav>*{grid-column:1}
 main.wrap.nonav>.tabs{display:none}
 @media (max-width:860px){.crumbs,header .plan{display:none}}
 @media (max-width:560px){.logo{display:none}.hsearch kbd{display:none}.hsearch input{padding-right:12px}header .wrap{gap:8px}}
+.srow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-top:1px solid var(--line)}
+.srow:first-child{border-top:0}
+.srow .sinfo{flex:1 1 220px;min-width:0;display:grid;gap:2px}
+.srow .sinfo small{color:var(--mute)}
+.srow .sw{display:flex;align-items:center;gap:8px;font-weight:600;cursor:pointer}
+.srow .sw input{width:20px;height:20px;accent-color:var(--leaf)}
+.srow .row{align-items:center}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--leaf);color:var(--on-leaf);font-weight:700;padding:12px 20px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:80}
 .toast[hidden]{display:none}
 </style>
@@ -299,6 +306,7 @@ main.wrap.nonav>.tabs{display:none}
   <button class="tab" role="tab" id="tb-overview" aria-controls="tab-overview" data-tab="overview" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>Dashboard</button>
   <button class="tab" role="tab" id="tb-orders" aria-controls="tab-orders" data-tab="orders" aria-selected="true" tabindex="0"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 12h6M9 16h4"/></svg>Orders<span class="tabn" id="ordBadge" hidden></span></button>
   <button class="tab" role="tab" id="tb-tables" aria-controls="tab-tables" data-tab="tables" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h3v3M20 14v.01M14 20h.01M17 20h3v-3"/></svg>Tables and QR codes</button>
+  <button class="tab" role="tab" id="tb-employees" aria-controls="tab-employees" data-tab="employees" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="9" cy="9" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0M16 6.5a3 3 0 0 1 0 5.5M17.5 14.5a5 5 0 0 1 3 4.5"/></svg>Employees</button>
   <button class="tab" role="tab" id="tb-analytics" aria-controls="tab-analytics" data-tab="analytics" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 4v16h16"/><path d="M8 17v-5M12 17V8M16 17v-8"/></svg>Analytics</button>
   <div class="tgrp" role="presentation">Commerce</div>
   <button class="tab" role="tab" id="tb-menu" aria-controls="tab-menu" data-tab="menu" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3v7a2 2 0 0 0 2 2v9M10 3v7a2 2 0 0 1-2 2M8 3v5M17 21V3c-2 1-3 4-3 8h3"/></svg>Menu</button>
@@ -423,6 +431,35 @@ main.wrap.nonav>.tabs{display:none}
 
   <details class="card imp fold" data-kind="dish"></details>
 
+ </section>
+
+ <!-- EMPLOYEES -->
+ <section class="panel" id="tab-employees" role="tabpanel" aria-labelledby="tb-employees" tabindex="-1">
+  <h2>Employees</h2>
+  <p class="sub">Add the people who work in your restaurant. Servers who are marked “On shift” are the names your diners see on the menu page, like “Salma is your server”. Salaries and phone numbers stay private.</p>
+  <div class="kpis" id="stKpis"></div>
+
+  <details class="card fold" id="stFold" open>
+   <summary id="stTitle">Add an employee</summary>
+   <form id="stForm">
+    <div class="grid">
+     <label class="f">Name<input type="text" id="stName" required maxlength="40" autocomplete="off"></label>
+     <label class="f">Position<select id="stPos"></select></label>
+     <label class="f">Monthly salary<small>Optional</small><input type="number" id="stSal" min="0" step="1" inputmode="decimal"></label>
+     <label class="f">Phone<small>Optional</small><input type="tel" id="stTel" maxlength="30" autocomplete="off"></label>
+     <label class="f">Start date<small>Optional</small><input type="date" id="stStart"></label>
+     <label class="f">On shift today<select id="stOn"><option value="1">Yes, on shift</option><option value="0">No, off today</option></select></label>
+    </div>
+    <div class="row" style="margin-top:14px"><button class="btn" type="submit" id="stSave">Add employee</button><button class="btn ghost" type="button" id="stCancel" hidden>Cancel edit</button></div>
+   </form>
+  </details>
+
+  <div class="card"><h3>Your team</h3><div id="stList"></div></div>
+
+  <div class="card"><h3>Payroll</h3>
+   <p class="note" id="stPayNote" style="margin:0 0 12px"></p>
+   <button type="button" class="btn ghost" id="stPay">Record this month’s salaries as an expense</button>
+  </div>
  </section>
 
  <!-- INVENTORY -->
@@ -649,6 +686,7 @@ Nourish.ready.then(function(){
  var uid=function(){return Math.random().toString(36).slice(2,9)};
  var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
  var editId=null,editIng=null,photoData="",S=load();
+ if(!Array.isArray(S.staff))S.staff=[];
 
  function load(){
   var s=null;try{s=JSON.parse(localStorage.getItem(KEY))}catch(e){}
@@ -699,12 +737,13 @@ Nourish.ready.then(function(){
  /* tabs */
  var flashT;
  function flash(msg){var t=$("toast");t.textContent=msg;t.hidden=false;clearTimeout(flashT);flashT=setTimeout(function(){t.hidden=true},2600)}
- var TABNAMES={overview:"Dashboard",orders:"Orders",tables:"Tables and QR codes",analytics:"Analytics",menu:"Menu",inventory:"Stock",reviews:"Reviews",payments:"Payments",invoices:"Invoices",purchases:"Purchases",sales:"Sales and profit",addmenu:"Add menu",addincome:"Add income or expense",history:"History",export:"Export data"};
+ var TABNAMES={overview:"Dashboard",orders:"Orders",tables:"Tables and QR codes",analytics:"Analytics",menu:"Menu",inventory:"Stock",reviews:"Reviews",payments:"Payments",invoices:"Invoices",purchases:"Purchases",sales:"Sales and profit",employees:"Employees",addmenu:"Add menu",addincome:"Add income or expense",history:"History",export:"Export data"};
  function showTab(name,focusPanel){
   var b=document.getElementById("tb-"+name);if(!b)return;
   [].forEach.call(document.querySelectorAll(".tab"),function(t){var on=t===b;t.setAttribute("aria-selected",on);t.tabIndex=on?0:-1});
   [].forEach.call(document.querySelectorAll(".panel"),function(p){p.classList.toggle("on",p.id==="tab-"+name)});
   if(name==="sales"||name==="addincome"||name==="history")sales();
+  if(name==="employees")staff();
   if(name==="inventory")inventory();
   if(name==="orders")ordersTab();
   if(name==="overview")overview();
@@ -1242,6 +1281,7 @@ Nourish.ready.then(function(){
       clk='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" style="fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;vertical-align:-3px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
   var info=[(t&&t.zone&&t.zone!=="std"?esc(zl(t.zone)):""),o.party+(o.party==="1"?" guest":" guests"),(o.server?"server "+esc(o.server):"")].filter(Boolean).join(" · ");
   return '<div class="ocard'+(o.status==="pending"?" new":"")+'"><div class="ohead"><h3>#'+o.id+' <span class="otb">Table '+esc(o.table)+'</span></h3><span class="st '+pill[0]+'">'+pill[1]+'</span></div>'
+   +(o.server?'<p class="note" style="margin:2px 0 6px">Server: <b>'+esc(o.server)+'</b></p>':'')
    +'<ul>'+o.items.map(function(i){var x=[i.opts,i.note].filter(Boolean).join("; ");
      return '<li><span><b>'+i.qty+' ×</b> '+esc(i.name)+(i.who?' for '+esc(i.who):'')+(x?'<small>'+esc(x)+'</small>':'')+(i.prep?'<small>Cooking time '+i.prep+' min</small>':'')+'</span><span class="pr">'+fmtx(i.price*i.qty)+'</span></li>'}).join("")+'</ul>'
    +(o.tip>0?'<div class="orw"><span>Tip</span><span>'+fmtx(o.tip)+'</span></div>':'')
@@ -1629,10 +1669,61 @@ Nourish.ready.then(function(){
   }else if(k==="tables"){dlFile(pre+".csv","text/csv",genCsv(S.tables.slice().sort(function(a,b){return a.n-b.n})));
   }else if(k==="reviews"){dlFile(pre+".csv","text/csv",csvOf(["Date","Table","Stars","Comment"],ratingsList().map(function(x){return [ds(new Date(x.at||0)),x.table,x.stars,x.comment||""]})));
   }else if(k==="backup"){
-   dlFile(pre+".json","application/json",JSON.stringify({exported:new Date().toISOString(),restaurant:S.restaurant,categories:S.categories,dishes:S.dishes,ingredients:S.ingredients,moves:S.moves,tables:S.tables,ledger:S.ledger,orders:myOrders(),reviews:ratingsList()},null,2));
+   dlFile(pre+".json","application/json",JSON.stringify({exported:new Date().toISOString(),restaurant:S.restaurant,categories:S.categories,dishes:S.dishes,ingredients:S.ingredients,moves:S.moves,tables:S.tables,staff:S.staff,ledger:S.ledger,orders:myOrders(),reviews:ratingsList()},null,2));
   }
  }
 
+
+ /* ---------- employees: names, positions and salaries. On-shift servers are shown to diners on the menu page ---------- */
+ var POS=["Server","Cook","Chef","Barista","Cashier","Host","Cleaner","Manager","Other"],stEdit=null;
+ $("stPos").innerHTML=POS.map(function(p){return '<option>'+p+'</option>'}).join("");
+ function resetSt(){$("stForm").reset();stEdit=null;$("stTitle").textContent="Add an employee";$("stSave").textContent="Add employee";$("stCancel").hidden=true}
+ function isSrv(m){return m.position==="Server"}
+ function staff(){
+  var L=S.staff.slice().sort(function(a,b){return (POS.indexOf(a.position)-POS.indexOf(b.position))||String(a.name).localeCompare(String(b.name))});
+  var tot=L.reduce(function(a,m){return a+(+m.salary||0)},0),on=L.filter(function(m){return isSrv(m)&&m.active!==false}).length;
+  var kpi=function(l,v,n){return '<div class="kpi"><span>'+l+'</span><b>'+v+'</b>'+(n?'<span>'+n+'</span>':"")+'</div>'};
+  $("stKpis").innerHTML=kpi("Team members",L.length,"")+kpi("Servers on shift",on,on?"Diners see these names":"Diners see “a member of staff”")+kpi("Monthly payroll",fmt(tot),"");
+  $("stList").innerHTML=L.length?L.map(function(m){
+   var off=m.active===false,bits=[esc(m.position),m.salary?fmt(m.salary)+" / month":"No salary set"];if(m.phone)bits.push(esc(m.phone));if(m.start)bits.push("since "+esc(m.start));
+   return '<div class="srow"><div class="sinfo"><b>'+esc(m.name)+'</b><small>'+bits.join(" · ")+'</small></div>'
+    +'<label class="sw"><input type="checkbox" class="stOnBox" data-id="'+m.id+'"'+(off?"":" checked")+'> On shift</label>'
+    +'<div class="row"><button type="button" class="btn ghost sm" data-sact="edit" data-id="'+m.id+'">Edit</button><button type="button" class="btn del sm" data-sact="del" data-id="'+m.id+'">Remove</button></div></div>'}).join("")
+   :'<div class="empty"><b>No employees yet.</b><br>Add your first one above. Add at least one server so your diners see who will serve them.</div>';
+  $("stPayNote").textContent=tot?"Your team costs "+fmt(tot)+" a month. This adds one “Staff wages” expense for this month to your sales records.":"Add salaries to your employees to record payroll.";
+  $("stPay").disabled=!tot;
+ }
+ $("stForm").addEventListener("submit",function(e){
+  e.preventDefault();var name=$("stName").value.trim();if(!name)return;
+  var o={id:stEdit||uid(),name:name,position:$("stPos").value,salary:Math.max(0,+$("stSal").value||0),phone:$("stTel").value.trim(),start:$("stStart").value||"",active:$("stOn").value==="1"};
+  var was=!!stEdit;
+  if(was)S.staff=S.staff.map(function(x){return x.id===stEdit?o:x});else S.staff.push(o);
+  save();resetSt();staff();flash(was?name+" saved":name+" added");$("stName").focus();
+ });
+ $("stCancel").addEventListener("click",resetSt);
+ $("tab-employees").addEventListener("click",function(e){
+  var b=e.target.closest("[data-sact]");if(!b)return;
+  var m=S.staff.filter(function(x){return x.id===b.dataset.id})[0];if(!m)return;
+  if(b.dataset.sact==="edit"){
+   stEdit=m.id;$("stName").value=m.name;$("stPos").value=m.position;$("stSal").value=m.salary||"";$("stTel").value=m.phone||"";$("stStart").value=m.start||"";$("stOn").value=m.active===false?"0":"1";
+   $("stTitle").textContent="Edit employee";$("stSave").textContent="Save changes";$("stCancel").hidden=false;$("stFold").open=true;$("stForm").scrollIntoView({behavior:"smooth"});$("stName").focus();
+  }else if(b.dataset.sact==="del"){
+   if(!confirm("Remove "+m.name+" from your team?"))return;
+   S.staff=S.staff.filter(function(x){return x.id!==m.id});if(stEdit===m.id)resetSt();save();staff();flash(m.name+" removed");
+  }
+ });
+ $("tab-employees").addEventListener("change",function(e){
+  var c=e.target.closest(".stOnBox");if(!c)return;
+  var m=S.staff.filter(function(x){return x.id===c.dataset.id})[0];if(!m)return;
+  m.active=c.checked;save();staff();flash(m.name+(c.checked?" is on shift":" is off today"));
+ });
+ $("stPay").addEventListener("click",function(){
+  var tot=S.staff.reduce(function(a,m){return a+(+m.salary||0)},0);if(!tot)return;
+  var d=new Date(),key=d.getFullYear()+"-"+pad(d.getMonth()+1),note="Payroll "+key;
+  if(S.ledger.some(function(x){return x.cat==="Staff wages"&&x.note===note})&&!confirm("Salaries for this month are already recorded. Record them again?"))return;
+  S.ledger.push({id:uid(),type:"expense",date:ds(d),cat:"Staff wages",amount:Math.round(tot*100)/100,orders:0,note:note});
+  save();sales();flash("Payroll recorded as an expense");
+ });
 
  /* ---------- top bar: orders bell (red), tables to free, search, side-menu toggle ---------- */
  function bell(){
@@ -1685,6 +1776,7 @@ Nourish.ready.then(function(){
   S.dishes.filter(function(d){return has(d.name)}).slice(0,6).forEach(function(d){out.push({g:"Dishes",t:d.name,s:d.price+" "+S.restaurant.currency,go:function(){showTab("menu");$("fMenuSearch").value=d.name;dishes()}})});
   S.ingredients.filter(function(i){return has(i.name)}).slice(0,6).forEach(function(i){out.push({g:"Stock",t:i.name,s:i.qty+" "+i.unit,go:function(){showTab("inventory");$("fSearch").value=i.name;inventory()}})});
   myOrders().filter(function(o){return has("#"+o.id)||has("order "+o.id)||has("table "+o.table)}).slice(-5).reverse().forEach(function(o){out.push({g:"Orders",t:"Order #"+o.id,s:"Table "+o.table,go:function(){showTab("orders",true)}})});
+  S.staff.filter(function(m){return has(m.name)||has(m.position)}).slice(0,5).forEach(function(m){out.push({g:"Employees",t:m.name,s:m.position,go:function(){showTab("employees",true)}})});
   S.tables.filter(function(t){return has("table "+t.n)||has(t.n)&&/^\d+$/.test(q)}).slice(0,5).forEach(function(t){out.push({g:"Tables",t:"Table "+t.n,s:"",go:function(){showTab("tables",true)}})});
   return out;
  }
