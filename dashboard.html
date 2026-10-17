@@ -274,6 +274,70 @@ main.wrap.nonav>.tabs{display:none}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--leaf);color:var(--on-leaf);font-weight:700;padding:12px 20px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:80}
 .toast[hidden]{display:none}
 </style>
+<style id="ui-polish">
+/* ===== UI polish: CSS only. No markup, IDs, JS, auth or database code touched. ===== */
+html{scroll-behavior:smooth}
+body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+
+/* Header: stays put, soft glass look */
+header{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(10px);backdrop-filter:saturate(1.4) blur(10px)}
+
+/* Inputs: one consistent style, now including the phone field */
+input[type=text],input[type=number],input[type=url],input[type=date],input[type=tel],input[type=email],input[type=password],input[type=search],select,textarea{
+ width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);
+ transition:border-color .15s,box-shadow .15s,background .15s}
+input[type=text]:hover,input[type=number]:hover,input[type=date]:hover,input[type=tel]:hover,select:hover,textarea:hover{border-color:var(--mute)}
+input[type=text]:focus,input[type=number]:focus,input[type=date]:focus,input[type=tel]:focus,input[type=url]:focus,select:focus,textarea:focus{
+ outline:none;border-color:var(--leaf);box-shadow:0 0 0 3px color-mix(in srgb,var(--leaf) 28%,transparent)}
+
+/* Employee form: aligned fields, smaller phone box */
+#stForm .grid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px 16px;align-items:end}
+#stTel{max-width:190px}
+label.f small{min-height:0}
+
+/* Cards, KPIs, buttons */
+.card,.guide,.ocard,.qrc{box-shadow:0 1px 2px rgba(0,0,0,.05),0 6px 18px -10px rgba(0,0,0,.25);transition:box-shadow .2s,border-color .2s}
+.card:hover,.qrc:hover{border-color:color-mix(in srgb,var(--leaf) 35%,var(--line))}
+.kpi{background:var(--card);box-shadow:0 1px 2px rgba(0,0,0,.05);transition:transform .15s,border-color .15s}
+.kpi:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--leaf) 40%,var(--line))}
+.btn{border-radius:11px;box-shadow:0 1px 2px rgba(0,0,0,.12);transition:transform .12s,filter .15s,box-shadow .15s}
+.btn:hover{filter:brightness(1.08);box-shadow:0 4px 12px -4px color-mix(in srgb,var(--leaf) 60%,transparent)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost,.btn.del{box-shadow:none}
+.btn.ghost:hover,.btn.del:hover{background:var(--leaf-t);box-shadow:none}
+h2{letter-spacing:-.02em}
+.dish,.srow,.tg{transition:background .15s}
+
+/* Sidebar polish */
+.tab{transition:background .15s,color .15s}
+.tab[aria-selected=true]{background:var(--leaf-t)}
+.tgrp{font-weight:700;letter-spacing:.12em}
+.tabs,main.wrap{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.tabs::-webkit-scrollbar,main.wrap::-webkit-scrollbar{width:8px}
+.tabs::-webkit-scrollbar-thumb,main.wrap::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+.tabs::-webkit-scrollbar-thumb:hover,main.wrap::-webkit-scrollbar-thumb:hover{background:var(--mute)}
+
+/* ===== Desktop app layout: sidebar and content scroll separately ===== */
+@media screen and (min-width:861px){
+ html,body{height:100%}
+ body{height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+ header{flex:none}
+ main.wrap{
+  flex:1 1 auto;min-height:0;max-width:none;margin:0;
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-gutter:stable;
+  padding:28px max(20px,calc((100vw - 1280px)/2 + 20px)) 72px}
+ main.wrap>.tabs{
+  position:sticky;top:0;align-self:start;
+  max-height:calc(100dvh - 65px - 56px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
+  overflow-y:auto;overscroll-behavior:contain;
+  padding:0 8px 24px 12px;margin-left:-12px}
+}
+@media screen and (max-width:860px){
+ main.wrap>.tabs{border-bottom:1px solid var(--line);scrollbar-width:none}
+ main.wrap>.tabs::-webkit-scrollbar{display:none}
+}
+</style>
+
 </head>
 <body>
 <a class="skip" href="#main">Skip to main content</a>
