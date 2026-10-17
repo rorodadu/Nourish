@@ -1074,7 +1074,12 @@ document.addEventListener("input",function(e){
  var t=e.target;
  if(t.dataset&&t.dataset.note!==undefined&&cart[t.dataset.note]){cart[t.dataset.note].note=t.value;return}
  if(t.id==="cnote"&&cust){cust.note=t.value;return}
- if(t.id==="wtbl"){wTable=t.value.replace(/\D/g,"").slice(0,3);if(t.value!==wTable)t.value=wTable;return}
+ if(t.id==="wtbl"){wTable=t.value.replace(/\D/g,"").slice(0,3);
+  if(PICK){var mt=wTable?tList().filter(function(x){return String(x.n)===String(+wTable)})[0]:null;
+   if(mt){wTable=String(mt.n);wZone=mt.zone||"std"}
+   var wm=$("wtmsg");if(wm)wm.textContent=wTable&&!mt?"Table "+wTable+" isn't free right now. Please pick one below.":"";
+   refreshTables()}
+  if(t.value!==wTable)t.value=wTable;return}
  if(t.id==="wbud"){wBudget=t.value.replace(/\D/g,"").slice(0,6);if(t.value!==wBudget)t.value=wBudget;return}
  if(t.id==="ptip"){pf.tip=t.value.replace(/\D/g,"").slice(0,4);if(t.value!==pf.tip)t.value=pf.tip;pf.tipPct="";var tr=document.querySelectorAll('input[name="tipq"]');for(var q=0;q<tr.length;q++)tr[q].checked=false;updPay();return}
  if(t.id==="psplit"){pf.cardAmt=t.value.replace(/\D/g,"").slice(0,6);if(t.value!==pf.cardAmt)t.value=pf.cardAmt;updPay();return}
@@ -1140,7 +1145,7 @@ function welcomeHTML(){
   '<div class="err" id="perr" role="alert"></div><button type="button" class="send" data-act="pgo">Show me the menu</button></div>';
  var ready=!!(tableNo&&diners.length);
  var top=TABLE?'<h1 id="wtitle">Table '+esc(TABLE)+'</h1><p class="wl">Your table is saved from the QR code.</p>'
-              :PICK?'<h1 id="wtitle">Welcome</h1>'
+              :PICK?'<h1 id="wtitle">Welcome</h1><div class="fld"><label class="t" for="wtbl">At the restaurant? Type your table number</label><input class="num" id="wtbl" type="text" inputmode="numeric" maxlength="3" value="'+esc(wTable)+'" placeholder="e.g. 4"><p class="sub" id="wtmsg" role="status" aria-live="polite" style="margin-top:6px"></p></div>'
               :'<h1 id="wtitle">Welcome</h1><div class="fld"><label class="t" for="wtbl">Your table number</label><input class="num" id="wtbl" type="text" inputmode="numeric" maxlength="3" value="'+esc(wTable)+'" placeholder="e.g. 4"></div>';
  return head+top+
   '<div class="qrow"><b>How many guests?</b><div class="stepper" role="group" aria-label="Guests"><button type="button" data-act="gdec" aria-label="One less guest">−</button><output id="gout" aria-live="polite">'+wGuests+'</output><button type="button" data-act="ginc" aria-label="One more guest">+</button></div></div>'+(PICK?tablesBlock():'')+

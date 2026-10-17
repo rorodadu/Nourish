@@ -221,12 +221,13 @@ details.fold>summary:focus-visible{outline:3px solid var(--leaf);outline-offset:
  <!-- TABLES -->
  <section class="panel" id="tab-tables" role="tabpanel" aria-labelledby="tb-tables" tabindex="-1">
   <h2>Tables and QR codes</h2>
-  <p class="sub">Each table gets its own QR code. Diners scan it and your menu opens with their table number already attached.</p>
+  <p class="sub">One QR code for your whole restaurant. Diners scan it and your menu opens, then they type or pick their table number.</p>
   <div class="card">
    <div class="row">
     <label class="f">How many tables to add<input type="number" id="addN" min="1" max="50" value="1" style="width:120px"></label>
     <button class="btn" data-act="addTables">Add tables</button>
-    <button class="btn ghost" data-act="printQR">Print all QR codes</button>
+    <button class="btn ghost" data-act="printQR">Print QR code</button>
+    <button class="btn ghost" data-act="dlQR">Download QR code</button>
    </div>
    <p class="note" id="qrWarn" style="margin:12px 0 0"></p>
   </div>
@@ -478,7 +479,8 @@ Nourish.ready.then(function(){
  var fmt=function(n){return Math.round(n).toLocaleString("en-US")+" "+cur()};
  var fmtx=function(n){return Number(n).toLocaleString("en-US",{minimumFractionDigits:0,maximumFractionDigits:2})+" "+cur()};
  var slug=function(){return Nourish.mySlug()||Nourish.slug(S.restaurant.name)};
- var menuUrl=function(n){return S.restaurant.baseUrl.replace(/\/+$/,"")+"/menu.html?r="+slug()+"&t="+n};
+ var MENU_BASE="https://rorodadu.github.io/Nourish";
+ var menuUrl=function(){return MENU_BASE+"/menu.html?r="+slug()};
  var optHtml=function(arr,sel){return arr.map(function(o){return '<option'+(o===sel?' selected':'')+'>'+o+'</option>'}).join("")};
 
  /* header */
@@ -520,7 +522,7 @@ Nourish.ready.then(function(){
   if(S.settings.guideHide){box.hidden=true;return}
   var steps=[
    {t:"Add your first dish to the menu",done:S.dishes.length>0,go:"menu",l:"Go to Menu"},
-   {t:"Enter your menu website address",done:S.restaurant.baseUrl.indexOf("yourdomain.com")<0,href:"account.html#restaurant",l:"Go to Manage account"},
+   {t:"Enter your menu website address",done:true,href:"account.html#restaurant",l:"Go to Manage account"},
    {t:"Print the QR codes for your tables",done:!!S.settings.printed,go:"tables",l:"Go to QR codes"}
   ];
   var left=steps.filter(function(s){return !s.done}).length;
@@ -540,11 +542,11 @@ Nourish.ready.then(function(){
  }
  function qrCard(t){
   var url=menuUrl(t.n),svg=qrSvg(url);
-  return '<div class="qrc"><b>Table '+t.n+'</b>'+(svg||'<p class="note">QR library did not load. Check your internet connection.</p>')+'<small>'+esc(url)+'</small>';
+  return '<div class="qrc"><b>'+esc(S.restaurant.name)+'</b>'+(svg||'<p class="note">QR library did not load. Check your internet connection.</p>')+'<small>'+esc(url)+'</small>';
  }
  function tables(){
   S.tables.sort(function(a,b){return a.n-b.n});tblRows();
-  $("qrWarn").innerHTML=S.restaurant.baseUrl.indexOf("yourdomain.com")>-1?'These QR codes point to a placeholder address. Set your real menu address in <a href="account.html#restaurant">Manage account</a> before using them.':"";
+  $("qrWarn").innerHTML="";
  }
 
  var openZ={},tFilt=false;
@@ -840,10 +842,10 @@ Nourish.ready.then(function(){
    for(var i=1;i<=n;i++)S.tables.push({id:uid(),n:next+i});save();tables();
   }else if(a==="delTable"){if(confirm("Remove this table? Its printed QR code will stop matching.")){S.tables=S.tables.filter(function(t){return t.id!==id});save();tables()}}
   else if(a==="dlQR"){
-   var t=S.tables.filter(function(x){return x.id===id})[0],svg=t&&qrSvg(menuUrl(t.n));if(!svg)return;
-   var l=document.createElement("a");l.href=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));l.download="table-"+t.n+"-qr.svg";l.click();URL.revokeObjectURL(l.href);
+   var svg=qrSvg(menuUrl());if(!svg)return;
+   var l=document.createElement("a");l.href=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));l.download=slug()+"-qr.svg";l.click();URL.revokeObjectURL(l.href);
   }else if(a==="printQR"){
-   if(!S.tables.length)return;$("sheet").innerHTML=S.tables.map(function(t){return qrCard(t)+'</div>'}).join("");window.print();
+   $("sheet").innerHTML=qrCard({})+'</div>';window.print();
   }else if(a==="delCat"){
    var cnt=S.dishes.filter(function(d){return d.cat===id}).length;
    if(confirm(cnt?"Delete this category and its "+cnt+" dish(es)?":"Delete this category?")){S.categories=S.categories.filter(function(c){return c.id!==id});S.dishes=S.dishes.filter(function(d){return d.cat!==id});save();cats();dishes()}
@@ -1017,7 +1019,7 @@ Nourish.ready.then(function(){
     +'<select class="tz" aria-label="Position of table '+t.n+'">'+ZONES.map(function(z){return '<option value="'+z[0]+'"'+((t.zone||"std")===z[0]?" selected":"")+'>'+z[1]+'</option>'}).join("")+'</select>'
     +'<input class="ts" type="number" min="1" max="30" placeholder="Seats" aria-label="Seats at table '+t.n+'" value="'+(t.seats||"")+'">'
     +'<input class="tn" type="text" maxlength="40" placeholder="Note (optional)" aria-label="Note for table '+t.n+'" value="'+esc(t.note||"")+'">'
-    +'<div class="checks"><label><input type="checkbox" class="tf"'+(free?" checked":"")+'> Available</label>'+(o?'<span class="st out">Taken</span><button type="button" class="btn ghost sm" data-act="tFree" data-n="'+t.n+'">Free up</button>':(!free?'<span class="st low">Switched off</span>':""))+'</div><div class="row"><button type="button" class="btn ghost sm" data-act="dlQR" data-id="'+t.id+'">Download QR</button><button type="button" class="btn del sm" data-act="delTable" data-id="'+t.id+'" aria-label="Remove table '+t.n+'">Remove</button></div></div>';
+    +'<div class="checks"><label><input type="checkbox" class="tf"'+(free?" checked":"")+'> Available</label>'+(o?'<span class="st out">Taken</span><button type="button" class="btn ghost sm" data-act="tFree" data-n="'+t.n+'">Free up</button>':(!free?'<span class="st low">Switched off</span>':""))+'</div><div class="row"><button type="button" class="btn del sm" data-act="delTable" data-id="'+t.id+'" aria-label="Remove table '+t.n+'">Remove</button></div></div>';
   };
   var sec=function(title,list,cls){return list.length?'<h3 class="tsec '+cls+'">'+title+' <span class="tcount">'+list.length+'</span></h3>'+list.map(row).join(""):""};
   var fz=fzs.value||"all",fsn=+$("fTblSeats").value||0,fq=$("fTblSearch").value.trim().toLowerCase().replace(/^table\s*/,"");
