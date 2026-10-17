@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-config.js?v=3"></script>
-<script src="auth.js?v=3"></script>
+<script src="supabase-config.js"></script>
+<script src="auth.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <style>
 :root{--bg:#f4f8f4;--card:#fff;--ink:#14261c;--mute:#566a5d;--line:#d6e1d7;--leaf:#1f7a4d;--leaf-t:#dff1e6;--citrus:#a86a00;--citrus-t:#fdecc8;--berry:#b8304f;--on-leaf:#fff;--deep:#14261c;--on-deep:#e8f1ea;
@@ -440,10 +440,10 @@ function tList(){return TBL.filter(function(t){return tOpen(t)&&(!t.seats||+t.se
 function tablesBlock(){
  var all=TBL.filter(tOpen),list=tList(),zs=[];
  list.forEach(function(t){var z=t.zone||"std";if(zs.indexOf(z)<0)zs.push(z)});
- if(wZone&&zs.indexOf(wZone)<0)wZone="";
+ if(!wZone||zs.indexOf(wZone)<0)wZone=zs[0]||"";
  var h='<fieldset class="fld" id="tfs"><legend>Your table number</legend>';
  if(!list.length)return h+'<p class="tnone" role="status">'+(all.length?'No free table seats '+wGuests+' guests. Please ask a member of staff.':'No tables are available right now. Please ask a member of staff.')+'</p></fieldset>';
- if(zs.length>1)h+='<div class="zrow" role="group" aria-label="Filter by position">'+[""].concat(zs).map(function(z){return '<button type="button" class="zb" data-act="tzone" data-z="'+esc(z)+'" aria-pressed="'+(wZone===z)+'">'+(z===""?"All":esc(ZL[z]||"Other"))+'</button>'}).join("")+'</div>';
+ if(zs.length>1)h+='<div class="zrow" role="group" aria-label="Filter by position">'+zs.map(function(z){return '<button type="button" class="zb" data-act="tzone" data-z="'+esc(z)+'" aria-pressed="'+(wZone===z)+'">'+esc(ZL[z]||"Other")+'</button>'}).join("")+'</div>';
  var shown=wZone?list.filter(function(t){return (t.zone||"std")===wZone}):list;
  var sel=list.filter(function(t){return String(t.n)===String(wTable)})[0],info="";
  if(sel){var b=[ZL[sel.zone||"std"]||"Other"];if(sel.seats)b.push("seats "+sel.seats);if(sel.note)b.push(sel.note);info="Table "+sel.n+": "+b.join(", ")}
