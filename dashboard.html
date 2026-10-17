@@ -226,11 +226,25 @@ main.wrap>.tabs{grid-column:1;grid-row:1/span 30;position:sticky;top:16px;align-
 .invoice td,.invoice th{padding:7px 0;border-bottom:1px solid #ccc;text-align:left}
 .invoice td:last-child,.invoice th:last-child{text-align:right}
 @media print{#sheet .invoice{grid-column:1/-1}}
+
+.bellwrap{position:relative}
+.bellbtn{position:relative;display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--line);border-radius:12px;background:none;color:var(--mute);cursor:pointer}
+.bellbtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.bellbtn:hover{background:var(--leaf-t);color:var(--ink)}
+.bellbtn.on{color:var(--berry);border-color:var(--berry);animation:bellring 1.6s ease-in-out infinite}
+.belldot{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:var(--berry);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center}
+@keyframes bellring{0%,60%,100%{transform:rotate(0)}10%{transform:rotate(14deg)}20%{transform:rotate(-12deg)}30%{transform:rotate(8deg)}40%{transform:rotate(-6deg)}}
+.bellpanel{position:absolute;right:0;top:52px;width:340px;max-width:calc(100vw - 32px);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:60}
+.bellpanel h3{margin:0 0 6px;font-size:17px}
+.bellpanel .bi{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.bellpanel .bi small{display:block;color:var(--mute)}
 </style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to main content</a>
-<header><div class="wrap"><a class="logo" href="index.html" aria-label="Nourish home">Nourish</a><span class="storebox"><small>Logged in as</small><b id="rname"></b></span><span class="plan" id="plan"></span></div></header>
+<header><div class="wrap"><a class="logo" href="index.html" aria-label="Nourish home">Nourish</a><span class="storebox"><small>Logged in as</small><b id="rname"></b></span><span class="plan" id="plan"></span>
+ <div class="bellwrap"><button type="button" class="bellbtn" id="bellBtn" aria-label="Tables to free up" aria-expanded="false" aria-controls="bellPanel"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 17h12a6 6 0 0 0-12 0z"/><path d="M12 7V5M9 5h6M4 20h16"/></svg><span class="belldot" id="bellDot" hidden>0</span></button>
+  <div class="bellpanel" id="bellPanel" role="region" aria-label="Tables to free up" hidden></div></div></div></header>
 
 <main class="wrap" id="main" tabindex="-1">
  <h1 class="vh">Restaurant dashboard</h1>
@@ -1179,12 +1193,12 @@ Nourish.ready.then(function(){
   var ids=pend.map(function(o){return o.id}),fresh=[];
   if(seen===null)seen=ids.slice();else{fresh=ids.filter(function(i){return seen.indexOf(i)<0});seen=seen.concat(fresh)}
   if(fresh.length){$("ordSay").textContent="New order received: table "+pend.filter(function(o){return o.id===fresh[0]})[0].table+".";if(S.settings.sound)beep()}
-  $("oSound").checked=!!S.settings.sound;ratingsBox();if(synced)sales();
+  $("oSound").checked=!!S.settings.sound;if(synced)sales();
   var sec=function(t,a){return a.length?'<h3 class="osec">'+t+' ('+a.length+')</h3><div class="ogrid">'+a.map(ocard).join("")+'</div>':""};
   var doneBox=done.length?'<details class="fold zone" data-k="o:done"'+(openZ["o:done"]?" open":"")+'><summary>Done orders <span class="tcount">'+done.length+'</span></summary><p class="note" style="margin:0 0 10px">Finished orders stay here for 15 minutes. Orders that still need a cash payment stay until you confirm it.</p><div class="ogrid">'+done.map(ocard).join("")+'</div></details>':"";
   $("ordBox").innerHTML=(pend.length||cook.length||done.length)?sec("New orders",pend)+sec("Cooking",cook)+doneBox
    :'<div class="empty"><b>No orders yet.</b><br>When a diner sends an order from your menu page, it appears here.</div>';
-  refreshActive();
+  bell();refreshActive();
  }
  function tblRows(){
   var fzs=$("fTblZone");
@@ -1236,7 +1250,7 @@ Nourish.ready.then(function(){
  $("oSound").addEventListener("change",function(){S.settings.sound=this.checked;save();if(this.checked)beep()});
  window.addEventListener("storage",function(e){if(e.key===OKEY||e.key===OCCK()){ordersTab();tblRows()}});
  setInterval(ordersTab,15000);
- function pullAll(){Nourish.pullOrders().then(function(c){if(c&&c.orders)ordersTab();if(c&&c.occ)tblRows()})}
+ function pullAll(){Nourish.pullOrders().then(function(c){if(c&&c.orders)ordersTab();if(c&&c.occ){tblRows();bell()}})}
  pullAll();setInterval(pullAll,5000);
 
  function agoTxt(t){var m=Math.max(0,Math.round((Date.now()-t)/60000));return m<60?m+" min ago":m<2880?Math.round(m/60)+" h ago":Math.round(m/1440)+" days ago"}
@@ -1552,6 +1566,27 @@ Nourish.ready.then(function(){
    dlFile(pre+".json","application/json",JSON.stringify({exported:new Date().toISOString(),restaurant:S.restaurant,categories:S.categories,dishes:S.dishes,ingredients:S.ingredients,moves:S.moves,tables:S.tables,ledger:S.ledger,orders:myOrders(),reviews:ratingsList()},null,2));
   }
  }
+
+
+ /* ---------- bell: tables whose order is done and that are still marked Taken ---------- */
+ function bell(){
+  var btn=$("bellBtn");if(!btn)return;
+  var L=myOrders(),occ=jr(OCCK())||{},latest={};
+  L.forEach(function(o){var k=String(o.table);if(!latest[k]||(o.at||0)>(latest[k].at||0))latest[k]=o});
+  var items=Object.keys(occ).filter(function(t){return latest[t]&&latest[t].status==="ready"}).map(function(t){return latest[t]})
+   .sort(function(a,b){return (a.readyAt||a.at||0)-(b.readyAt||b.at||0)});
+  var dot=$("bellDot");dot.hidden=!items.length;dot.textContent=items.length;
+  btn.classList.toggle("on",items.length>0);
+  btn.setAttribute("aria-label",items.length?items.length+" table"+(items.length===1?"":"s")+" to free up":"No tables to free up");
+  $("bellPanel").innerHTML='<h3>Tables to free up</h3>'+(items.length?items.map(function(o){
+   return '<div class="bi"><div><b>Table '+esc(o.table)+'</b><small>Order #'+o.id+' is done'+(o.done?' · the guest has finished':'')+'</small></div><button type="button" class="btn sm" data-act="tFree" data-n="'+esc(o.table)+'">Free table</button></div>'}).join("")
+   :'<p class="note" style="margin:6px 0 0">Nothing to do right now. When an order is done, its table shows up here so you can free it.</p>');
+ }
+ $("bellBtn").addEventListener("click",function(e){
+  e.stopPropagation();var p=$("bellPanel"),open=p.hidden;p.hidden=!open;this.setAttribute("aria-expanded",open);
+ });
+ document.addEventListener("click",function(e){var p=$("bellPanel");if(!p.hidden&&!e.target.closest(".bellwrap")){p.hidden=true;$("bellBtn").setAttribute("aria-expanded","false")}});
+ document.addEventListener("keydown",function(e){var p=$("bellPanel");if(e.key==="Escape"&&!p.hidden){p.hidden=true;$("bellBtn").setAttribute("aria-expanded","false");$("bellBtn").focus()}});
 
  head();checks();cats();tables();dishes();lcats();sales();mvSel();inventory();ordersTab();save();
 });
