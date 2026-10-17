@@ -33,29 +33,32 @@ section{padding:88px 0}
 .btn.sm{padding:9px 16px;font-size:15px;border-radius:10px}
 /* header */
 header{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:color-mix(in srgb,var(--bg) 85%,transparent);-webkit-backdrop-filter:saturate(1.5) blur(12px);backdrop-filter:saturate(1.5) blur(12px);border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
-header .wrap{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:68px;gap:16px}
-.logo{font:800 24px "Bricolage Grotesque",sans-serif;color:var(--leaf);text-decoration:none}
-nav.links{display:flex;gap:30px}nav.links a{text-decoration:none;font-weight:500;font-size:16px;color:var(--ink);opacity:.85}nav.links a:hover{opacity:1;color:var(--leaf)}
-.acts{display:flex;align-items:center;gap:14px;justify-content:flex-end}
-.acts>a.si{text-decoration:none;font-weight:500}
+header .wrap{display:flex;align-items:center;height:68px;gap:20px}
+[hidden]{display:none!important}
+.logo{font:800 24px "Bricolage Grotesque",sans-serif;color:var(--leaf);text-decoration:none;flex:none}
+.links{display:flex;gap:28px;margin:0 auto}.links a{text-decoration:none;font-weight:500;font-size:16px;color:var(--ink);opacity:.85;white-space:nowrap}.links a:hover{opacity:1;color:var(--leaf)}
+.acts{display:flex;align-items:center;gap:10px;flex:none}
+.acts .btn{white-space:nowrap;padding:9px 16px;font-size:15px;border-radius:10px}
+.acct{margin-left:4px}
 .lang{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px}
 .lang button{border:0;background:none;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;color:var(--mute)}
 .lang button[aria-pressed=true]{background:var(--leaf);color:var(--on-leaf)}
 .burger{display:none;width:42px;height:42px;border:1px solid var(--line);border-radius:12px;background:var(--card);cursor:pointer}
 .burger svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
 /* hero */
-.hero{position:relative;padding:76px 0 40px;text-align:center;overflow:hidden}
+.hero{position:relative;padding:64px 0 40px;overflow:hidden}
+.hgrid{position:relative;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
 .hero::before{content:"";position:absolute;inset:-120px 0 auto;height:640px;background:radial-gradient(60% 60% at 50% 0,color-mix(in srgb,var(--leaf) 20%,transparent),transparent 70%);pointer-events:none}
-.hero h1{position:relative;font-size:clamp(44px,8vw,92px);font-weight:800;max-width:14ch;margin:22px auto 0}
+.hero h1{position:relative;font-size:clamp(42px,5.8vw,78px);font-weight:800;max-width:12ch;margin:22px 0 0}
 .grad{background:linear-gradient(100deg,var(--leaf),color-mix(in srgb,var(--leaf) 45%,#e0a21b));-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero .lead{position:relative;font-size:21px;color:var(--mute);max-width:48ch;margin:22px auto 32px}
-.cta{position:relative;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.proof{position:relative;display:flex;gap:10px 28px;justify-content:center;flex-wrap:wrap;margin:26px 0 0;padding:0;list-style:none;color:var(--mute);font-size:15px;font-weight:500}
+.hero .lead{position:relative;font-size:21px;color:var(--mute);max-width:46ch;margin:22px 0 30px}
+.cta{position:relative;display:flex;gap:12px;flex-wrap:wrap}
+.proof{position:relative;display:flex;gap:10px 24px;flex-wrap:wrap;margin:24px 0 0;padding:0;list-style:none;color:var(--mute);font-size:15px;font-weight:500}
 .proof li::before{content:"✓";color:var(--leaf);font-weight:800;margin-right:7px}
-.app{position:relative;max-width:980px;margin:56px auto 0;background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:0 40px 80px -40px rgba(10,40,25,.45);text-align:left;overflow:hidden}
+.app{position:relative;margin:28px 0 0;background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:0 40px 80px -40px rgba(10,40,25,.45);text-align:left;overflow:hidden}
 .app .bar{display:flex;gap:7px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}.app .bar i{width:11px;height:11px;border-radius:50%;background:var(--line)}
 .app .bar span{margin-left:12px;font-size:13px;color:var(--mute)}
-.app .body{display:grid;grid-template-columns:200px 1fr;min-height:300px}
+.app .body{display:grid;grid-template-columns:200px 1fr;min-height:0}
 .app aside{border-right:1px solid var(--line);padding:18px 14px;display:grid;gap:4px;align-content:start;font-size:15px;font-weight:500}
 .app aside b{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:6px 8px}
 .app aside span{padding:8px 10px;border-radius:9px}.app aside span.on{background:var(--leaf-t);color:var(--leaf);font-weight:700}
@@ -64,10 +67,17 @@ nav.links{display:flex;gap:30px}nav.links a{text-decoration:none;font-weight:500
 .o .h{display:flex;justify-content:space-between;align-items:center;font-weight:700;margin-bottom:6px}
 .o p{margin:3px 0;color:var(--mute);font-size:15px}
 .chip{font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--leaf-t);color:var(--leaf)}.chip.w{background:var(--citrus-t);color:var(--citrus)}
-.phone{position:absolute;right:28px;bottom:-30px;width:210px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:14px;box-shadow:0 24px 50px -20px rgba(10,40,25,.5);transform:rotate(3deg)}
-.phone .r{display:flex;justify-content:space-between;font-weight:700;gap:8px}
-.phone .k{display:flex;align-items:center;gap:8px;margin-top:4px}.phone .k b{font:800 24px "Bricolage Grotesque",sans-serif}
-.phone small{color:var(--mute)}
+.stage{position:relative;display:grid;place-items:center;padding:16px 0 54px}
+.tent{width:min(320px,100%);background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px;text-align:center;transform:rotate(-2.5deg);box-shadow:0 30px 60px -30px rgba(10,40,25,.5)}
+.tent b{font:800 24px "Bricolage Grotesque",sans-serif;display:block}.tent small{color:var(--mute)}
+.qr{position:relative;width:200px;height:200px;margin:14px auto;overflow:hidden;border-radius:8px}
+.qr svg{display:block;width:100%;height:100%;fill:var(--ink)}
+.qr::after{content:"";position:absolute;left:0;right:0;height:4px;background:var(--leaf);box-shadow:0 0 14px var(--leaf);animation:scan 2.6s ease-in-out 3}
+@keyframes scan{0%{top:0}50%{top:calc(100% - 4px)}100%{top:0}}
+.peek{position:absolute;right:-6px;bottom:8px;width:252px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;transform:rotate(2deg);box-shadow:0 20px 40px -20px rgba(10,40,25,.5)}
+.peek .r{display:flex;justify-content:space-between;gap:12px;font-weight:700;white-space:nowrap}
+.peek .k{display:flex;align-items:center;gap:8px;margin-top:4px}.peek .k b{font:800 24px "Bricolage Grotesque",sans-serif;white-space:nowrap}
+.peek small{color:var(--mute)}
 /* find */
 .find{padding:56px 0 0}
 .findbox{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:40px}
@@ -117,39 +127,47 @@ details p{color:var(--mute);margin:10px 0 0;max-width:64ch}
 .people small{display:block;color:var(--mute);font-weight:400;font-size:14px}
 footer{border-top:1px solid var(--line);padding:30px 0;color:var(--mute);font-size:15px}
 footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
-@media (max-width:1000px){.mods{grid-template-columns:repeat(2,1fr)}.app .body{grid-template-columns:1fr}.app aside{display:none}.phone{display:none}}
+@media (max-width:1180px){
+ .burger{display:grid;place-items:center;order:3}.acts{margin-left:auto}
+ .links{display:none;position:absolute;left:0;right:0;top:68px;flex-direction:column;gap:0;margin:0;background:var(--bg);border-bottom:1px solid var(--line);padding:8px 22px 16px}
+ .links.open{display:flex}.links a{padding:14px 0;border-top:1px solid var(--line)}
+}
+@media (max-width:1000px){.mods{grid-template-columns:repeat(2,1fr)}.app .body{grid-template-columns:1fr}.app aside{display:none}}
 @media (max-width:900px){
- header .wrap{grid-template-columns:auto 1fr}.burger{display:grid;place-items:center}
- nav.links{display:none;position:absolute;left:0;right:0;top:68px;flex-direction:column;gap:0;background:var(--bg);border-bottom:1px solid var(--line);padding:8px 22px 16px}
- nav.links.open{display:flex}nav.links a{padding:14px 0;border-top:1px solid var(--line)}
- .acts .si{display:none}.findbox,.joinbox,.steps,.plans{grid-template-columns:1fr}.findbox,.joinbox{padding:28px}.people{grid-template-columns:1fr}.orders{grid-template-columns:1fr}
+ .hgrid{grid-template-columns:1fr}.hero h1{max-width:14ch}.peek{right:0}
+ .findbox,.joinbox,.steps,.plans{grid-template-columns:1fr}.findbox,.joinbox{padding:28px}.people{grid-template-columns:1fr}.orders{grid-template-columns:1fr}
  section{padding:64px 0}
 }
-@media (max-width:560px){.mods{grid-template-columns:1fr}.acts .btn{display:none}.ico{margin-bottom:28px}}
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+@media (max-width:560px){.mods{grid-template-columns:1fr}.acts a[href="signup.html"]{display:none}.lang button{padding:5px 9px}.ico{margin-bottom:28px}.peek{position:relative;right:auto;bottom:auto;margin:-24px 0 0 auto}}
+@media (prefers-reduced-motion:reduce){.qr::after{animation:none;display:none}html{scroll-behavior:auto}*{transition:none!important}}
 </style>
 </head>
 <body>
 <header><div class="wrap">
  <a class="logo" href="#top">Nourish</a>
- <nav class="links" id="nav" aria-label="Main">
+ <div class="links" id="nav" role="navigation" aria-label="Main">
   <a href="#features" data-fr="Fonctionnalités">Features</a><a href="#workflow" data-fr="Fonctionnement">Workflow</a><a href="#find" data-fr="Restaurants">Restaurants</a><a href="#pricing" data-fr="Tarifs">Pricing</a><a href="#faq" data-fr="FAQ">FAQ</a>
- </nav>
- <div class="acts">
-  <div class="lang" role="group" aria-label="Language"><button type="button" id="lFR" aria-pressed="false">FR</button><button type="button" id="lEN" aria-pressed="true">EN</button></div>
-  <a class="si" href="login.html" data-fr="Connexion">Sign in</a>
-  <a class="btn sm" href="signup.html" data-fr="Ajouter mon restaurant">Add your restaurant</a>
-  <button class="burger" id="burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
  </div>
+ <nav class="acts" aria-label="Account">
+  <div class="lang" role="group" aria-label="Language"><button type="button" id="lFR" aria-pressed="false">FR</button><button type="button" id="lEN" aria-pressed="true">EN</button></div>
+  <a class="btn sm" href="signup.html" data-fr="Ajouter mon restaurant">Add your restaurant</a>
+ </nav>
+ <button class="burger" id="burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
 </div></header>
 
 <main id="top">
 <section class="hero"><div class="wrap">
- <span class="eyebrow" data-fr="Menus QR pour les restaurants du Maroc">QR menus for restaurants in Morocco</span>
+ <div class="hgrid">
+  <div class="htext"><span class="eyebrow" data-fr="Menus QR pour les restaurants du Maroc">QR menus for restaurants in Morocco</span>
  <h1 data-fr="Scannez la table. <span class='grad'>Commandez</span> ce qui vous convient.">Scan the table. <span class="grad">Order</span> what fits you.</h1>
  <p class="lead" data-fr="Chaque plat affiche ses calories, ses protéines et ses allergènes avant de commander. Aucune application à installer, pas besoin de héler le serveur.">Every dish shows its calories, protein and allergens before you order. No app to install and no waiting to flag down a waiter.</p>
  <div class="cta"><a class="btn" href="#find" data-fr="Trouver mon restaurant">Find my restaurant</a><a class="btn ghost" href="signup.html" data-fr="Je gère un restaurant">I run a restaurant</a></div>
- <ul class="proof"><li data-fr="14 jours d'essai gratuit">14-day free trial</li><li data-fr="Sans application">No app for diners</li><li data-fr="Commandes en direct">Live orders</li></ul>
+ <ul class="proof"><li data-fr="14 jours d'essai gratuit">14-day free trial</li><li data-fr="Sans application">No app for diners</li><li data-fr="Commandes en direct">Live orders</li></ul></div>
+  <div class="stage" aria-hidden="true">
+   <div class="tent"><b>Table 4</b><small data-fr="Scannez pour voir le menu et commander">Scan to see the menu and order</small><div class="qr"><svg id="qr" viewBox="0 0 29 29" shape-rendering="crispEdges"></svg></div><small data-fr="Aucune application">No app needed</small></div>
+   <div class="peek"><div class="r"><span>Grilled Sea Bass</span><span>120 MAD</span></div><div class="k"><b>380 kcal</b><span class="chip">Light</span></div><small>42g protein · Contains fish</small></div>
+  </div>
+ </div>
  <div class="app" aria-hidden="true">
   <div class="bar"><i></i><i></i><i></i><span>nourish · dashboard</span></div>
   <div class="body">
@@ -160,7 +178,6 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
     <div class="o"><div class="h">Table 2<span class="chip">Ready</span></div><p>3 × Pastilla</p><p>Server: Salma</p></div>
    </div>
   </div>
-  <div class="phone"><div class="r"><span>Grilled Sea Bass</span><span>120 MAD</span></div><div class="k"><b>380 kcal</b><span class="chip">Light</span></div><small>42g protein · Contains fish</small></div>
  </div>
 </div></section>
 
@@ -279,6 +296,19 @@ document.getElementById("join-form").addEventListener("submit",function(e){
  ok.textContent=L("You're on the list, "+n+". We'll email "+m+".","Vous êtes sur la liste, "+n+". Nous écrirons à "+m+".");
  ok.style.display="block";f.reset();
 });
+</script>
+<script>
+// Decorative QR-style pattern (not scannable)
+(function(){
+ var n=29,s=7,out="",seed=11;
+ function rnd(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff}
+ function finder(x,y){return '<path fill-rule="evenodd" d="M'+x+' '+y+'h7v7h-7z M'+(x+1)+' '+(y+1)+'v5h5v-5z"/><rect x="'+(x+2)+'" y="'+(y+2)+'" width="3" height="3"/>'}
+ for(var y=0;y<n;y++)for(var x=0;x<n;x++){
+  var inF=(x<8&&y<8)||(x>n-9&&y<8)||(x<8&&y>n-9);
+  if(!inF&&rnd()>.52)out+='<rect x="'+x+'" y="'+y+'" width="1" height="1"/>';
+ }
+ document.getElementById("qr").innerHTML=out+finder(0,0)+finder(n-s,0)+finder(0,n-s);
+})();
 </script>
 <script>
 Nourish.loadPublic().then(function(){
