@@ -182,6 +182,43 @@ details.fold>summary:focus-visible{outline:3px solid var(--leaf);outline-offset:
 .pv{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0}
 .pv th,.pv td{padding:6px 8px;border-top:1px solid var(--line);text-align:left;white-space:nowrap}
 .imp .msg{margin:10px 0 0}.imp .msg.good{color:var(--leaf)}.imp .msg.bad{color:var(--berry)}
+
+/* ---- side navigation ---- */
+main.wrap{max-width:1280px;display:grid;grid-template-columns:240px minmax(0,1fr);column-gap:32px;align-items:start}
+main.wrap>*{grid-column:2}
+main.wrap>.tabs{grid-column:1;grid-row:1/span 30;position:sticky;top:16px;align-self:start}
+.tabs{display:flex;flex-direction:column;flex-wrap:nowrap;gap:2px;border:0;margin:0;padding:0}
+.tgrp{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:500;margin:26px 0 8px 14px}
+.tgrp:first-child{margin-top:0}
+.tab{position:relative;display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;border-radius:10px;padding:10px 14px;min-height:46px;font-size:16px;font-weight:500;color:var(--ink);background:none}
+.tab svg{width:21px;height:21px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tab:hover{background:var(--leaf-t);border-radius:10px;color:var(--ink)}
+.tab[aria-selected=true]{border:0;color:var(--leaf);font-weight:700}
+.tab[aria-selected=true]::before{content:"";position:absolute;left:-10px;top:9px;bottom:9px;width:3px;border-radius:3px;background:var(--leaf)}
+.tab .tabn{margin-left:auto}
+@media (max-width:860px){
+ main.wrap{display:block}
+ main.wrap>.tabs{position:static;flex-direction:row;overflow-x:auto;gap:4px;margin-bottom:20px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+ .tgrp{display:none}
+ .tab{width:auto;flex:none;white-space:nowrap;padding:10px 14px}
+ .tab[aria-selected=true]::before{left:12px;right:12px;top:auto;bottom:0;width:auto;height:3px}
+}
+
+/* ---- order cards ---- */
+.ogrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px;align-items:start}
+.ocard{margin-bottom:0;padding:18px 20px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.ohead{align-items:center;flex-wrap:nowrap}
+.ocard .otb{font-weight:500;font-size:16px;color:var(--mute);margin-left:6px}
+.ocard .st{margin-left:0;white-space:nowrap}
+.st.rec{background:var(--bg);border:1px solid var(--line);color:var(--ink)}
+.ocard ul{margin:14px 0 8px}
+.ocard li{display:flex;justify-content:space-between;gap:12px;border-top:0;padding:5px 0}
+.ocard li .pr{color:var(--mute);white-space:nowrap}
+.ocard .orw{display:flex;justify-content:space-between;color:var(--mute);font-size:15px;padding:4px 0}
+.ocard .otot{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid var(--line);margin-top:8px;padding-top:12px}
+.ocard .otot b{font-size:22px}
+.obtn{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.obtn .btn{width:100%;justify-content:center}
 </style>
 </head>
 <body>
@@ -200,12 +237,14 @@ details.fold>summary:focus-visible{outline:3px solid var(--leaf);outline-offset:
   <ol id="guideList"></ol>
  </section>
 
- <div class="tabs" role="tablist" aria-label="Dashboard sections">
-  <button class="tab" role="tab" id="tb-orders" aria-controls="tab-orders" data-tab="orders" aria-selected="true" tabindex="0">Orders<span class="tabn" id="ordBadge" hidden></span></button>
-  <button class="tab" role="tab" id="tb-tables" aria-controls="tab-tables" data-tab="tables" aria-selected="false" tabindex="-1">Tables and QR codes</button>
-  <button class="tab" role="tab" id="tb-menu" aria-controls="tab-menu" data-tab="menu" aria-selected="false" tabindex="-1">Menu</button>
-  <button class="tab" role="tab" id="tb-inventory" aria-controls="tab-inventory" data-tab="inventory" aria-selected="false" tabindex="-1">Stock<span class="tabn" id="invBadge" hidden></span></button>
-  <button class="tab" role="tab" id="tb-sales" aria-controls="tab-sales" data-tab="sales" aria-selected="false" tabindex="-1">Sales and profit</button>
+ <div class="tabs" role="tablist" aria-label="Dashboard sections" aria-orientation="vertical">
+  <div class="tgrp" role="presentation">Operations</div>
+  <button class="tab" role="tab" id="tb-orders" aria-controls="tab-orders" data-tab="orders" aria-selected="true" tabindex="0"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 12h6M9 16h4"/></svg>Orders<span class="tabn" id="ordBadge" hidden></span></button>
+  <button class="tab" role="tab" id="tb-tables" aria-controls="tab-tables" data-tab="tables" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h3v3M20 14v.01M14 20h.01M17 20h3v-3"/></svg>Tables and QR codes</button>
+  <div class="tgrp" role="presentation">Commerce</div>
+  <button class="tab" role="tab" id="tb-menu" aria-controls="tab-menu" data-tab="menu" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3v7a2 2 0 0 0 2 2v9M10 3v7a2 2 0 0 1-2 2M8 3v5M17 21V3c-2 1-3 4-3 8h3"/></svg>Menu</button>
+  <button class="tab" role="tab" id="tb-inventory" aria-controls="tab-inventory" data-tab="inventory" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 8l9-5 9 5-9 5-9-5z"/><path d="M3 8v8l9 5 9-5V8M12 13v8"/></svg>Stock<span class="tabn" id="invBadge" hidden></span></button>
+  <button class="tab" role="tab" id="tb-sales" aria-controls="tab-sales" data-tab="sales" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 4v16h16"/><path d="M8 17v-5M12 17V8M16 17v-8"/></svg>Sales and profit</button>
  </div>
 
  <!-- ORDERS -->
@@ -987,13 +1026,25 @@ Nourish.ready.then(function(){
   else line="Done "+ago(o.readyAt||o.at)+" min ago";
   var occ=jr(OCCK())||{},btn=o.status==="pending"?'<button class="btn" data-act="oStart" data-id="'+o.id+'">Start cooking</button>'
    :o.status==="preparing"?'<button class="btn" data-act="oDone" data-id="'+o.id+'">Done</button>'
-   :(occ[o.table]?'<button class="btn ghost sm" data-act="tFree" data-n="'+esc(o.table)+'">Free table '+esc(o.table)+'</button>':"");
-  return '<div class="ocard'+(o.status==="pending"?" new":"")+'"><div class="ohead"><h3>Order #'+o.id+' · Table '+esc(o.table)+'</h3><span class="meta">'+line+'</span></div>'
-   +'<p class="meta">'+(t&&t.zone&&t.zone!=="std"?esc(zl(t.zone))+' · ':'')+o.party+(o.party==="1"?" guest":" guests")+(o.server?' · server '+esc(o.server):'')+'</p>'
+   :(occ[o.table]?'<button class="btn ghost" data-act="tFree" data-n="'+esc(o.table)+'">Free table '+esc(o.table)+'</button>':"");
+  var pill=o.status==="pending"?["rec","Received"]:o.status==="preparing"?["low","Cooking"]:["ok","Ready"];
+  var pm=o.payments||[],cash=0,card=0;
+  pm.forEach(function(p){cash+=p.cash!=null?p.cash:(p.method==="card"?0:p.amount);card+=p.card!=null?p.card:(p.method==="card"?p.amount:0)});
+  if(!pm.length){if(o.pay==="card")card=+o.total||0;else cash=+o.total||0}
+  cash=Math.round(cash*100)/100;
+  var payTxt=card>0&&cash>0?"Part card, part cash":cash>0?"Cash":"Card",paid=cash<=0,
+      tm=new Date(o.at||Date.now()),hh=("0"+tm.getHours()).slice(-2)+":"+("0"+tm.getMinutes()).slice(-2),
+      clk='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" style="fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;vertical-align:-3px;margin-right:6px"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+  var info=[(t&&t.zone&&t.zone!=="std"?esc(zl(t.zone)):""),o.party+(o.party==="1"?" guest":" guests"),(o.server?"server "+esc(o.server):"")].filter(Boolean).join(" · ");
+  return '<div class="ocard'+(o.status==="pending"?" new":"")+'"><div class="ohead"><h3>#'+o.id+' <span class="otb">Table '+esc(o.table)+'</span></h3><span class="st '+pill[0]+'">'+pill[1]+'</span></div>'
    +'<ul>'+o.items.map(function(i){var x=[i.opts,i.note].filter(Boolean).join("; ");
-     return '<li><b>'+i.qty+' ×</b> '+esc(i.name)+(i.who?' for '+esc(i.who):'')+(x?'<small>'+esc(x)+'</small>':'')+(i.prep?'<small>Cooking time '+i.prep+' min</small>':'')+'</li>'}).join("")+'</ul>'
-   +'<p class="meta">'+(eta?'Estimated cooking time: '+eta+' min (longest dish). ':'')+'Total '+fmtx(o.total)+', pays '+(o.pay==="card"?"by card":"in cash")+'.</p>'
-   +(o.done?'<p class="meta"><b>The guest has finished'+(o.rating?' and rated '+o.rating+' out of 5':'')+'.</b>'+(o.comment?' "'+esc(o.comment)+'"':'')+'</p>':'')+(btn?'<div class="row" style="margin-top:10px">'+btn+'</div>':"")+'</div>';
+     return '<li><span><b>'+i.qty+' ×</b> '+esc(i.name)+(i.who?' for '+esc(i.who):'')+(x?'<small>'+esc(x)+'</small>':'')+(i.prep?'<small>Cooking time '+i.prep+' min</small>':'')+'</span><span class="pr">'+fmtx(i.price*i.qty)+'</span></li>'}).join("")+'</ul>'
+   +(o.tip>0?'<div class="orw"><span>Tip</span><span>'+fmtx(o.tip)+'</span></div>':'')
+   +'<div class="otot"><b>'+fmtx((+o.total||0)+(+o.tip||0))+'</b><span class="st '+(paid?'ok':'out')+'">'+(paid?'Paid':'Cash due '+fmtx(cash))+'</span></div>'
+   +'<p class="meta">'+clk+hh+' · '+payTxt+'</p>'
+   +(info?'<p class="meta">'+info+'</p>':'')
+   +'<p class="meta">'+line+(eta?' · cooking time about '+eta+' min':'')+'</p>'
+   +(o.done?'<p class="meta"><b>The guest has finished'+(o.rating?' and rated '+o.rating+' out of 5':'')+'.</b>'+(o.comment?' "'+esc(o.comment)+'"':'')+'</p>':'')+(btn?'<div class="obtn">'+btn+'</div>':"")+'</div>';
  }
  function ordersTab(){
   var L=myOrders().sort(function(a,b){return a.at-b.at}),pend=L.filter(function(o){return o.status==="pending"}),
@@ -1003,8 +1054,8 @@ Nourish.ready.then(function(){
   if(seen===null)seen=ids.slice();else{fresh=ids.filter(function(i){return seen.indexOf(i)<0});seen=seen.concat(fresh)}
   if(fresh.length){$("ordSay").textContent="New order received: table "+pend.filter(function(o){return o.id===fresh[0]})[0].table+".";if(S.settings.sound)beep()}
   $("oSound").checked=!!S.settings.sound;ratingsBox();
-  var sec=function(t,a){return a.length?'<h3 class="osec">'+t+' ('+a.length+')</h3>'+a.map(ocard).join(""):""};
-  var doneBox=done.length?'<details class="fold zone" data-k="o:done"'+(openZ["o:done"]?" open":"")+'><summary>Done orders <span class="tcount">'+done.length+'</span></summary><p class="note" style="margin:0 0 10px">Finished orders stay here for 15 minutes, then they leave this screen.</p>'+done.map(ocard).join("")+'</details>':"";
+  var sec=function(t,a){return a.length?'<h3 class="osec">'+t+' ('+a.length+')</h3><div class="ogrid">'+a.map(ocard).join("")+'</div>':""};
+  var doneBox=done.length?'<details class="fold zone" data-k="o:done"'+(openZ["o:done"]?" open":"")+'><summary>Done orders <span class="tcount">'+done.length+'</span></summary><p class="note" style="margin:0 0 10px">Finished orders stay here for 15 minutes, then they leave this screen.</p><div class="ogrid">'+done.map(ocard).join("")+'</div></details>':"";
   $("ordBox").innerHTML=(pend.length||cook.length||done.length)?sec("New orders",pend)+sec("Cooking",cook)+doneBox
    :'<div class="empty"><b>No orders yet.</b><br>When a diner sends an order from your menu page, it appears here.</div>';
  }
