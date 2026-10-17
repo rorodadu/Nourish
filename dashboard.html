@@ -238,6 +238,8 @@ main.wrap>.tabs{grid-column:1;grid-row:1/span 30;position:sticky;top:16px;align-
 .bellpanel h3{margin:0 0 6px;font-size:17px}
 .bellpanel .bi{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
 .bellpanel .bi small{display:block;color:var(--mute)}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--leaf);color:var(--on-leaf);font-weight:700;padding:12px 20px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:80}
+.toast[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -266,12 +268,15 @@ main.wrap>.tabs{grid-column:1;grid-row:1/span 30;position:sticky;top:16px;align-
   <button class="tab" role="tab" id="tb-analytics" aria-controls="tab-analytics" data-tab="analytics" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 4v16h16"/><path d="M8 17v-5M12 17V8M16 17v-8"/></svg>Analytics</button>
   <div class="tgrp" role="presentation">Commerce</div>
   <button class="tab" role="tab" id="tb-menu" aria-controls="tab-menu" data-tab="menu" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3v7a2 2 0 0 0 2 2v9M10 3v7a2 2 0 0 1-2 2M8 3v5M17 21V3c-2 1-3 4-3 8h3"/></svg>Menu</button>
+  <button class="tab" role="tab" id="tb-addmenu" aria-controls="tab-addmenu" data-tab="addmenu" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><path d="M12 8.5v7M8.5 12h7"/></svg>Add menu</button>
   <button class="tab" role="tab" id="tb-inventory" aria-controls="tab-inventory" data-tab="inventory" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 8l9-5 9 5-9 5-9-5z"/><path d="M3 8v8l9 5 9-5V8M12 13v8"/></svg>Stock<span class="tabn" id="invBadge" hidden></span></button>
   <button class="tab" role="tab" id="tb-reviews" aria-controls="tab-reviews" data-tab="reviews" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5l2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-3-5.4 3 1.1-6L3.2 9.9l6.1-.8z"/></svg>Reviews</button>
   <button class="tab" role="tab" id="tb-payments" aria-controls="tab-payments" data-tab="payments" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 15h3"/></svg>Payments</button>
   <button class="tab" role="tab" id="tb-invoices" aria-controls="tab-invoices" data-tab="invoices" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/></svg>Invoices</button>
   <button class="tab" role="tab" id="tb-purchases" aria-controls="tab-purchases" data-tab="purchases" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>Purchases</button>
   <button class="tab" role="tab" id="tb-sales" aria-controls="tab-sales" data-tab="sales" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 4v16h16"/><path d="M8 17v-5M12 17V8M16 17v-8"/></svg>Sales and profit</button>
+  <button class="tab" role="tab" id="tb-addincome" aria-controls="tab-addincome" data-tab="addincome" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="6" width="16" height="12" rx="2"/><path d="M12 9.5v5M9.5 12h5"/></svg>Add income or expense</button>
+  <button class="tab" role="tab" id="tb-history" aria-controls="tab-history" data-tab="history" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/></svg>History</button>
   <div class="tgrp" role="presentation">Data</div>
   <button class="tab" role="tab" id="tb-export" aria-controls="tab-export" data-tab="export" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4v11M8 11l4 4 4-4M5 20h14"/></svg>Export data</button>
  </div>
@@ -314,7 +319,7 @@ main.wrap>.tabs{grid-column:1;grid-row:1/span 30;position:sticky;top:16px;align-
  <!-- MENU -->
  <section class="panel" id="tab-menu" role="tabpanel" aria-labelledby="tb-menu" tabindex="-1">
   <h2>Menu</h2>
-  <p class="sub">Add your food and drinks here. Start with a category (like Starters), then add dishes. Only the name, category and price are required. Everything else is optional.</p>
+  <p class="sub">Your categories and your full menu are here. Start with a category (like Starters), then add dishes from “Add menu”. Only the name, category and price are required. Everything else is optional.</p>
 
   <div class="card">
    <h3>Categories</h3>
@@ -326,7 +331,22 @@ main.wrap>.tabs{grid-column:1;grid-row:1/span 30;position:sticky;top:16px;align-
    </form>
   </div>
 
-  <details class="card fold" id="dishFold">
+
+  <div class="card"><h3>Your menu</h3>
+   <div class="filters">
+    <label class="f">Show<select id="fMenuStatus"><option value="all">All dishes</option><option value="on">Available</option><option value="off">Sold out or switched off</option></select></label>
+    <label class="f">Category<select id="fMenuCat"></select></label>
+    <label class="f">Search<input type="text" id="fMenuSearch" placeholder="Type a name"></label>
+   </div>
+   <div id="dishes"></div></div>
+ </section>
+
+ <!-- ADD MENU -->
+ <section class="panel" id="tab-addmenu" role="tabpanel" aria-labelledby="tb-addmenu" tabindex="-1">
+  <h2>Add menu</h2>
+  <p class="sub">Add your dishes and drinks one at a time, or import a whole menu from an Excel file. Everything you add shows up in the Menu section.</p>
+
+  <details class="card fold" id="dishFold" open>
    <summary id="dishTitle">Add a dish or drink</summary>
    <form id="dishForm">
     <div class="two">
@@ -369,13 +389,6 @@ main.wrap>.tabs{grid-column:1;grid-row:1/span 30;position:sticky;top:16px;align-
 
   <details class="card imp fold" data-kind="dish"></details>
 
-  <div class="card"><h3>Your menu</h3>
-   <div class="filters">
-    <label class="f">Show<select id="fMenuStatus"><option value="all">All dishes</option><option value="on">Available</option><option value="off">Sold out or switched off</option></select></label>
-    <label class="f">Category<select id="fMenuCat"></select></label>
-    <label class="f">Search<input type="text" id="fMenuSearch" placeholder="Type a name"></label>
-   </div>
-   <div id="dishes"></div></div>
  </section>
 
  <!-- INVENTORY -->
@@ -457,7 +470,15 @@ main.wrap>.tabs{grid-column:1;grid-row:1/span 30;position:sticky;top:16px;align-
    <div id="chart" class="chartbox"></div>
   </div>
 
-  <details class="card fold" id="lFold">
+
+ </section>
+
+ <!-- ADD INCOME OR EXPENSE -->
+ <section class="panel" id="tab-addincome" role="tabpanel" aria-labelledby="tb-addincome" tabindex="-1">
+  <h2>Add income or expense</h2>
+  <p class="sub">Record what you earn and what you spend, see where it goes, or import past records from Excel. Your results are in Sales and profit, and every record is listed in History.</p>
+
+  <details class="card fold" id="lFold" open>
    <summary>Add income or an expense</summary>
    <form id="lForm">
     <div class="grid">
@@ -482,6 +503,13 @@ main.wrap>.tabs{grid-column:1;grid-row:1/span 30;position:sticky;top:16px;align-
 
   <details class="card imp fold" data-kind="led"></details>
 
+ </section>
+
+ <!-- HISTORY -->
+ <section class="panel" id="tab-history" role="tabpanel" aria-labelledby="tb-history" tabindex="-1">
+  <h2>History</h2>
+  <p class="sub">Every income and expense you have recorded, including the orders your diners place.</p>
+
   <div class="card">
    <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px">
     <h3 style="margin:0">History</h3>
@@ -493,6 +521,7 @@ main.wrap>.tabs{grid-column:1;grid-row:1/span 30;position:sticky;top:16px;align-
    </div>
    <div id="ledger"></div>
   </div>
+
  </section>
 
  <!-- DASHBOARD -->
@@ -634,12 +663,14 @@ Nourish.ready.then(function(){
  }
 
  /* tabs */
- var TABNAMES={overview:"Dashboard",orders:"Orders",tables:"Tables and QR codes",analytics:"Analytics",menu:"Menu",inventory:"Stock",reviews:"Reviews",payments:"Payments",invoices:"Invoices",purchases:"Purchases",sales:"Sales and profit",export:"Export data"};
+ var flashT;
+ function flash(msg){var t=$("toast");t.textContent=msg;t.hidden=false;clearTimeout(flashT);flashT=setTimeout(function(){t.hidden=true},2600)}
+ var TABNAMES={overview:"Dashboard",orders:"Orders",tables:"Tables and QR codes",analytics:"Analytics",menu:"Menu",inventory:"Stock",reviews:"Reviews",payments:"Payments",invoices:"Invoices",purchases:"Purchases",sales:"Sales and profit",addmenu:"Add menu",addincome:"Add income or expense",history:"History",export:"Export data"};
  function showTab(name,focusPanel){
   var b=document.getElementById("tb-"+name);if(!b)return;
   [].forEach.call(document.querySelectorAll(".tab"),function(t){var on=t===b;t.setAttribute("aria-selected",on);t.tabIndex=on?0:-1});
   [].forEach.call(document.querySelectorAll(".panel"),function(p){p.classList.toggle("on",p.id==="tab-"+name)});
-  if(name==="sales")sales();
+  if(name==="sales"||name==="addincome"||name==="history")sales();
   if(name==="inventory")inventory();
   if(name==="orders")ordersTab();
   if(name==="overview")overview();
@@ -671,7 +702,7 @@ Nourish.ready.then(function(){
   var box=$("guide");
   if(S.settings.guideHide){box.hidden=true;return}
   var steps=[
-   {t:"Add your first dish to the menu",done:S.dishes.length>0,go:"menu",l:"Go to Menu"},
+   {t:"Add your first dish to the menu",done:S.dishes.length>0,go:"addmenu",l:"Go to Add menu"},
    {t:"Enter your menu website address",done:true,href:"account.html#restaurant",l:"Go to Manage account"},
    {t:"Print the QR codes for your tables",done:!!S.settings.printed,go:"tables",l:"Go to QR codes"}
   ];
@@ -753,11 +784,11 @@ Nourish.ready.then(function(){
      +'<button class="btn ghost sm" data-act="editDish" data-id="'+d.id+'">Edit</button><button class="btn del sm" data-act="delDish" data-id="'+d.id+'">Delete</button></div></div>';
    }).join("");
   });
-  $("dishes").innerHTML=out||(S.dishes.length?'<div class="empty">Nothing matches these filters.</div>':'<div class="empty"><b>No dishes yet.</b><br>Press “Add a dish or drink” above to add your first one.</div>');
+  $("dishes").innerHTML=out||(S.dishes.length?'<div class="empty">Nothing matches these filters.</div>':'<div class="empty"><b>No dishes yet.</b><br>Add your first one in <button type="button" class="btn ghost sm" data-act="go" data-go="addmenu">Add menu</button></div>');
  }
  function resetForm(){
   $("dishForm").reset();$("opts").innerHTML="";$("recipe").innerHTML="";editId=null;photoData="";showPhoto();$("dPhMsg").textContent="";$("dishTitle").textContent="Add a dish or drink";
-  $("dSave").textContent="Add to menu";$("dCancel").hidden=true;$("dServes").value=1;$("dishFold").open=false;
+  $("dSave").textContent="Add to menu";$("dCancel").hidden=true;$("dServes").value=1;
  }
 
  /* ---------- INVENTORY ---------- */
@@ -924,14 +955,14 @@ Nourish.ready.then(function(){
   $("ledger").innerHTML=show.length?show.map(function(e){
    var inc=e.type==="income",extra=(e.note?esc(e.note):"")+(e.orders?(e.note?" · ":"")+e.orders+" orders":"");
    return '<div class="led"><div>'+fd(e.date)+'</div><div>'+esc(e.title||e.cat)+'<small>'+(e.dishes?esc(e.dishes):(inc?"Income":"Expense")+(extra?" · "+extra:""))+'</small></div><b class="'+(inc?"in":"out")+'">'+(inc?"+":"−")+fmtx(e.amount)+'</b><button class="btn del sm" data-act="delRec" data-id="'+e.id+'" aria-label="Delete this record">Delete</button></div>';
-  }).join("")+(list.length>60?'<p class="note" style="margin-top:10px">Showing the latest 60 of '+list.length+' records. Export CSV to see all of them.</p>':""):'<div class="empty"><b>No records yet.</b><br>Add your first income or expense above, or load sample data to see how it works.</div>';
+  }).join("")+(list.length>60?'<p class="note" style="margin-top:10px">Showing the latest 60 of '+list.length+' records. Export CSV to see all of them.</p>':""):'<div class="empty"><b>No records yet.</b><br>Add your first income or expense in “Add income or expense”, or load sample data to see how it works.</div>';
   $("clrSample").hidden=!S.ledger.some(function(e){return e.sample});
  }
  function sales(){
   syncOrderSales();
   var p=period(),c=sums(p.from,p.to),pv=p.pf?sums(p.pf,p.pt):null,has=!!(pv&&pv.n>0),v=$("verdict");
   if(!c.n){
-   v.className="verdict flat";v.innerHTML='<b>No records in this period yet</b>Add your income and expenses above, or load sample data to see how the analysis works.';
+   v.className="verdict flat";v.innerHTML='<b>No records in this period yet</b>Add your income and expenses in “Add income or expense”, or load sample data from “History”, to see how the analysis works.';
   }else if(!has){
    v.className="verdict flat";
    v.innerHTML='<b>'+(c.profit>=0?"You made a profit":"You made a loss")+' of '+fmt(Math.abs(c.profit))+'</b>You earned '+fmt(c.inc)+' and spent '+fmt(c.exp)+'.'+(p.pf?" There are no earlier records to compare with yet.":"");
@@ -1014,8 +1045,8 @@ Nourish.ready.then(function(){
    $("opts").innerHTML="";d.opts.forEach(optRow);
    $("recipe").innerHTML="";(d.ing||[]).filter(function(r){return ingById(r.id)}).forEach(recipeRow);
    photoData=d.photo||"";showPhoto();$("dishTitle").textContent="Edit dish";$("dSave").textContent="Save changes";$("dCancel").hidden=false;
-   $("dishFold").open=true;$("dishForm").scrollIntoView({behavior:"smooth"});
-  }else if(a==="cancelEdit")resetForm();
+   showTab("addmenu");$("dishFold").open=true;$("dishForm").scrollIntoView({behavior:"smooth"});
+  }else if(a==="cancelEdit"){resetForm();showTab("menu")}
   else if(a==="delRec"){S.ledger=S.ledger.filter(function(x){return x.id!==id});save();sales()}
   else if(a==="sample"){if(!S.ledger.some(function(x){return x.sample})){S.ledger=S.ledger.concat(sampleData());save();sales()}}
   else if(a==="clearSample"){S.ledger=S.ledger.filter(function(x){return !x.sample});save();sales()}
@@ -1072,7 +1103,7 @@ Nourish.ready.then(function(){
   if(editId){var old=S.dishes.filter(function(x){return x.id===editId})[0];d.available=old?old.available!==false:true;S.dishes=S.dishes.map(function(x){return x.id===editId?d:x})}
   else S.dishes.push(d);
   if(!save()&&d.photo){d.photo="";save();alert("Your browser storage is full, so the dish was saved without its photo. Remove some photos from other dishes and try again.")}
-  resetForm();dishes();inventory();
+  var wasEdit=!!editId;resetForm();dishes();inventory();flash(wasEdit?"Dish saved":"Added to your menu");if(wasEdit)showTab("menu");
  });
  $("ingForm").addEventListener("submit",function(e){
   e.preventDefault();
@@ -1110,7 +1141,7 @@ Nourish.ready.then(function(){
   var inc=$("lType").value==="income";
   S.ledger.push({id:uid(),type:$("lType").value,date:$("lDate").value,cat:$("lCat").value,amount:Math.round(amt*100)/100,
    orders:inc?Math.max(0,Math.floor(+$("lOrd").value||0)):0,note:$("lNote").value.trim()});
-  save();$("lAmt").value="";$("lOrd").value="";$("lNote").value="";sales();$("lAmt").focus();
+  save();$("lAmt").value="";$("lOrd").value="";$("lNote").value="";sales();flash("Record added");$("lAmt").focus();
  });
 
  $("lDate").value=ds(new Date());$("lDate").max=ds(new Date());
@@ -1591,5 +1622,6 @@ Nourish.ready.then(function(){
  head();checks();cats();tables();dishes();lcats();sales();mvSel();inventory();ordersTab();save();
 });
 </script>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>
