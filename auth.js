@@ -150,10 +150,10 @@
   };
 
   /* ---- Supabase sync: the database is the source of truth, localStorage above is a fast cache ---- */
-  var DB = window.nourishDB, warned = false, pend = null, dtimer = null;
+  var DB = window.nourishDB, warned = false, pend = null, dtimer = null, dashLoaded = false;
   function syncFail(e) {
     try { console.warn("Nourish sync:", e); } catch (x) {}
-    if (!warned) { warned = true; alert("We couldn't sync with the cloud. Your changes are saved on this device for now."); }
+    if (!warned) { warned = true; alert("We couldn't save to the cloud just now. Your changes are kept on this device and we'll retry. Please don't clear your browser data yet."); }
   }
   // Loads the logged-in owner's account and dashboard data from Supabase into the cache. Resolves true if an account exists.
   N.refresh = function () {
@@ -172,20 +172,31 @@
         var l = accs().filter(function (y) { return y.id !== a.id; });
         l.push({ id: a.id, email: a.email, owner: a.owner, restaurant: a.restaurant, plan: a.plan, cards: a.cards, invoices: a.invoices, prefs: a.prefs });
         wr(localStorage, ACCS, l);
-        var d = x[1].data;
-        if (d && d.data && Object.keys(d.data).length) wr(localStorage, DK + a.id, d.data);
+        var d = x[1].data, dirtyKey = "nourish-dirty:" + a.id, dirty = false;
+        try { dirty = !!localStorage.getItem(dirtyKey); } catch (e) {}
+        dashLoaded = !x[1].error;
+        var loc = rd(localStorage, DK + a.id);
+        if (dirty && loc) { pend = loc; }   // local changes that never reached the cloud win: never overwrite them
+        else if (d && d.data && Object.keys(d.data).length) wr(localStorage, DK + a.id, d.data);
         if (x[2] && x[2].data && x[2].data.slug) { try { localStorage.setItem("nourish-slug:" + a.id, x[2].data.slug); } catch (e) {} }
         N.login(a.email, true);
+        if (pend) sendDash();
         return true;
       });
     }).catch(function () { return !!N.session(); });
   };
   N.ready = N.refresh();
   function sendDash() {
-    if (!pend || !DB || !N.uid) return;
-    var d = pend; pend = null;
-    DB.from("dash").upsert({ account_id: N.uid, data: d, updated_at: new Date().toISOString() })
-      .then(function (r) { if (r.error) syncFail(r.error); publishMenu(d); });
+    if (!pend || !DB || !N.uid || !dashLoaded) return;   // never write before we have seen the cloud copy
+    var d = pend, me = N.uid; pend = null;
+    Promise.resolve(DB.from("dash").upsert({ account_id: me, data: d, updated_at: new Date().toISOString() })).then(function (r) {
+      if (r.error) {   // keep the changes marked as unsynced and try again shortly
+        if (!pend) pend = d;
+        syncFail(r.error); clearTimeout(dtimer); dtimer = setTimeout(sendDash, 10000); return;
+      }
+      try { localStorage.removeItem("nourish-dirty:" + me); } catch (e) {}
+      publishMenu(d);
+    }).catch(function (e) { if (!pend) pend = d; syncFail(e); clearTimeout(dtimer); dtimer = setTimeout(sendDash, 10000); });
   }
   // The public copy of the menu: only what diners need (no sales, stock or recipes).
   function publishMenu(d) {
@@ -214,6 +225,7 @@
   }
   N.saveDash = function (data, now) {
     if (!DB || !N.uid) return;
+    try { localStorage.setItem("nourish-dirty:" + N.uid, "1"); } catch (e) {}   // cleared only after the cloud confirms
     pend = data; clearTimeout(dtimer);
     if (now) sendDash(); else dtimer = setTimeout(sendDash, 800);
   };
