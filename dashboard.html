@@ -238,15 +238,49 @@ main.wrap>.tabs{grid-column:1;grid-row:1/span 30;position:sticky;top:16px;align-
 .bellpanel h3{margin:0 0 6px;font-size:17px}
 .bellpanel .bi{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
 .bellpanel .bi small{display:block;color:var(--mute)}
+header .wrap{max-width:1280px}
+.hbtn{display:grid;place-items:center;flex:none;width:40px;height:40px;border:0;border-radius:10px;background:none;color:var(--mute);cursor:pointer}
+.hbtn:hover{background:var(--leaf-t);color:var(--ink)}
+.hbtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.crumbs{display:flex;align-items:center;gap:8px;min-width:0;color:var(--mute);font-size:16px;white-space:nowrap;margin-left:6px}
+.crumbs #rname{font-weight:500;font-size:16px;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.crumbs .chev{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.crumbs b{color:var(--ink);font-weight:700}
+.hsearch{position:relative;margin-left:auto;flex:0 1 340px;min-width:0}
+.hsearch>svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;fill:none;stroke:var(--mute);stroke-width:1.8;stroke-linecap:round;pointer-events:none}
+.hsearch input{width:100%;height:42px;border:1px solid var(--line);border-radius:12px;background:var(--bg);padding:0 66px 0 38px;font:inherit;font-size:16px;color:var(--ink)}
+.hsearch kbd{position:absolute;right:10px;top:50%;transform:translateY(-50%);font:600 12px Figtree,system-ui,sans-serif;color:var(--mute);border:1px solid var(--line);border-radius:7px;padding:2px 7px;background:var(--card);pointer-events:none}
+.gslist{position:absolute;left:0;right:0;top:48px;min-width:280px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);padding:6px;max-height:60vh;overflow:auto;z-index:70}
+.gslist .gh{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);padding:8px 10px 4px}
+.gslist button{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;border:0;background:none;border-radius:8px;padding:10px;color:var(--ink);font:inherit;cursor:pointer}
+.gslist button:hover,.gslist button[aria-selected=true]{background:var(--leaf-t)}
+.gslist small{color:var(--mute)}
+.gsnone{padding:12px 10px;color:var(--mute)}
+.bellbtn.tbl.on{color:var(--citrus);border-color:var(--citrus);animation:none}
+.bellbtn.tbl .belldot{background:var(--citrus);color:var(--on-leaf)}
+.bellpanel .bi .btn{flex:none}
+main.wrap.nonav{grid-template-columns:minmax(0,1fr)}
+main.wrap.nonav>*{grid-column:1}
+main.wrap.nonav>.tabs{display:none}
+@media (max-width:860px){.crumbs,header .plan{display:none}}
+@media (max-width:560px){.logo{display:none}.hsearch kbd{display:none}.hsearch input{padding-right:12px}header .wrap{gap:8px}}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--leaf);color:var(--on-leaf);font-weight:700;padding:12px 20px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:80}
 .toast[hidden]{display:none}
 </style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to main content</a>
-<header><div class="wrap"><a class="logo" href="index.html" aria-label="Nourish home">Nourish</a><span class="storebox"><small>Logged in as</small><b id="rname"></b></span><span class="plan" id="plan"></span>
- <div class="bellwrap"><button type="button" class="bellbtn" id="bellBtn" aria-label="Tables to free up" aria-expanded="false" aria-controls="bellPanel"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 17h12a6 6 0 0 0-12 0z"/><path d="M12 7V5M9 5h6M4 20h16"/></svg><span class="belldot" id="bellDot" hidden>0</span></button>
-  <div class="bellpanel" id="bellPanel" role="region" aria-label="Tables to free up" hidden></div></div></div></header>
+<header><div class="wrap">
+ <button type="button" class="hbtn" id="navToggle" aria-label="Hide the side menu" aria-pressed="false" title="Hide or show the side menu"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="5" width="16" height="14" rx="2.5"/><path d="M9.5 5v14"/></svg></button>
+ <a class="logo" href="index.html" aria-label="Nourish home">Nourish</a>
+ <div class="crumbs" aria-label="You are here"><span id="rname"></span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg><b id="crSec">Orders</b></div>
+ <span class="plan" id="plan"></span>
+ <div class="hsearch" role="search"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg><label class="vh" for="gs">Search the dashboard</label><input type="text" id="gs" role="combobox" aria-expanded="false" aria-controls="gsList" aria-autocomplete="list" autocomplete="off" placeholder="Search dishes, stock, orders"><kbd id="gsKey" aria-hidden="true">Ctrl K</kbd><div class="gslist" id="gsList" role="listbox" aria-label="Search results" hidden></div></div>
+ <div class="bellwrap"><button type="button" class="bellbtn" id="ordBell" aria-label="No new orders" aria-expanded="false" aria-controls="ordPanel"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 17h12a6 6 0 0 0-12 0z"/><path d="M12 7V5M9 5h6M4 20h16"/></svg><span class="belldot" id="ordDot" hidden>0</span></button>
+  <div class="bellpanel" id="ordPanel" role="region" aria-label="New orders" hidden></div></div>
+ <div class="bellwrap"><button type="button" class="bellbtn tbl" id="bellBtn" aria-label="No tables to free up" aria-expanded="false" aria-controls="bellPanel"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="9" width="16" height="3" rx="1.2"/><path d="M7 12v7M17 12v7M8.5 6h7"/></svg><span class="belldot" id="bellDot" hidden>0</span></button>
+  <div class="bellpanel" id="bellPanel" role="region" aria-label="Tables to free up" hidden></div></div>
+</div></header>
 
 <main class="wrap" id="main" tabindex="-1">
  <h1 class="vh">Restaurant dashboard</h1>
@@ -682,6 +716,7 @@ Nourish.ready.then(function(){
   if(name==="export")exportTab();
   if(name==="tables")tables();
   $("announce").textContent=TABNAMES[name]+" section";
+  $("crSec").textContent=TABNAMES[name];
   if(focusPanel){var h=document.querySelector("#tab-"+name+" > h2");if(h){h.tabIndex=-1;h.focus()}}
   try{sessionStorage.setItem("nourish-dash-tab",name)}catch(e){}
  }
@@ -1599,25 +1634,89 @@ Nourish.ready.then(function(){
  }
 
 
- /* ---------- bell: tables whose order is done and that are still marked Taken ---------- */
+ /* ---------- top bar: orders bell (red), tables to free, search, side-menu toggle ---------- */
  function bell(){
-  var btn=$("bellBtn");if(!btn)return;
-  var L=myOrders(),occ=jr(OCCK())||{},latest={};
+  var L=myOrders(),occ=jr(OCCK())||{};
+  /* red bell: orders waiting to be started */
+  var pend=L.filter(function(o){return o.status==="pending"}).sort(function(x,y){return x.at-y.at});
+  var ob=$("ordBell"),od=$("ordDot");
+  od.hidden=!pend.length;od.textContent=pend.length;ob.classList.toggle("on",pend.length>0);
+  ob.setAttribute("aria-label",pend.length?pend.length+" new order"+(pend.length===1?"":"s"):"No new orders");
+  $("ordPanel").innerHTML='<h3>New orders</h3>'+(pend.length?pend.slice(0,6).map(function(o){
+   return '<div class="bi"><div><b>Table '+esc(o.table)+' · #'+o.id+'</b><small>Received '+agoTxt(o.at)+'</small></div><button type="button" class="btn sm" data-act="oStart" data-id="'+o.id+'">Start cooking</button></div>'}).join("")
+   +(pend.length>6?'<p class="note" style="margin:8px 0 0">and '+(pend.length-6)+' more</p>':"")
+   +'<button type="button" class="btn ghost sm" data-act="go" data-go="orders" style="margin-top:10px;width:100%;justify-content:center">Open all orders</button>'
+   :'<p class="note" style="margin:6px 0 0">No new orders. When a diner sends one, this bell turns red.</p>');
+  /* tables icon: guests are done, the table stays here until you free it */
+  var latest={};
   L.forEach(function(o){var k=String(o.table);if(!latest[k]||(o.at||0)>(latest[k].at||0))latest[k]=o});
-  var items=Object.keys(occ).filter(function(t){return latest[t]&&latest[t].status==="ready"}).map(function(t){return latest[t]})
-   .sort(function(a,b){return (a.readyAt||a.at||0)-(b.readyAt||b.at||0)});
-  var dot=$("bellDot");dot.hidden=!items.length;dot.textContent=items.length;
+  var items=Object.keys(occ).filter(function(t){var l=latest[t];return l&&(l.status==="ready"||l.done)}).map(function(t){return latest[t]})
+   .sort(function(x,y){return (x.readyAt||x.at||0)-(y.readyAt||y.at||0)});
+  var dot=$("bellDot"),btn=$("bellBtn");dot.hidden=!items.length;dot.textContent=items.length;
   btn.classList.toggle("on",items.length>0);
   btn.setAttribute("aria-label",items.length?items.length+" table"+(items.length===1?"":"s")+" to free up":"No tables to free up");
   $("bellPanel").innerHTML='<h3>Tables to free up</h3>'+(items.length?items.map(function(o){
-   return '<div class="bi"><div><b>Table '+esc(o.table)+'</b><small>Order #'+o.id+' is done'+(o.done?' · the guest has finished':'')+'</small></div><button type="button" class="btn sm" data-act="tFree" data-n="'+esc(o.table)+'">Free table</button></div>'}).join("")
-   :'<p class="note" style="margin:6px 0 0">Nothing to do right now. When an order is done, its table shows up here so you can free it.</p>');
+   return '<div class="bi"><div><b>Table '+esc(o.table)+'</b><small>'+(o.done?'The guest has finished':'Order #'+o.id+' is done')+'</small></div><button type="button" class="btn sm" data-act="tFree" data-n="'+esc(o.table)+'">Free table</button></div>'}).join("")
+   +(items.length>1?'<button type="button" class="btn ghost sm" data-act="tFreeAll" style="margin-top:10px;width:100%;justify-content:center">Free all '+items.length+' tables</button>':"")
+   :'<p class="note" style="margin:6px 0 0">No tables waiting. When a guest is done, their table is stacked here until you free it.</p>');
  }
- $("bellBtn").addEventListener("click",function(e){
-  e.stopPropagation();var p=$("bellPanel"),open=p.hidden;p.hidden=!open;this.setAttribute("aria-expanded",open);
+ var panels=[["ordBell","ordPanel"],["bellBtn","bellPanel"]];
+ function closePanels(except){panels.forEach(function(p){if(p[0]===except)return;$(p[1]).hidden=true;$(p[0]).setAttribute("aria-expanded","false")})}
+ panels.forEach(function(p){$(p[0]).addEventListener("click",function(e){
+  e.stopPropagation();closeSearch();var pn=$(p[1]),open=pn.hidden;closePanels(p[0]);pn.hidden=!open;this.setAttribute("aria-expanded",open);
+ })});
+ document.addEventListener("click",function(e){if(!e.target.closest(".bellwrap"))closePanels();if(!e.target.closest(".hsearch"))closeSearch()},true);
+ $("ordPanel").addEventListener("click",function(e){if(e.target.closest('[data-act="go"]'))closePanels()});
+ $("bellPanel").addEventListener("click",function(e){
+  if(!e.target.closest('[data-act="tFreeAll"]'))return;
+  var o=jr(OCCK())||{};
+  [].forEach.call($("bellPanel").querySelectorAll('[data-act="tFree"]'),function(x){delete o[x.dataset.n];Nourish.freeTable(x.dataset.n)});
+  try{localStorage.setItem(OCCK(),JSON.stringify(o))}catch(x){}
+  tblRows();ordersTab();
  });
- document.addEventListener("click",function(e){var p=$("bellPanel");if(!p.hidden&&!e.target.closest(".bellwrap")){p.hidden=true;$("bellBtn").setAttribute("aria-expanded","false")}});
- document.addEventListener("keydown",function(e){var p=$("bellPanel");if(e.key==="Escape"&&!p.hidden){p.hidden=true;$("bellBtn").setAttribute("aria-expanded","false");$("bellBtn").focus()}});
+
+ /* search: sections, dishes, stock, orders and tables */
+ var gs=$("gs"),gl=$("gsList"),gsI=[],gsA=-1;
+ $("gsKey").textContent=/Mac|iPhone|iPad/.test(navigator.platform||"")?"⌘K":"Ctrl K";
+ function gsBuild(q){
+  q=q.trim().toLowerCase();var out=[],has=function(x){return String(x==null?"":x).toLowerCase().indexOf(q)>-1};
+  Object.keys(TABNAMES).forEach(function(k){if(!q||has(TABNAMES[k]))out.push({g:"Sections",t:TABNAMES[k],s:"",go:function(){showTab(k,true)}})});
+  if(!q)return out;
+  S.dishes.filter(function(d){return has(d.name)}).slice(0,6).forEach(function(d){out.push({g:"Dishes",t:d.name,s:d.price+" "+S.restaurant.currency,go:function(){showTab("menu");$("fMenuSearch").value=d.name;dishes()}})});
+  S.ingredients.filter(function(i){return has(i.name)}).slice(0,6).forEach(function(i){out.push({g:"Stock",t:i.name,s:i.qty+" "+i.unit,go:function(){showTab("inventory");$("fSearch").value=i.name;inventory()}})});
+  myOrders().filter(function(o){return has("#"+o.id)||has("order "+o.id)||has("table "+o.table)}).slice(-5).reverse().forEach(function(o){out.push({g:"Orders",t:"Order #"+o.id,s:"Table "+o.table,go:function(){showTab("orders",true)}})});
+  S.tables.filter(function(t){return has("table "+t.n)||has(t.n)&&/^\d+$/.test(q)}).slice(0,5).forEach(function(t){out.push({g:"Tables",t:"Table "+t.n,s:"",go:function(){showTab("tables",true)}})});
+  return out;
+ }
+ function gsDraw(){
+  var q=gs.value;gsI=gsBuild(q);gsA=gsI.length?0:-1;
+  var g="",h="";
+  gsI.forEach(function(it,i){if(it.g!==g){g=it.g;h+='<div class="gh" role="presentation">'+g+'</div>'}
+   h+='<button type="button" role="option" id="gso'+i+'" data-i="'+i+'" aria-selected="'+(i===gsA)+'"><span>'+esc(it.t)+'</span><small>'+esc(it.s)+'</small></button>'});
+  gl.innerHTML=h||'<div class="gsnone">Nothing found for “'+esc(q.trim())+'”.</div>';
+  gl.hidden=false;gs.setAttribute("aria-expanded","true");
+ }
+ function closeSearch(){gl.hidden=true;gs.setAttribute("aria-expanded","false")}
+ function gsPick(i){var it=gsI[i];if(!it)return;closeSearch();gs.value="";gs.blur();it.go()}
+ function gsMark(){[].forEach.call(gl.querySelectorAll("[data-i]"),function(b){var on=+b.dataset.i===gsA;b.setAttribute("aria-selected",on);if(on){b.scrollIntoView({block:"nearest"});gs.setAttribute("aria-activedescendant",b.id)}})}
+ gs.addEventListener("input",gsDraw);gs.addEventListener("focus",function(){closePanels();gsDraw()});
+ gs.addEventListener("keydown",function(e){
+  if(e.key==="ArrowDown"||e.key==="ArrowUp"){if(gl.hidden)gsDraw();else if(gsI.length){gsA=(gsA+(e.key==="ArrowDown"?1:-1)+gsI.length)%gsI.length;gsMark()}e.preventDefault()}
+  else if(e.key==="Enter"){gsPick(gsA<0?0:gsA);e.preventDefault()}
+  else if(e.key==="Escape"){closeSearch();gs.blur()}
+ });
+ gl.addEventListener("mousedown",function(e){e.preventDefault()});
+ gl.addEventListener("click",function(e){var b=e.target.closest("[data-i]");if(b)gsPick(+b.dataset.i)});
+ document.addEventListener("keydown",function(e){
+  if((e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==="k"){e.preventDefault();gs.focus();gs.select()}
+  else if(e.key==="Escape"){closePanels()}
+ });
+
+ /* side menu toggle */
+ var mainEl=$("main");
+ function navSet(hide){mainEl.classList.toggle("nonav",hide);var t=$("navToggle");t.setAttribute("aria-pressed",hide);t.setAttribute("aria-label",hide?"Show the side menu":"Hide the side menu");try{localStorage.setItem("nourish-nav-hidden",hide?"1":"")}catch(e){}}
+ $("navToggle").addEventListener("click",function(){navSet(!mainEl.classList.contains("nonav"))});
+ try{if(localStorage.getItem("nourish-nav-hidden"))navSet(true)}catch(e){}
 
  head();checks();cats();tables();dishes();lcats();sales();mvSel();inventory();ordersTab();save();
 });
