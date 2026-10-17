@@ -490,7 +490,7 @@ function tableQR(o){
   :cashAny?"Show this code to the person at reception to pay and be seated. Your cash payment is due at reception."
   :"Show this code to the person at reception.";
  return '<div class="tqr"><button type="button" class="qrtog" data-act="qrtog" aria-expanded="'+qrOpen+'" aria-controls="qrbody">'+
-  '<span class="pl" aria-hidden="true">+</span><span><b>Your table QR code</b><small>Table '+esc(o.table)+' · Tap to '+(qrOpen?'hide':'show')+'</small></span></button>'+
+  '<span class="pl" aria-hidden="true">+</span><span><b>Your table QR code</b><small>Table '+esc(o.table)+' · Tap to '+(qrOpen?'hide':'show')+'</small></span></button><button type="button" class="send ghost" data-act="receipt" style="margin-top:12px">Download receipt</button>'+
   (qrOpen?'<div class="qrbody" id="qrbody">'+(svg?'<div class="qrbox">'+svg+'</div>':'')+
   '<p class="wl"><b>Payment: '+esc(pt)+'</b></p><p class="wl">'+msg+'</p></div>':'')+'</div>';
 }
@@ -704,6 +704,38 @@ function renderGoal(){
 
 /* ---------- orders (saved in this browser for the demo) ---------- */
 function orders(){return rd(localStorage,"nourish-orders")||[]}
+function receiptPNG(){
+ var o=activeOrder();if(!o)return;
+ var W=600,P=32,S=2,F="Figtree,system-ui,sans-serif",rows=[],cv=document.createElement("canvas"),x=cv.getContext("2d");
+ function font(r){return (r.b?"700 ":"400 ")+r.sz+"px "+F}
+ function fit(t,w,r){x.font=font(r);t=String(t);if(x.measureText(t).width<=w)return t;while(t.length>1&&x.measureText(t+"…").width>w)t=t.slice(0,-1);return t+"…"}
+ function add(l,r,sz,b,c){rows.push({l:l,r:r||"",sz:sz||18,b:!!b,c:c||"#1b2b22"})}
+ function gap(h){rows.push({gap:h})}
+ function rule(){rows.push({rule:1})}
+ add(RNAME,"",28,true);add("Table "+o.table+" · Order #"+o.id,"",17,false,"#556");add(new Date(o.at||Date.now()).toLocaleString(),"",15,false,"#556");gap(6);rule();
+ o.items.forEach(function(i){
+  add(i.qty+" × "+i.name,mad(i.price*i.qty),18,false);
+  var sub=[i.who?"for "+i.who:"",i.opts,i.note].filter(Boolean).join("; ");if(sub)add(sub,"",14,false,"#667");
+ });
+ rule();add("Dishes",mad(o.total),18,false);
+ if(o.tip>0)add("Tip",mad(o.tip),18,false);
+ add("Total",mad(o.total+(o.tip||0)),24,true);gap(6);rule();
+ (o.payments||[]).forEach(function(p){add(p.by+": "+payDesc(p),"",15,false,"#445")});
+ gap(8);add("Thank you for dining with us!","",16,false,"#556");
+ var H=P*2;rows.forEach(function(r){H+=r.gap?r.gap:r.rule?16:r.sz+10});
+ cv.width=W*S;cv.height=H*S;x.scale(S,S);x.fillStyle="#fff";x.fillRect(0,0,W,H);x.textBaseline="top";
+ var y=P;
+ rows.forEach(function(r){
+  if(r.gap){y+=r.gap;return}
+  if(r.rule){x.strokeStyle="#cfd8d2";x.lineWidth=1;x.beginPath();x.moveTo(P,y+8);x.lineTo(W-P,y+8);x.stroke();y+=16;return}
+  x.font=font(r);x.fillStyle=r.c;
+  var rw=r.r?(x.measureText(r.r).width+12):0;
+  x.textAlign="left";x.fillText(fit(r.l,W-P*2-rw,r),P,y);
+  if(r.r){x.textAlign="right";x.fillText(r.r,W-P,y)}
+  y+=r.sz+10;
+ });
+ cv.toBlob(function(b){if(!b)return;var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="receipt-order-"+o.id+".png";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},2000)},"image/png");
+}
 function activeOrder(){
  var id=rd(sessionStorage,"nourish-diner-order");if(!id)return null;
  return orders().filter(function(x){return x.id===id&&x.r===RID})[0]||null;
@@ -1026,6 +1058,7 @@ document.addEventListener("click",function(e){
  if(act==="sendorder"){sendOrder();return}
  if(act==="star"){var tx0=$("rcom");if(tx0)rateText=tx0.value;rateStar=+b.dataset.v;drawSheet('.st[aria-checked="true"]');var tx1=$("rcom");if(tx1)tx1.value=rateText;return}
  if(act==="qrtog"){qrOpen=!qrOpen;drawSheet('[data-act="qrtog"]');return}
+ if(act==="receipt"){receiptPNG();return}
  if(act==="imdone"){finishVisit();return}
  if(act==="newround"){closeSheet();startRound();return}
  if((act==="inc"||act==="custom")&&stage!=="order"){if(stage==="pay")openSheet("pay");else startRound();return}
